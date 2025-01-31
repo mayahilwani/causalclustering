@@ -14,6 +14,10 @@ from combinator import Combinator
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.metrics import adjusted_mutual_info_score
+import math
+from sklearn.cluster import KMeans
 
 
 class Spot:
@@ -22,12 +26,13 @@ class Spot:
         self.slope_ = Slope();
         self.vars = np.zeros((5, 5));
         self.gt = np.zeros((5, 5));
+        self.attributes = [];
         self.M = max_int;
         self.log_path = "./logs/log_" + str(datetime.now(tz=None)).replace(' ', '_') + ".txt";
         self.log_flag = log_results;
         self.verbose = vrb;
         self.filename = "";
-        self.result = np.zeros((10, 6000));
+        self.result = None;
         self.split = np.zeros(10);
         self.scoref = np.zeros(10); # score full
         self.scores = np.zeros(10); # score split
@@ -37,6 +42,7 @@ class Spot:
         self.V = dims;
         self.ordering = np.zeros(10)
         self.foundIntv = []
+        self.intv = []
         #self.M = M;
         if self.log_flag:
             print("Saving results to: ", self.log_path)
@@ -44,34 +50,51 @@ class Spot:
 
     def loadData(self, filename):
         try:
-            base_path = "C:/Users/ziadh/Documents/CausalGen-Osman"
-            self.filename = base_path + "/" + filename;
+            self.filename = filename;
             gt_file = f"{self.filename}/truth1.txt"
             gt = np.loadtxt(gt_file, delimiter=',')
             data_file1 = f"{self.filename}/data1.txt"
-            data_file2 = f"{self.filename}/dataintv1.txt"
+            #data_file2 = f"{self.filename}/dataintv1.txt"
+            data_file3 = f"{self.filename}/interventions1.txt"
             data1 = np.loadtxt(data_file1, delimiter=',')
-            data2 = np.loadtxt(data_file2, delimiter=',')
-            if data1.shape[1] != data2.shape[1]:
-                raise ValueError("The two files must have the same number of columns for vertical concatenation.")
-            variables = np.vstack((data1, data2))
-            print('DATA SHAPE: ' + str(variables.shape))
-            #plot_residuals(gt, data)
+            #data2 = np.loadtxt(data_file2, delimiter=',')
+            intvs = np.loadtxt(data_file3, delimiter=',', dtype=int)
+            try:
+                intvs = np.loadtxt(data_file3, delimiter=',', dtype=int)
+            except ValueError as e:
+                #print(f"Error: File empty: {e}")
+                intvs = []  # Or handle as needed
+            #if data1.shape[1] != data2.shape[1]:
+            #    raise ValueError("The two files must have the same number of columns for vertical concatenation.")
+            #variables = np.vstack((data1, data2))
+            variables = data1
+            attributes_file = f"{self.filename}/attributes1.txt"
+            with open(attributes_file, "r") as atts:
+                lines = atts.readlines()
+                values = lines[1].strip()  # Second line contains the values
+                # Convert the values to a list (optional)
+                attributes = values.split(", ")
 
         except Exception as e:
             print(f"An error occurred: {e}")
-
+        self.attributes = attributes;
         self.vars = variables;
         self.gt = gt;
+        self.intv = intvs
 
-    def run(self):
+    def run(self, needed_nodes = []):
+        if not needed_nodes:
+            nodestats_file = f"{self.filename}/node_STATS.txt"
+            with open(nodestats_file, "w") as stats:
+                stats.write("id, num_parents, true_split, found_split, score_diff, num_iter, method_acc, gmm_acc, kmeans_acc\n")
+
         # Standardize the loaded data (already loaded in self.vars via loadData)
-        #print('VARS BEFORE:  ' + str(self.vars.shape ))
         normalized_vars = Standardize(self.vars)
-        #print('VARS AFTER:  ' + str(normalized_vars.shape))
+        #normalized_vars = self.vars
         recs = normalized_vars.shape[0]
         dim = normalized_vars.shape[1]
         self.V = dim
+        self.result = np.zeros((dim, recs))
         headers = [i for i in range(0, dim)]
 
         # Initialize the logger
@@ -81,36 +104,46 @@ class Spot:
 
         dims = self.gt.shape[1]
         g = Graph(dims)
-        # Load the ground truth network from gt (already loaded in self.vars in loadData)
+        # Load the ground truth network from gt
         gt_network = self.gt
 
-        # Create Edges based on ground truth adjacency matrix
-        Edges = [[None for _ in range(dim)] for _ in range(dim)]
+        if not needed_nodes:
+            # Create Edges based on ground truth adjacency matrix
+            Edges = [[None for _ in range(dim)] for _ in range(dim)]
 
-        # Construct the Edges from the ground truth (gt_network)
-        for i in range(dims):
-            for j in range(dims):
-                if gt_network[i, j] == 1:
-                    g.addEdge(i, j)
-                    Edges[i][j] = Edge(i, j, [], 0)
-        ordering = g.nonRecursiveTopologicalSort()
-        self.ordering = ordering
+            # Construct the Edges from the ground truth (gt_network)
+            for i in range(dims):
+                for j in range(dims):
+                    if gt_network[i, j] == 1:
+                        g.addEdge(i, j)
+                        Edges[i][j] = Edge(i, j, [], 0)
+            ordering = g.nonRecursiveTopologicalSort()
+            self.ordering = ordering
+        else:
+            self.ordering = needed_nodes
         print('ORDERING ' + str(self.ordering))
         # Create Node objects from normalized variables
-        for node in ordering:
+        for node in range(0, dim):
             self.Nodes.append(Node(normalized_vars[:, node].reshape(recs, -1), self))
-        #print('NODES HAS:  ' + str(self.Nodes) + '  ORDERINGS HAS: ' + str(ordering))
 
+        accuracies = []
+        print(f"Interventions {self.intv}.")
         # Traverse the nodes top to bottom
-        for i,variable_index in enumerate(ordering):
+        for i,variable_index in enumerate(self.ordering):
+            gmm_acc = 0
+            kmeans_acc = 0
+            accuracy = 0
+            is_intv_found = 0
+            is_intv =  1 if variable_index in self.intv else 0
+
             # Get parents of the node
-            print('Iteration: ' + str(i) + ' and Node is: ' + str(variable_index))
+            print('Iteration: ' + str(i))
             pa_i = np.where(gt_network[:, variable_index] == 1)[0]
             print(f"NODE {variable_index} has parents {pa_i}")
 
             # If node has no parents print and skip it
             if len(pa_i) == 0:
-                print(f"Variable {variable_index} has no parents.")
+                print(f"Node {variable_index} has no parents.")
                 continue
 
             X = self.vars[:, pa_i]
@@ -128,30 +161,49 @@ class Spot:
             # Fit a Gaussian Mixture Model with 2 components
             gmm2 = GaussianMixture(n_components=2, random_state=19)
             gmm2.fit(residuals.reshape(-1, 1))
-
-            # gmm.bic get BIC score and compair it with n_components=1    <<<<<<<<<<<<<<<<<<<<<<<
-            # Get BIC scores
-            bic1 = gmm1.bic(residuals.reshape(-1, 1))
-            bic2 = gmm2.bic(residuals.reshape(-1, 1))
-
-            # Compare BIC scores
-            if bic1 <= bic2:
-                print(
-                    f"Model with 1 component is preferred (BIC: {bic1:.2f}) over model with 2 components (BIC: {bic2:.2f}).")
-            else:
-                print(
-                    f"Model with 2 components is preferred (BIC: {bic2:.2f}) over model with 1 component (BIC: {bic1:.2f}).")
-
             # Predict the cluster for each point
             labels = gmm2.predict(residuals.reshape(-1, 1))
 
+            if is_intv:
+                # Compute GMM Accuracy
+                labels_true = np.array([0] * int(self.attributes[2]) + [1] * int(self.attributes[3]))
+                gmm_acc_case1 = np.mean((labels == 1) == labels_true)  # Direct alignment
+                gmm_acc_case2 = np.mean((labels == 0) == labels_true)  # Switched alignment
+                gmm_acc = max(gmm_acc_case1, gmm_acc_case2)
+                # print(f"GMM Accuracy for node {variable_index}: {gmm_acc}")
+
+                # Fit K-Means with 2 clusters
+                kmeans = KMeans(n_clusters=2, random_state=19)
+                kmeans.fit(residuals.reshape(-1, 1))
+                kmeans_labels = kmeans.labels_
+
+                # Compute K-Means Accuracy
+                kmeans_acc_case1 = np.mean((kmeans_labels == 1) == labels_true)  # Direct alignment
+                kmeans_acc_case2 = np.mean((kmeans_labels == 0) == labels_true)  # Switched alignment
+                kmeans_acc = max(kmeans_acc_case1, kmeans_acc_case2)
+                # print(f"K-Means Accuracy for node {variable_index}: {kmeans_acc}")
+
+            # gmm.bic get BIC score and compair it with n_components=1    <<<<<<<<<<<<<<<<<<<<<<<
+            # Get BIC scores
+            #bic1 = gmm1.bic(residuals.reshape(-1, 1))
+            #bic2 = gmm2.bic(residuals.reshape(-1, 1))
+
+            # Compare BIC scores
+            #if bic1 <= bic2:
+            #    print(
+            #        f"Model with 1 component is preferred (BIC: {bic1:.2f}) over model with 2 components (BIC: {bic2:.2f}).")
+            #else:
+            #    print(
+            #        f"Model with 2 components is preferred (BIC: {bic2:.2f}) over model with 1 component (BIC: {bic1:.2f}).")
+
             # Split the data into two groups based on the labels
-            group1 = residuals[labels == 0]
-            group2 = residuals[labels == 1]
-            #final_labels = labels.copy()
+            #group1 = residuals[labels == 0]
+            #group2 = residuals[labels == 1]
+            final_labels = labels.copy()
             first_iter = True
             num_iter = 0
             last_groups = labels.copy()
+            only_one = False
             while (True):
                 num_iter = num_iter + 1
                 # Fit different MARS lines for each group and check residuals
@@ -161,45 +213,23 @@ class Spot:
                 X_group2 = X[labels == 1, :]
                 y_group2 = y[labels == 1]
 
+                if X_group1.shape[0] <= 1 or X_group2.shape[0] <= 1:
+                    only_one = True
+                    labels = np.zeros(labels.shape)
+                    #print('LABELS AFTER only_one=True NOW HAS SUM: ' + str(sum(labels)))
+                    final_labels = labels.copy()
+                    break
+
                 # GROUP1 MARS
-                sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1, y_group1)
+                sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1,
+                                                                                                   y_group1)
                 y_pred1 = rf.predict_mars(X_group1, rearth1)
                 residuals_group1 = y_group1 - y_pred1
                 # Group2 MARS
-                sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2, y_group2)
+                sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2,
+                                                                                                       y_group2)
                 y_pred2 = rf.predict_mars(X_group2, rearth2)
                 residuals_group2 = y_group2 - y_pred2
-
-                #residuals_group1 = y_group1 - y_pred1
-                #residuals_group2 = y_group2 - y_pred2
-
-                # Plot residuals KDE for the full dataset
-                #sns.kdeplot(residuals, fill=True)
-                #plt.show()
-
-                '''# Create subplots for side-by-side plots
-                fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-
-                # Plot the GMM clustering result
-                axes[0].hist(group1, bins=30, alpha=0.5, label='Group 1', density=True)
-                axes[0].hist(group2, bins=30, alpha=0.5, label='Group 2', density=True)
-                axes[0].legend()
-                axes[0].set_title('GMM Clustering Result for node ' + str(variable_index))
-                axes[0].set_xlabel('Data values')
-                axes[0].set_ylabel('Density')
-
-                # Plot the KDE of the new residuals for each group
-                sns.kdeplot(residuals_group1.flatten(), fill=True, ax=axes[1], label='Group 1 Residuals')
-                sns.kdeplot(residuals_group2.flatten(), fill=True, ax=axes[1], label='Group 2 Residuals')
-                axes[1].legend()
-                axes[1].set_title('KDE of New Residuals for Each Group')
-                axes[1].set_xlabel('Residual values')
-                axes[1].set_ylabel('Density')
-
-                # Display the plots
-                plt.tight_layout()
-                plt.show()'''
-
                 # Reassign the data points
                 for j in range(X.shape[0]):
                     x = X[j, :]
@@ -212,105 +242,215 @@ class Spot:
                     else:
                         labels[j] = 1
 
-                #if num_iter == 5:
-                change_threshold = 0.05  # e.g., require less than 1% of changes to stop
+                # if num_iter == 5:
+                change_threshold = 0.05 #0.05  # e.g., require less than 1% of changes to stop
                 changes = np.sum(labels != last_groups)
-                if not first_iter and (changes / len(labels)) < change_threshold:
+                if (not first_iter and (changes / len(labels)) < change_threshold) or num_iter > 100: # FOR NOW
                     final_labels = labels.copy()
-                    print('Initial split is settled for node ' + str(variable_index) + ' !!!')
-                    break
-                elif num_iter >= 4:                                                                  #### restricted to 3 iters
-                    final_labels = labels.copy()
-                    print('Initial split is settled for node ' + str(variable_index) + ' !!!')
+                    #print('Initial split is settled for node ' + str(variable_index) + ' !!!')
                     break
 
                 if first_iter:
                     first_iter = False
                 last_groups = labels.copy()
 
-            #parents = []
-            #for j in pa_i:
-             #   parents.append(self.Nodes[j])
+            cost_split = math.inf
+            # Fit two models when it is possible
+            y_pred1 = y_pred
+            y_pred2 = y_pred
             X_group1 = X[last_groups == 0, :]
             y_group1 = y[last_groups == 0]
             X_group2 = X[last_groups == 1, :]
             y_group2 = y[last_groups == 1]
+            if not only_one:
 
-            # GROUP1 MARS
-            sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1, y_group1)
-            y_pred1 = rf.predict_mars(X_group1, rearth1)
-            residuals_group1 = y_group1 - y_pred1
-            # Group2 MARS
-            sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2, y_group2)
-            y_pred2 = rf.predict_mars(X_group2, rearth2)
-            residuals_group2 = y_group2 - y_pred2
+                # GROUP1 MARS
+                sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1, y_group1)
+                y_pred1 = rf.predict_mars(X_group1, rearth1)
+                #residuals_group1 = y_group1 - y_pred1
+                # Group2 MARS
+                sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2, y_group2)
+                y_pred2 = rf.predict_mars(X_group2, rearth2)
+                #residuals_group2 = y_group2 - y_pred2
 
-            # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
-            if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
-                fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
-                ax.scatter(X_group1, y_group1, color='blue', alpha=0.5, label='Group 1')
-                ax.scatter(X_group2, y_group2, color='red', alpha=0.5, label='Group 2')
-                # Plot the MARS line for the full dataset
-                X_all = self.vars[:, pa_i]
-                y_all = self.vars[:, variable_index]
-                sorted_indices_all = np.argsort(X_all.flatten())
-                X_all_sorted = X_all[sorted_indices_all]
-                y_all_sorted = y_pred[sorted_indices_all]
-                ax.plot(X_all_sorted, y_all_sorted, color='green', linestyle='-', linewidth=2,
-                        label='MARS (All Data)')
+                # Score for TWO MODELS
+                rows2 = sum(final_labels)  # == 0 ????
+                rows1 = len(final_labels) - rows2
+                print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
+                cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
+                                                     interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
+                                                     np.array([len(pa_i)]), show_graph=False)
 
-                # Plot the MARS line for group1
-                sorted_indices_g1 = np.argsort(X_group1.flatten())
-                X_g1_sorted = X_group1[sorted_indices_g1]
-                y_pred_g1_sorted = y_pred1[sorted_indices_g1]
-                ax.plot(X_g1_sorted, y_pred_g1_sorted, color='purple', linestyle='--', linewidth=2,
-                        label='MARS (Group1)')
 
-                # Plot the MARS line for group2
-                sorted_indices_g2 = np.argsort(X_group2.flatten())
-                X_g2_sorted = X_group2[sorted_indices_g2]
-                y_pred_g2_sorted = y_pred2[sorted_indices_g2]
-                ax.plot(X_g2_sorted, y_pred_g2_sorted, color='orange', linestyle='--', linewidth=2,
-                        label='MARS (Group2)')
+            if needed_nodes:
+                # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
+                if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
+                    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
+                    if not only_one:
+                        ax.scatter(X_group1, y_group1, color='blue', alpha=0.5, label='Group 1')
+                        ax.scatter(X_group2, y_group2, color='red', alpha=0.5, label='Group 2')
+                        # Plot the MARS line for group1
+                        sorted_indices_g1 = np.argsort(X_group1.flatten())
+                        X_g1_sorted = X_group1[sorted_indices_g1]
+                        y_pred_g1_sorted = y_pred1[sorted_indices_g1]
+                        ax.plot(X_g1_sorted, y_pred_g1_sorted, color='purple', linestyle='--', linewidth=2,
+                                label='MARS (Group1)')
 
-                ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
-                ax.set_xlabel(f'Parent Variable {pa_i}')
-                ax.set_ylabel(f'Variable {variable_index}')
-                ax.legend()
-                plt.tight_layout()
-                plt.show()
+                        # Plot the MARS line for group2
+                        sorted_indices_g2 = np.argsort(X_group2.flatten())
+                        X_g2_sorted = X_group2[sorted_indices_g2]
+                        y_pred_g2_sorted = y_pred2[sorted_indices_g2]
+                        ax.plot(X_g2_sorted, y_pred_g2_sorted, color='orange', linestyle='--', linewidth=2,
+                                label='MARS (Group2)')
+                    # Plot the MARS line for the full dataset
+                    X_all = self.vars[:, pa_i]
+                    y_all = self.vars[:, variable_index]
+                    sorted_indices_all = np.argsort(X_all.flatten())
+                    X_all_sorted = X_all[sorted_indices_all]
+                    y_all_sorted = y_pred[sorted_indices_all]
+                    ax.plot(X_all_sorted, y_all_sorted, color='green', linestyle='-', linewidth=2,
+                            label='MARS (All Data)')
+                    if only_one:
+                        ax.scatter(X_all, y_all, color='purple', alpha=0.5, label='Group 1')
+
+
+                    ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
+                    ax.set_xlabel(f'Parent Variable {pa_i}')
+                    ax.set_ylabel(f'Variable {variable_index}')
+                    ax.legend()
+                    plt.tight_layout()
+                    plt.show()
+                    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
+                    X_orig = X[:int(self.attributes[2])]
+                    y_orig = y[:int(self.attributes[2])]
+                    X_intv = X[int(self.attributes[2]):]
+                    y_intv = y[int(self.attributes[2]):]
+                    ax.scatter(X_orig, y_orig, color='blue', alpha=0.5, label='Original')
+                    ax.scatter(X_intv, y_intv, color='red', alpha=0.5, label='Intervention')
+                    ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
+                    ax.set_xlabel(f'Parent Variable {pa_i}')
+                    ax.set_ylabel(f'Variable {variable_index}')
+                    ax.legend()
+                    plt.tight_layout()
+                    plt.show()
+
+                # PLOT THE FINAL RESULT IF 2 PARENTS
+                if len(pa_i) == 2:  # Only plot when there are two parents (3D case)
+                    fig = plt.figure(figsize=(10, 8))
+                    ax = fig.add_subplot(111, projection='3d')
+                    # Extract parent variables
+                    X_parent1 = self.vars[:, pa_i[0]]
+                    X_parent2 = self.vars[:, pa_i[1]]
+                    y_all = self.vars[:, variable_index]
+                    if not only_one:
+                        # Plot Group 1
+                        ax.scatter(X_group1[:, 0], X_group1[:, 1], y_group1, color='blue', alpha=0.5, label='Group 1')
+
+                        # Plot Group 2
+                        ax.scatter(X_group2[:, 0], X_group2[:, 1], y_group2, color='red', alpha=0.5, label='Group 2')
+                    else:
+                        ax.scatter(X_parent1, X_parent2, y_all, color='purple', alpha=0.5, label='Group 1')
+                    # Create a meshgrid for surface plot (MARS predictions over full dataset)
+                    x1_range = np.linspace(X_parent1.min(), X_parent1.max(), 50)
+                    x2_range = np.linspace(X_parent2.min(), X_parent2.max(), 50)
+                    X1_mesh, X2_mesh = np.meshgrid(x1_range, x2_range)
+                    X_mesh = np.column_stack([X1_mesh.ravel(), X2_mesh.ravel()])
+                    y_pred_mesh = rf.predict_mars(X_mesh, rearth).reshape(
+                        X1_mesh.shape)  # Replace `mars_model` with your prediction model
+
+                    # Plot the MARS surface for the full dataset
+                    ax.plot_surface(X1_mesh, X2_mesh, y_pred_mesh, color='green', alpha=0.3,
+                                    label='MARS (All Data)')
+
+                        # You can add separate surfaces or predictions for Group 1 and Group 2 if needed
+                    # ax.plot_surface(X1_g1_mesh, X2_g1_mesh, y_pred1_mesh, color='purple', alpha=0.3, label='MARS (Group1)')
+                    # ax.plot_surface(X1_g2_mesh, X2_g2_mesh, y_pred2_mesh, color='orange', alpha=0.3, label='MARS (Group2)')
+
+                    # Set labels and title
+                    ax.set_title(f'Variable {variable_index} vs Parents {pa_i[0]} and {pa_i[1]}')
+                    ax.set_xlabel(f'Parent Variable {pa_i[0]}')
+                    ax.set_ylabel(f'Parent Variable {pa_i[1]}')
+                    ax.set_zlabel(f'Variable {variable_index}')
+                    ax.legend()
+                    plt.tight_layout()
+                    plt.show()
+
+
 
             # Score for ONE MODEL
-            score_all = self.ComputeScore(hinge_count, interactions, sse, score, len(y), self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
-            print('SCORE for initial model is ' + str(score_all))
+            cost_all = self.ComputeScore(hinge_count, interactions, sse, score, len(y), self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
+            print('COST for initial model is ' + str(cost_all))
+            final_cost = cost_all
 
-            # Score for TWO MODELS
-            rows2 = sum(final_labels) # == 0 ????
-            rows1 = len(final_labels) - rows2
-            print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
-            score_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2, interactions2, sse2, score2, rows2, self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
-            print('SCORE for splitting model is ' + str(score_split))
+            print('COST for splitting model is ' + str(cost_split))
+            eps = 0 #3100  # THREASHOLD FOR MDL DECISION (BITS)
+            if not only_one:
+                if cost_split < cost_all:
+                    self.split[variable_index] = 1
+                    is_intv_found = 1
+                    print(f"Splitting model is better with score  {cost_all - cost_split}")
+                    final_cost = cost_split
+                    self.foundIntv.append(variable_index)
+                    labels_true = np.array([0] * int(self.attributes[2]) + [1] * int(self.attributes[3]))
+                    ami_score = adjusted_mutual_info_score(labels_true, last_groups)
+                    print("Adjusted Mutual Information Score:", ami_score)
+                    rows_p1 = int(self.attributes[2])
+                    first_part = final_labels[:rows_p1]
+                    second_part = final_labels[rows_p1:]
+                    '''ones1 = sum(first_part)
+                    zeros1 = 5000 - ones1
+                    ones2 = sum(second_part)
+                    zeros2 = 1000 - ones2
+                    print(
+                        '!!!! ONES: ' + str(ones1) + ' and ' + str(ones2) + ' ZEROS ' + str(zeros1) + ' and ' + str(zeros2))'''
+                    # Case 1: Direct alignment
+                    TP_case1 = sum(second_part)  # True Positives
+                    TN_case1 = int(self.attributes[2]) - sum(first_part)  # True Negatives
 
-            if score_all > score_split:
-                self.split[variable_index] = 1
-                print(f"Splitting model is better with score  {score_all-score_split}")
-                self.foundIntv.append(variable_index)
-                '''first_half = final_labels[:2500]
-                second_half = final_labels[2500:]
-                ones1 = sum(first_half)
-                zeros1 = 2500 - ones1
-                ones2 = sum(second_half)
-                zeros2 = 2500 - ones2
-                print('!!!! ONES: ' + str(ones1) + ' and ' + str(ones2) + ' ZEROS '+str(zeros1) + ' and ' + str(zeros2))'''
+                    # Case 2: Switched interpretation
+                    TP_case2 = int(self.attributes[3]) - sum(second_part)  # True Positives
+                    TN_case2 = sum(first_part)  # True Negatives
+
+                    # Calculate accuracy for both cases
+                    accuracy_case1 = TP_case1 + TN_case1
+                    accuracy_case2 = TP_case2 + TN_case2
+
+                    # Choose the best case
+                    if accuracy_case1 >= accuracy_case2:
+                        TP, TN = TP_case1, TN_case1
+                        # print("Chosen Case: Direct alignment")
+                        accuracy = accuracy_case1 / recs
+                        print(f"Accuracy: {accuracy}")
+                        accuracies.append(accuracy)
+
+                    else:
+                        TP, TN = TP_case2, TN_case2
+                        # print("Chosen Case: Switched interpretation")
+                        accuracy = accuracy_case2 / recs
+                        print(f"Accuracy: {accuracy}")
+                        accuracies.append(accuracy)
+
+                    # Print the results
+                    print(f"True Positives (TP): {TP}")
+                    print(f"True Negatives (TN): {TN}")
+
+                    # Check if it is one of the intv nodes if not:
+
+                else:
+                    #self.result = 0
+                    print(f"Original model is better with cost difference {cost_split-cost_all}")
             else:
-                #self.result = 0
-                print(f"Original model is better with score {score_split-score_all}")
-            self.scoref[variable_index] = score_all
-            self.scores[variable_index] = score_split
+                print(f"Original model is better with cost {cost_all}  SPLITTING NOT POSSIBLE")
+            self.scoref[variable_index] = cost_all
+            self.scores[variable_index] = final_cost
             self.result[variable_index] = final_labels
+            score_diff = cost_all - cost_split
+            if not needed_nodes:
+                # id, num_parents, true_split, found_split, score_diff
+                with open(nodestats_file, "a") as stats:
+                    stats.write(f"{variable_index},{len(pa_i)}, {is_intv},{is_intv_found},{score_diff},{num_iter},{accuracy},{gmm_acc},{kmeans_acc}\n")
 
-
-        return self.foundIntv, self.result
+        return self.foundIntv, accuracies
         # Finalize the logger
         #logger.WriteLog("END LOGGING FOR FILE: " + self.filename)
         #logger.End()
@@ -381,52 +521,54 @@ class Spot:
     # ComputeScore(source,target,rows,child.GetMinDiff(),k=np.array([1]))
     def ComputeScore(self, hinges, interactions, sse, model, rows, mindiff, k, show_graph=False):
         base_cost = self.slope_.model_score(k) + k * np.log2(self.V);
-        print('BASE-cost: ' + str(base_cost))
+        #print('BASE-cost: ' + str(base_cost))
         model_cost = self.slope_.model_score(hinges) + self.AggregateHinges(interactions, k);
-        print('Model :  ' + str(model))
-        print('Model-cost: ' + str(model_cost))
+        #print('Model :  ' + str(model))
         residuals_cost = self.slope_.gaussian_score_emp_sse(sse, rows, mindiff)
         residuals_avg_cost = residuals_cost/rows
-        print('ROWS  is: ' + str(rows))
-        print('AVG Cost of the residuals is: ' + str(residuals_avg_cost))
+        #print('ROWS  is: ' + str(rows))
+        #print('AVG Cost of the residuals is (ONE): ' + str(residuals_avg_cost))
         models = model + model_cost
+        #print('ONE Model cost: ' + str(models))
         #cost = residuals_avg_cost + base_cost + models/rows;
         cost = (residuals_cost + base_cost + models)
-        print('FULL COST of one model: ' + str(cost))
-        avg_cost = cost/ rows
-        print('AVG Cost: ' + str(avg_cost))
-        return avg_cost;
+        #print('FULL COST of one model: ' + str(cost))
+        #avg_cost = cost/ rows
+        #print('AVG COST of 1 model: ' + str(avg_cost))
+        return cost;
 
     def ComputeScoreSplit(self, hinges1, interactions1, sse1, model1, rows1, hinges2, interactions2, sse2, model2, rows2, mindiff, k, show_graph=False):
         base_cost = self.slope_.model_score(k) + k * np.log2(self.V);
-        print('BASE-cost: ' + str(base_cost))
+        #print('BASE-cost: ' + str(base_cost))
         model_cost1 = self.slope_.model_score(hinges1) + self.AggregateHinges(interactions1, k);
         model_cost2 = self.slope_.model_score(hinges2) + self.AggregateHinges(interactions2, k);
-        print('Model1 :  ' + str(model1))
-        print('Model2 :  ' + str(model2))
-        print('Cost of models ' + str(model_cost1) + ' and ' + str(model_cost2))
+        #print('Model1 :  ' + str(model1))
+        #print('Model2 :  ' + str(model2))
+        #print('Cost of models ' + str(model_cost1) + ' and ' + str(model_cost2))
         # Calculate Gaussian scores for each group using their SSE and row count
         cost1 = self.slope_.gaussian_score_emp_sse(sse1, rows1, mindiff)
         cost2 = self.slope_.gaussian_score_emp_sse(sse2, rows2, mindiff)
-        residuals_avg_cost1 = cost1/rows1
-        residuals_avg_cost2 = cost2/rows2
-        residuals_avg_cost = ( residuals_avg_cost1 + residuals_avg_cost2)/2
+        #residuals_avg_cost1 = cost1/rows1
+        #residuals_avg_cost2 = cost2/rows2
+        #residuals_avg_cost = ( residuals_avg_cost1 + residuals_avg_cost2)/2
+        residuals_avg_cost = (cost1 + cost2) / (rows1 + rows2)
         print('ROWS1 and ROWS2: ' + str(rows1) + ', ' + str(rows2))
-        print('AVG Cost of the residuals is: ' + str(residuals_avg_cost))  #) + ' and ' + str(cost2))
-        print('Cost of the residuals1 is: ' + str(residuals_avg_cost1))
-        print('Cost of the residuals2 is: ' + str(residuals_avg_cost2))
+        #print('AVG Cost of the residuals is (TWO): ' + str(residuals_avg_cost))  #) + ' and ' + str(cost2))
+        #print('Cost of the residuals1 is: ' + str(residuals_avg_cost1))
+        #print('Cost of the residuals2 is: ' + str(residuals_avg_cost2))
         models = model1 + model2 + model_cost1 + model_cost2
+        #print('TWO Model cost: ' + str(models))
         total_cost = base_cost + cost1 + cost2 + models + rows1 + rows2
-        print('FULL COST of two models: ' + str(total_cost))
-        model1_cost = (base_cost + model1 + model_cost1 + cost1) / rows1
-        model2_cost = (base_cost + model2 + model_cost2 + cost2) / rows2
-        print('COST of M1: ' + str(model1_cost))
-        print('COST of M2: ' + str(model2_cost))
+        #print('FULL COST of two models: ' + str(total_cost))
+        #model1_cost = (base_cost + model1 + model_cost1 + cost1) / rows1
+        #model2_cost = (base_cost + model2 + model_cost2 + cost2) / rows2
+        #print('COST of M1: ' + str(model1_cost))
+        #print('COST of M2: ' + str(model2_cost))
         #avg_total_cost = (model1_cost + model2_cost) / 2
-        avg_total_cost = total_cost / (rows1 + rows2)
-        print('COST: ' + str(avg_total_cost))
+        #avg_total_cost = total_cost / (rows1 + rows2)
+        #print('Avg COST of 2: ' + str(avg_total_cost))
         #total_cost = residuals_avg_cost + base_cost + models/(rows1 + rows2)
-        return avg_total_cost
+        return total_cost
 
     def OldComputeScore(self, source, target, rows, mindiff, k, show_graph=False):
         base_cost = self.slope_.model_score(k) + k * np.log2(self.V);

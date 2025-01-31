@@ -4,14 +4,13 @@ from slope import Slope;
 import sys;
 
 def main():
-	filename= "test_data2/expirement" #"shift/experiment5"
+	filepath= "C:/Users/ziadh/Documents/CausalGen-Osman/periodic/test_2to5_3"
 	slope = Slope()
 	spot = SpotWrapper(slope)
-	n = 10
-	for i in range(n):
-		filename1 = filename + str(i+1)
-		print("FILE NAME " + str(filename1))
-		spot.idk(filename1)
+	n = 50
+	spot.generate_stats(filepath, n)
+	#filename1 = file_name + str(1)
+	#spot.idk(filename1)
 
 
 '''

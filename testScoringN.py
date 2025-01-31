@@ -11,9 +11,9 @@ from utils import *
 import spot
 
 def plot_scoring(rn, gt, data, n):
-    print('VARS BEFORE:  ' + str(data.shape))
-    normalized_vars = Standardize(data)
-    print('VARS AFTER:  ' + str(normalized_vars.shape))
+    #print('VARS BEFORE:  ' + str(data.shape))
+    normalized_vars = data
+    #print('VARS AFTER:  ' + str(normalized_vars.shape))
     recs = normalized_vars.shape[0]
     dim = normalized_vars.shape[1]
     headers = [i for i in range(0, dim)]
@@ -36,15 +36,16 @@ def plot_scoring(rn, gt, data, n):
         curr_node = Node(normalized_vars[:, variable_index].reshape(recs, -1), spot_)
         #print(' node done.')
         # Define indices for the two sections of the data
-        i_g1 = np.arange(n)  # First 5000 data points
-        interv_points = len(data) - n
-        i_g2 = np.arange(len(data) - interv_points, len(data))  # Last X data points
+        #i_g1 = np.arange(n)  # First smthn data points
+        #interv_points = len(data) - n
+        #i_g2 = np.arange(len(data) - interv_points, len(data))  # Last X data points
 
-        X_g1 = data[np.ix_(i_g1, pa_i)]
-        y_g1 = data[i_g1, variable_index]
+        #X_g1 = data[np.ix_(i_g1, pa_i)]
+        X_g1 = X[:n, :]
+        y_g1 = y[:n]
 
-        X_g2 = data[np.ix_(i_g2, pa_i)]
-        y_g2 = data[i_g2, variable_index]
+        X_g2 = X[n:, :]
+        y_g2 = y[n:]
         #print("Shape of X_g1:", X_g1.shape)
         #print("Shape of y_g1:", y_g1.shape)
         #print("Shape of X_g2:", X_g2.shape)
@@ -62,7 +63,7 @@ def plot_scoring(rn, gt, data, n):
         print('SCORE for initial model is ' + str(score_all))
 
         rows1 = n
-        rows2 = interv_points
+        rows2 = recs - n
         print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
         score_split = spot_.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
                                              interactions2, sse2, score2, rows2, curr_node.min_diff,
@@ -76,23 +77,29 @@ def plot_scoring(rn, gt, data, n):
 
 def main():
     try:
-        base_path = "C:/Users/ziadh/Documents/CausalGen-Osman/maya_data/diffSizes/experiment2525flipshift2"
+        base_path = "C:/Users/ziadh/Documents/CausalGen-Osman/new/test_flip2to5_1et2_norm/expirement3"
         gt_file = f"{base_path}/truth1.txt"
         gt = np.loadtxt(gt_file, delimiter=',')
         data_file1 = f"{base_path}/data1.txt"
-        data_file2 = f"{base_path}/dataintv1.txt"
+        data_file2 = f"{base_path}/attributes1.txt"
         data_file3 = f"{base_path}/interventions1.txt"
-        data1 = np.loadtxt(data_file1, delimiter=',')
-        data2 = np.loadtxt(data_file2, delimiter=',')
+        data = np.loadtxt(data_file1, delimiter=',')
+        #data2 = np.loadtxt(data_file2, delimiter=',')
         interventions = np.loadtxt(data_file3, delimiter=',')
-        if data1.shape[1] != data2.shape[1]:
-            raise ValueError("The two files must have the same number of columns for vertical concatenation.")
-        data = np.vstack((data1, data2))
-        print(data.shape)
-        rn = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        n = 2500
+        with open(data_file2, "r") as atts:
+            lines = atts.readlines()
+            values = lines[1].strip()  # Second line contains the values
+            # Convert the values to a list (optional)
+            attributes = values.split(", ")
+        #if data1.shape[1] != data2.shape[1]:
+        #    raise ValueError("The two files must have the same number of columns for vertical concatenation.")
+        #data = np.vstack((data1, data2))
+        #print(data.shape)
+        rn = [i for i in range(int(attributes[1]))]
+        n = int(attributes[2])
+        print('interventions: ',interventions)
         plot_scoring(rn, gt, data, n)
-        print(interventions)
+
 
     except Exception as e:
         print(f"An error occurred: {e}")
