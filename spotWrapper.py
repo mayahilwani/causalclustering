@@ -9,6 +9,7 @@ from dataTransformer import DataTransformer
 from spot import Spot;
 from node import Node;
 import time
+import RFunctions as rf
 
 
 
@@ -21,6 +22,7 @@ class SpotWrapper:
         self.F = 9;
         self.V = dims;
         self.M = M;
+        self.spot = None
         print("Max interactions set to degree ", self.M);
 
     def generate_stats(self, file_path, n):
@@ -82,9 +84,9 @@ class SpotWrapper:
         Max_Interactions = 2;  # See the Instantiation section of the publication
         log_results = True;  # Set this to true if you would like to store the log of the experiment to a text file
         verbose = True;  # Set this to true if you would like see the log output printed to the screen
-        spot = Spot(Max_Interactions, log_results, verbose);
-        spot.loadData(filename);
-        found_intv, accuracies = spot.run();
+        self.spot = Spot(Max_Interactions, log_results, verbose);
+        self.spot.loadData(filename);
+        found_intv, accuracies = self.spot.run();
         try:
             intv_file = f"{filename}/interventions1.txt"
             intvs = np.loadtxt(intv_file, delimiter=',', dtype=int)
@@ -129,3 +131,4 @@ class SpotWrapper:
         return intv_accuracy, final_accuracies, TP, TN, FP, FN
 
         #spot.analyzeLabels()
+

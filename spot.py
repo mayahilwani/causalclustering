@@ -18,6 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.metrics import adjusted_mutual_info_score
 import math
 from sklearn.cluster import KMeans
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 class Spot:
@@ -86,7 +87,7 @@ class Spot:
         if not needed_nodes:
             nodestats_file = f"{self.filename}/node_STATS.txt"
             with open(nodestats_file, "w") as stats:
-                stats.write("id, num_parents, true_split, found_split, score_diff, num_iter, method_acc, gmm_acc, kmeans_acc\n")
+                stats.write("id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res\n")
 
         # Standardize the loaded data (already loaded in self.vars via loadData)
         normalized_vars = Standardize(self.vars)
@@ -132,8 +133,16 @@ class Spot:
         for i,variable_index in enumerate(self.ordering):
             gmm_acc = 0
             kmeans_acc = 0
+            gmm_acc_res = 0
+            kmeans_acc_res = 0
             accuracy = 0
+            f1 = 0
+            gmm_f1 = 0
+            gmm_f1_res = 0
+            kmeans_f1 = 0
+            kmeans_f1_res = 0
             is_intv_found = 0
+            gmm_bic = 0
             is_intv =  1 if variable_index in self.intv else 0
 
             # Get parents of the node
@@ -148,11 +157,58 @@ class Spot:
 
             X = self.vars[:, pa_i]
             y = self.vars[:, variable_index]
+            data_xy = np.hstack((X, y.reshape(-1, 1)))  # Combine X and y
 
             # Fit MARS on the entire dataset
             sse,score,coeff,hinge_count,interactions, rearth = self.slope_.FitSpline(X,y)
             y_pred = rf.predict_mars(X, rearth)
             residuals = y - y_pred
+
+            if is_intv:
+                labels_true = np.array([0] * int(self.attributes[2]) + [1] * int(self.attributes[3]))
+                ### Compute GMM Accuracy on (X, y) ###
+                gmm_xy = GaussianMixture(n_components=2, random_state=19)
+                gmm_xy.fit(data_xy)
+                labels_xy = gmm_xy.predict(data_xy)
+
+                gmm_acc_case1 = np.mean((labels_xy == 1) == labels_true)
+                gmm_acc_case2 = np.mean((labels_xy == 0) == labels_true)
+                gmm_acc = max(gmm_acc_case1, gmm_acc_case2)
+
+                gmm_f1 = self.compute_f1(labels_xy, labels_true)
+
+                ### Compute GMM Accuracy on Residuals ###
+                gmm_res = GaussianMixture(n_components=2, random_state=19)
+                gmm_res.fit(residuals.reshape(-1, 1))
+                labels_res = gmm_res.predict(residuals.reshape(-1, 1))
+
+                gmm_acc_res_case1 = np.mean((labels_res == 1) == labels_true)
+                gmm_acc_res_case2 = np.mean((labels_res == 0) == labels_true)
+                gmm_acc_res = max(gmm_acc_res_case1, gmm_acc_res_case2)
+
+                gmm_f1_res = self.compute_f1(labels_res, labels_true)
+
+                ### Compute K-Means Accuracy on (X, y) ###
+                kmeans_xy = KMeans(n_clusters=2, random_state=19)
+                kmeans_xy.fit(data_xy)
+                kmeans_labels_xy = kmeans_xy.labels_
+
+                kmeans_acc_case1 = np.mean((kmeans_labels_xy == 1) == labels_true)
+                kmeans_acc_case2 = np.mean((kmeans_labels_xy == 0) == labels_true)
+                kmeans_acc = max(kmeans_acc_case1, kmeans_acc_case2)
+
+                kmeans_f1 = self.compute_f1(kmeans_labels_xy, labels_true)
+
+                ### Compute K-Means Accuracy on Residuals ###
+                kmeans_res = KMeans(n_clusters=2, random_state=19)
+                kmeans_res.fit(residuals.reshape(-1, 1))
+                kmeans_labels_res = kmeans_res.labels_
+
+                kmeans_acc_res_case1 = np.mean((kmeans_labels_res == 1) == labels_true)
+                kmeans_acc_res_case2 = np.mean((kmeans_labels_res == 0) == labels_true)
+                kmeans_acc_res = max(kmeans_acc_res_case1, kmeans_acc_res_case2)
+
+                kmeans_f1_res = self.compute_f1(kmeans_labels_res, labels_true)
 
             # Fit a Gaussian Mixture Model with 1 components
             gmm1 = GaussianMixture(n_components=1, random_state=19)
@@ -164,35 +220,18 @@ class Spot:
             # Predict the cluster for each point
             labels = gmm2.predict(residuals.reshape(-1, 1))
 
-            if is_intv:
-                # Compute GMM Accuracy
-                labels_true = np.array([0] * int(self.attributes[2]) + [1] * int(self.attributes[3]))
-                gmm_acc_case1 = np.mean((labels == 1) == labels_true)  # Direct alignment
-                gmm_acc_case2 = np.mean((labels == 0) == labels_true)  # Switched alignment
-                gmm_acc = max(gmm_acc_case1, gmm_acc_case2)
-                # print(f"GMM Accuracy for node {variable_index}: {gmm_acc}")
-
-                # Fit K-Means with 2 clusters
-                kmeans = KMeans(n_clusters=2, random_state=19)
-                kmeans.fit(residuals.reshape(-1, 1))
-                kmeans_labels = kmeans.labels_
-
-                # Compute K-Means Accuracy
-                kmeans_acc_case1 = np.mean((kmeans_labels == 1) == labels_true)  # Direct alignment
-                kmeans_acc_case2 = np.mean((kmeans_labels == 0) == labels_true)  # Switched alignment
-                kmeans_acc = max(kmeans_acc_case1, kmeans_acc_case2)
-                # print(f"K-Means Accuracy for node {variable_index}: {kmeans_acc}")
-
             # gmm.bic get BIC score and compair it with n_components=1    <<<<<<<<<<<<<<<<<<<<<<<
             # Get BIC scores
-            #bic1 = gmm1.bic(residuals.reshape(-1, 1))
-            #bic2 = gmm2.bic(residuals.reshape(-1, 1))
+            bic1 = gmm1.bic(residuals.reshape(-1, 1))
+            bic2 = gmm2.bic(residuals.reshape(-1, 1))
 
             # Compare BIC scores
-            #if bic1 <= bic2:
+            if bic1 <= bic2:
+                gmm_bic = 0
             #    print(
             #        f"Model with 1 component is preferred (BIC: {bic1:.2f}) over model with 2 components (BIC: {bic2:.2f}).")
-            #else:
+            else:
+                gmm_bic = 1
             #    print(
             #        f"Model with 2 components is preferred (BIC: {bic2:.2f}) over model with 1 component (BIC: {bic1:.2f}).")
 
@@ -258,10 +297,10 @@ class Spot:
             # Fit two models when it is possible
             y_pred1 = y_pred
             y_pred2 = y_pred
-            X_group1 = X[last_groups == 0, :]
-            y_group1 = y[last_groups == 0]
-            X_group2 = X[last_groups == 1, :]
-            y_group2 = y[last_groups == 1]
+            X_group1 = X[final_labels == 0, :]
+            y_group1 = y[final_labels == 0]
+            X_group2 = X[final_labels == 1, :]
+            y_group2 = y[final_labels == 1]
             if not only_one:
 
                 # GROUP1 MARS
@@ -392,43 +431,27 @@ class Spot:
                     final_cost = cost_split
                     self.foundIntv.append(variable_index)
                     labels_true = np.array([0] * int(self.attributes[2]) + [1] * int(self.attributes[3]))
-                    ami_score = adjusted_mutual_info_score(labels_true, last_groups)
+                    ami_score = adjusted_mutual_info_score(labels_true, final_labels)
                     print("Adjusted Mutual Information Score:", ami_score)
-                    rows_p1 = int(self.attributes[2])
-                    first_part = final_labels[:rows_p1]
-                    second_part = final_labels[rows_p1:]
-                    '''ones1 = sum(first_part)
-                    zeros1 = 5000 - ones1
-                    ones2 = sum(second_part)
-                    zeros2 = 1000 - ones2
-                    print(
-                        '!!!! ONES: ' + str(ones1) + ' and ' + str(ones2) + ' ZEROS ' + str(zeros1) + ' and ' + str(zeros2))'''
-                    # Case 1: Direct alignment
-                    TP_case1 = sum(second_part)  # True Positives
-                    TN_case1 = int(self.attributes[2]) - sum(first_part)  # True Negatives
 
-                    # Case 2: Switched interpretation
-                    TP_case2 = int(self.attributes[3]) - sum(second_part)  # True Positives
-                    TN_case2 = sum(first_part)  # True Negatives
-
-                    # Calculate accuracy for both cases
-                    accuracy_case1 = TP_case1 + TN_case1
-                    accuracy_case2 = TP_case2 + TN_case2
+                    # Compute case-wise accuracy
+                    accuracy_case1 = np.mean((final_labels == 1) == labels_true)
+                    accuracy_case2 = np.mean((final_labels == 0) == labels_true)
 
                     # Choose the best case
                     if accuracy_case1 >= accuracy_case2:
-                        TP, TN = TP_case1, TN_case1
-                        # print("Chosen Case: Direct alignment")
-                        accuracy = accuracy_case1 / recs
-                        print(f"Accuracy: {accuracy}")
-                        accuracies.append(accuracy)
-
+                        TP = np.sum((final_labels == 1) & (labels_true == 1))  # True Positives
+                        TN = np.sum((final_labels == 0) & (labels_true == 0))  # True Negatives
+                        accuracy = accuracy_case1
+                        final_pred_labels = final_labels  # Use this for F1-score computation
                     else:
-                        TP, TN = TP_case2, TN_case2
-                        # print("Chosen Case: Switched interpretation")
-                        accuracy = accuracy_case2 / recs
-                        print(f"Accuracy: {accuracy}")
-                        accuracies.append(accuracy)
+                        TP = np.sum((final_labels == 0) & (labels_true == 1))  # True Positives (switched)
+                        TN = np.sum((final_labels == 1) & (labels_true == 0))  # True Negatives (switched)
+                        accuracy = accuracy_case2
+                        final_pred_labels = 1 - final_labels
+                    f1 = f1_score(labels_true, final_pred_labels)
+                    print(f"Accuracy: {accuracy}")
+                    accuracies.append(accuracy)
 
                     # Print the results
                     print(f"True Positives (TP): {TP}")
@@ -441,6 +464,28 @@ class Spot:
                     print(f"Original model is better with cost difference {cost_split-cost_all}")
             else:
                 print(f"Original model is better with cost {cost_all}  SPLITTING NOT POSSIBLE")
+            true_cost_gain = 0
+            if is_intv:
+                X_group1 = X[labels_true == 0, :]
+                y_group1 = y[labels_true == 0]
+                X_group2 = X[labels_true == 1, :]
+                y_group2 = y[labels_true == 1]
+                # GROUP1 MARS
+                sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1, y_group1)
+                #y_pred1 = rf.predict_mars(X_group1, rearth1)
+                # residuals_group1 = y_group1 - y_pred1
+                # Group2 MARS
+                sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2, y_group2)
+                #y_pred2 = rf.predict_mars(X_group2, rearth2)
+                # residuals_group2 = y_group2 - y_pred2
+                # Score for TWO MODELS
+                rows2 = sum(labels_true)  # == 0 ????
+                rows1 = len(labels_true) - rows2
+                true_cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
+                                                         interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
+                                                         np.array([len(pa_i)]), show_graph=False)
+                true_cost_gain = cost_all - true_cost_split
+
             self.scoref[variable_index] = cost_all
             self.scores[variable_index] = final_cost
             self.result[variable_index] = final_labels
@@ -448,13 +493,22 @@ class Spot:
             if not needed_nodes:
                 # id, num_parents, true_split, found_split, score_diff
                 with open(nodestats_file, "a") as stats:
-                    stats.write(f"{variable_index},{len(pa_i)}, {is_intv},{is_intv_found},{score_diff},{num_iter},{accuracy},{gmm_acc},{kmeans_acc}\n")
+                    stats.write(f"{variable_index},{len(pa_i)}, {is_intv},{is_intv_found},{gmm_bic},{score_diff},{true_cost_gain},{num_iter},{accuracy},{gmm_acc},{gmm_acc_res},{kmeans_acc},{kmeans_acc_res},{f1},{gmm_f1},{gmm_f1_res},{kmeans_f1},{kmeans_f1_res} \n")
 
         return self.foundIntv, accuracies
         # Finalize the logger
         #logger.WriteLog("END LOGGING FOR FILE: " + self.filename)
         #logger.End()
-    # I want to add a list of 0s and 1s that indicates if the model was split or not ( found subgroup or not)
+
+    def compute_f1(self, predicted_labels, labels_true):
+        """Compute the best F1-score considering both direct and switched alignments."""
+        # Case 1: Direct alignment
+        f1_case1 = f1_score(labels_true, predicted_labels)
+
+        # Case 2: Switched alignment
+        f1_case2 = f1_score(labels_true, 1 - predicted_labels)  # Flip labels
+
+        return max(f1_case1, f1_case2)
     def analyzeLabels(self):
         for node in self.ordering:
             if self.split[node] == 1:
