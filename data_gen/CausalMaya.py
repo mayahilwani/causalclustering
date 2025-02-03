@@ -11,7 +11,7 @@ from dataTransformer import DataTransformer
 np.random.seed(80300)
 
 def main():
-    base_path = "./norm/non_linear_2/test_2to5_2/expirement"
+    base_path = "./norm/non_linear_2/test_2to5_1/expirement"
     mechanism = ['polynomial']
     noise = ['uniform']
     nodes = [10]  # num nodes
