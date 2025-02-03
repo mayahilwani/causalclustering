@@ -1,0 +1,2 @@
+intervention_type, num_nodes, orig_data, intv_data
+scale, 10, 2000, 500

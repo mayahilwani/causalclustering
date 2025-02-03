@@ -90,7 +90,7 @@ class Spot:
                 stats.write("id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res\n")
 
         # Standardize the loaded data (already loaded in self.vars via loadData)
-        normalized_vars = Standardize(self.vars)
+        normalized_vars = self.vars  #Standardize(self.vars)
         #normalized_vars = self.vars
         recs = normalized_vars.shape[0]
         dim = normalized_vars.shape[1]
@@ -301,8 +301,9 @@ class Spot:
             y_group1 = y[final_labels == 0]
             X_group2 = X[final_labels == 1, :]
             y_group2 = y[final_labels == 1]
+            if X_group1.shape[0] <= 1 or X_group2.shape[0] <= 1:
+                only_one = True
             if not only_one:
-
                 # GROUP1 MARS
                 sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1, y_group1)
                 y_pred1 = rf.predict_mars(X_group1, rearth1)
@@ -479,8 +480,9 @@ class Spot:
                 #y_pred2 = rf.predict_mars(X_group2, rearth2)
                 # residuals_group2 = y_group2 - y_pred2
                 # Score for TWO MODELS
-                rows2 = sum(labels_true)  # == 0 ????
-                rows1 = len(labels_true) - rows2
+                rows1 = int(self.attributes[2])
+                rows2 = int(self.attributes[3])
+
                 true_cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
                                                          interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
                                                          np.array([len(pa_i)]), show_graph=False)
