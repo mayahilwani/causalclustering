@@ -260,15 +260,29 @@ def Store(vars,id,dc):
 	nvars = np.around(vars,decimals=3);
 	np.savetxt("./tdata/spre_"+str(dc)+"/experiment"+str(id+1)+".txt", nvars, delimiter=",")
 	
-def Standardize(variables):
+'''def Standardize(variables):
 	#variables=DataCleaner().CleanMat(nvariables);
 	mu_ = np.mean(variables,axis=0);
 	sdev_ = np.std(variables,axis=0);
 	#sdev_[sdev_ == 0] = 1e-10  # MAYA ADDED
 	nvariables = (variables - mu_) / sdev_;
-	n_vars=DataCleaner().CleanMat(nvariables,3); return n_vars;
+	n_vars=DataCleaner().CleanMat(nvariables,3);
+	return n_vars;
 	#np.savetxt("./experiment99.txt", n_vars, delimiter=",")
-	return nvariables;
+	return nvariables;'''
+def Standardize(variables):
+    mu_ = np.mean(variables, axis=0)
+    sdev_ = np.std(variables, axis=0)
+
+    # Avoid division by zero
+    sdev_[sdev_ == 0] = 1e-10
+
+    nvariables = (variables - mu_) / sdev_
+
+    # Apply cleaning function
+    n_vars = DataCleaner().CleanMat(nvariables, 3)
+
+    return n_vars
 
 def Normalize(variables):
 	max_ = np.amax(variables,axis=0);

@@ -85,7 +85,7 @@ class Spot:
 
     def run(self, needed_nodes = []):
         if not needed_nodes:
-            nodestats_file = f"{self.filename}/node_STATS.txt"
+            nodestats_file = f"{self.filename}/node_STATS_rand.txt"
             with open(nodestats_file, "w") as stats:
                 stats.write("id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res\n")
 
@@ -221,7 +221,8 @@ class Spot:
             gmm2 = GaussianMixture(n_components=2, random_state=19)
             gmm2.fit(residuals.reshape(-1, 1))
             # Predict the cluster for each point
-            labels = gmm2.predict(residuals.reshape(-1, 1))
+            #labels = gmm2.predict(residuals.reshape(-1, 1))
+            labels = np.random.choice([0, 1], size=residuals.shape[0])
 
             # gmm.bic get BIC score and compair it with n_components=1    <<<<<<<<<<<<<<<<<<<<<<<
             # Get BIC scores
@@ -283,45 +284,6 @@ class Spot:
                         labels[j] = 0
                     else:
                         labels[j] = 1
-                if needed_nodes:
-                    # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
-                    if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
-                        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
-                        if not only_one:
-                            ax.scatter(X_group2, y_group2, color='blue', alpha=0.5, label='Group 2')
-                            ax.scatter(X_group1, y_group1, color='red', alpha=0.5, label='Group 1')
-
-                            # Plot the MARS line for group1
-                            sorted_indices_g1 = np.argsort(X_group1.flatten())
-                            X_g1_sorted = X_group1[sorted_indices_g1]
-                            y_pred_g1_sorted = y_pred1[sorted_indices_g1]
-                            ax.plot(X_g1_sorted, y_pred_g1_sorted, color='purple', linestyle='--', linewidth=2,
-                                    label='MARS (Group1)')
-
-                            # Plot the MARS line for group2
-                            sorted_indices_g2 = np.argsort(X_group2.flatten())
-                            X_g2_sorted = X_group2[sorted_indices_g2]
-                            y_pred_g2_sorted = y_pred2[sorted_indices_g2]
-                            ax.plot(X_g2_sorted, y_pred_g2_sorted, color='orange', linestyle='--', linewidth=2,
-                                    label='MARS (Group2)')
-                        # Plot the MARS line for the full dataset
-                        X_all = self.vars[:, pa_i]
-                        y_all = self.vars[:, variable_index]
-                        sorted_indices_all = np.argsort(X_all.flatten())
-                        X_all_sorted = X_all[sorted_indices_all]
-                        y_all_sorted = y_pred[sorted_indices_all]
-                        ax.plot(X_all_sorted, y_all_sorted, color='green', linestyle='-', linewidth=2,
-                                label='MARS (All Data)')
-                        if only_one:
-                            ax.scatter(X_all, y_all, color='purple', alpha=0.5, label='Group 1')
-
-                        ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
-                        ax.set_xlabel(f'Parent Variable {pa_i}')
-                        ax.set_ylabel(f'Variable {variable_index}')
-                        ax.legend()
-                        plt.tight_layout()
-                        plt.show()
-
 
                 # if num_iter == 5:
                 change_threshold = 0.05 #0.05  # e.g., require less than 1% of changes to stop
@@ -596,68 +558,6 @@ class Spot:
         f1_case2 = f1_score(labels_true, 1 - predicted_labels)  # Flip labels
 
         return max(f1_case1, f1_case2)
-    def analyzeLabels(self):
-        for node in self.ordering:
-            if self.split[node] == 1:
-                pa_i = np.where(self.gt[:, node] == 1)[0]
-                print('CHILD NODE IS: ' + str(node))
-                for pa in pa_i:
-                    pa_split = self.chooseBestSplit(node, pa)
-
-
-    def chooseBestSplit(self, node, pa):
-        child_labels = self.result[node]
-        parent_labels = self.result[pa]
-        score1 = self.applyLabels(pa, child_labels)
-        if self.split[pa]:
-            score2 = self.scores[pa]
-            print('PARENT IS SPLIT')
-        else:
-            score2 = self.scoref[pa]
-            print('PARENT IS NOT SPLIT')
-        print('Score of' + str(pa) +' parent (original): '+ str(score2) + ' Score with child labels: '+ str(score1))
-        if score1 <= score2:
-            print( 'Child labels have a good fit. ')
-            self.split[pa] = child_labels
-
-        else:
-            print('Original labels BETTER by ' + str(score1 - score2))
-
-
-    def applyLabels(self, node, new_labels):
-        pa_i = np.where(self.gt[:, node] == 1)[0]
-        print(f"Variable {node} has parents {pa_i}")
-
-        # If node has no parents print and skip it
-        if len(pa_i) == 0:
-            print(f"Variable {node} has no parents.")
-            return 0
-        X = self.vars[:, pa_i]
-        y = self.vars[:, node]
-        groups = new_labels.reshape(-1, 1)
-
-        X_group1 = X[new_labels == 0, :]
-        y_group1 = y[new_labels == 0]
-        X_group2 = X[new_labels == 1, :]
-        y_group2 = y[new_labels == 1]
-
-        # GROUP1 MARS
-        sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1, y_group1)
-        y_pred1 = rf.predict_mars(X_group1, rearth1)
-        residuals_group1 = y_group1 - y_pred1
-        # Group2 MARS
-        sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2, y_group2)
-        y_pred2 = rf.predict_mars(X_group2, rearth2)
-        residuals_group2 = y_group2 - y_pred2
-
-        rows2 = sum(new_labels)
-        rows1 = len(new_labels) - rows2
-        print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
-        score_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
-                                             interactions2, sse2, score2, rows2, self.Nodes[node].min_diff,
-                                             np.array([len(pa_i)]), show_graph=False)
-        print('SCORE for splitting model is ' + str(score_split))
-        return score_split
 
     # ComputeScore(source,target,rows,child.GetMinDiff(),k=np.array([1]))
     def ComputeScore(self, hinges, interactions, sse, model, rows, mindiff, k, show_graph=False):

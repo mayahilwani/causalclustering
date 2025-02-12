@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Path to the parent directory containing experience folders
-parent_dir = "C:/Users/ziadh/Documents/CausalGen-Osman/norm/non_linear_2/test_3to1_1"  # Change this to your actual path
+parent_dir = "C:/Users/ziadh/Documents/CausalGen-Osman/norm/linear/test_2to5_0"  # Change this to your actual path
 
 # Find all folders matching "experienceX"
 experience_folders = sorted(glob.glob(os.path.join(parent_dir, "expirement*")))
@@ -34,9 +34,6 @@ if df_list:
         "id", "num_parents", "true_split", "found_split", "gmm_bic", "score_diff", "true_score_diff", "num_iter", "method_acc", "gmm_acc", "gmm_acc_res", "kmeans_acc", "kmeans_acc_res", "f1", "gmm_f1", "gmm_f1_res", "kmeans_f1", "kmeans_f1_res"
     ]
     print("Columns in DataFrame:", merged_df.columns)
-    # Convert 'true_split' and 'found_split' to integers
-    merged_df["true_split"] = pd.to_numeric(merged_df["true_split"], errors="coerce")
-    merged_df["found_split"] = pd.to_numeric(merged_df["found_split"], errors="coerce")
     # Convert columns to floats
     numeric_cols = ["true_split", "found_split", "method_acc", "gmm_acc", "kmeans_acc",
                     "f1", "gmm_f1", "gmm_f1_res", "kmeans_f1", "kmeans_f1_res"]
@@ -54,7 +51,7 @@ if df_list:
     # 1. F1 Score Comparison Across Methods (Boxplot)
     plt.figure(figsize=(8, 6))
     sns.boxplot(data=filtered_df[["f1", "gmm_f1", "gmm_f1_res", "kmeans_f1", "kmeans_f1_res"]])
-    plt.title("F1 Score Comparison Across Methods (True & Found Splits)")
+    plt.title("F1 Score Comparison Across Methods (only True & Found Splits)")
     plt.ylabel("F1 Score")
     plt.xlabel("Methods")
     plt.xticks(rotation=15)
