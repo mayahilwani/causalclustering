@@ -21,7 +21,7 @@ def gen_data(gt,num_samples=1000,intv_list=[],pre_config=None):
 	intv_name = ['flip', 'scale', 'random', 'shift']
 	init_set=[False for i in range(dims)]
 	f_id = np.random.randint(0,len(f))
-	intv_id = 1 #np.random.randint(0,len(intv_type))
+	intv_id = 0 #np.random.randint(0,len(intv_type))
 	fx = f[f_id]
 	intv = "None"
 	configs={}

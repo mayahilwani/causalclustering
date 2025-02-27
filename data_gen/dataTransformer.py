@@ -123,6 +123,7 @@ class DataTransformer:
 
 	def poly(self,x,num_samples,parents_exist,pre_config):
 		Y_val=np.random.normal(0,3*x.shape[1],x.shape[0])
+		#Y_val = np.random.uniform(low=-3*x.shape[1], high=3*x.shape[1], size=x.shape[0])
 		dims = x.shape[1]
 		#f_ids = np.random.randint(0,2,dims) # was 3
 		#f_ids = np.zeros(dims, dtype=int)

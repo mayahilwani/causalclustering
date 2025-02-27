@@ -2,7 +2,6 @@ from node import Node;
 from edge import Edge;
 from slope import Slope;
 from utils import *
-from globe import Globe;
 from logger import Logger
 import numpy as np;
 from datetime import datetime
@@ -21,7 +20,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import precision_score, recall_score, f1_score
 
 
-class Spot:
+class SpotRandom:
 
     def __init__(self, max_int, log_results=True, vrb=True, dims=0):
         self.slope_ = Slope();
@@ -286,10 +285,11 @@ class Spot:
                         labels[j] = 1
 
                 # if num_iter == 5:
-                change_threshold = 0.05 #0.05  # e.g., require less than 1% of changes to stop
+                change_threshold = 0.015 #0.05  # e.g., require less than 1% of changes to stop
                 changes = np.sum(labels != last_groups)
                 if (not first_iter and (changes / len(labels)) < change_threshold) or num_iter > 100: # FOR NOW
                     final_labels = labels.copy()
+                    print('threshold BREAK ' + str(changes / len(labels)) + ' !!!')
                     #print('Initial split is settled for node ' + str(variable_index) + ' !!!')
                     break
 

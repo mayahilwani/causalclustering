@@ -28,7 +28,7 @@ class SpotWrapper:
     def generate_stats(self, file_path, n):
         filename = "/expirement"
         # Create a new stats file
-        stats_file = f"{file_path}/STATS50.txt"
+        stats_file = f"{file_path}/STATS5_spec.txt"
         with open(stats_file, "w") as stats:
             stats.write("id, intervention, dag_size, orig_data, intv_data, TP, TN, FP, FN, intv_acc, avg_cluster_acc, elapsed_time\n")
 

@@ -1,12 +1,12 @@
-from globeWrapper import GlobeWrapper;
 from spotWrapperRandom import SpotWrapperRandom;
+from spotWrapper import SpotWrapper;
 from slope import Slope;
 import sys;
 
 def main():
-	filepath= "C:/Users/ziadh/Documents/CausalGen-Osman/norm/non_linear_2/test_2to5_0_2"
+	filepath= "./data_gen/norm/non_linear_2/test_2to5_1"
 	slope = Slope()
-	spot = SpotWrapperRandom(slope)
+	spot = SpotWrapper(slope)
 	n = 5
 	spot.generate_stats(filepath, n)
 	#filename1 = file_name + str(1)

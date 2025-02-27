@@ -1,5 +1,0 @@
-id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res
-5,2, 0,0,1,[-1455.75888994],0,13,0,0,0,0,0,0,0,0,0,0 
-2,2, 0,0,1,[-2771.84679369],0,2,0,0,0,0,0,0,0,0,0,0 
-3,1, 0,0,1,[-1196.74100416],0,5,0,0,0,0,0,0,0,0,0,0 
-0,4, 0,0,0,[-798.91032379],0,5,0,0,0,0,0,0,0,0,0,0 

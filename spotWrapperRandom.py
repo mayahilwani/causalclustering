@@ -6,7 +6,7 @@ from combinator import Combinator;
 from edge import Edge;
 #from sampler import Sampler;
 from dataTransformer import DataTransformer
-from spot import Spot;
+from spotRandom import SpotRandom;
 from node import Node;
 import time
 import RFunctions as rf
@@ -28,7 +28,7 @@ class SpotWrapperRandom:
     def generate_stats(self, file_path, n):
         filename = "/expirement"
         # Create a new stats file
-        stats_file = f"{file_path}/STATS5_rand.txt"
+        stats_file = f"{file_path}/STATS3_rand.txt"
         with open(stats_file, "w") as stats:
             stats.write("id, intervention, dag_size, orig_data, intv_data, TP, TN, FP, FN, intv_acc, avg_cluster_acc, elapsed_time\n")
 
@@ -84,7 +84,7 @@ class SpotWrapperRandom:
         Max_Interactions = 2;  # See the Instantiation section of the publication
         log_results = True;  # Set this to true if you would like to store the log of the experiment to a text file
         verbose = True;  # Set this to true if you would like see the log output printed to the screen
-        self.spot = Spot(Max_Interactions, log_results, verbose);
+        self.spot = SpotRandom(Max_Interactions, log_results, verbose);
         self.spot.loadData(filename);
         found_intv, accuracies = self.spot.run();
         try:

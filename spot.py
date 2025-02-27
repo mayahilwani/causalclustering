@@ -2,7 +2,6 @@ from node import Node;
 from edge import Edge;
 from slope import Slope;
 from utils import *
-from globe import Globe;
 from logger import Logger
 import numpy as np;
 from datetime import datetime
@@ -19,12 +18,15 @@ from sklearn.metrics import adjusted_mutual_info_score
 import math
 from sklearn.cluster import KMeans
 from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.cluster import SpectralClustering
+from plotting import Plotting
 
 
 class Spot:
 
     def __init__(self, max_int, log_results=True, vrb=True, dims=0):
         self.slope_ = Slope();
+        self.plot = None
         self.vars = np.zeros((5, 5));
         self.gt = np.zeros((5, 5));
         self.attributes = [];
@@ -82,12 +84,13 @@ class Spot:
         self.vars = variables;
         self.gt = gt;
         self.intv = intvs
+        self.plot = Plotting(variables);
 
     def run(self, needed_nodes = []):
         if not needed_nodes:
-            nodestats_file = f"{self.filename}/node_STATS.txt"
+            nodestats_file = f"{self.filename}/node_STATS_spec.txt"
             with open(nodestats_file, "w") as stats:
-                stats.write("id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res\n")
+                stats.write("id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, spectral_acc, spectral_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res, spectral_f1, spectral_f1_res\n")
 
         # Standardize the loaded data (already loaded in self.vars via loadData)
         normalized_vars = self.vars  #Standardize(self.vars)
@@ -135,6 +138,8 @@ class Spot:
             kmeans_acc = 0
             gmm_acc_res = 0
             kmeans_acc_res = 0
+            spectral_acc = 0
+            spectral_acc_res = 0
             accuracy = 0
             f1 = 0
             gmm_f1 = 0
@@ -142,6 +147,8 @@ class Spot:
             labels_xy = []
             kmeans_f1 = 0
             kmeans_f1_res = 0
+            spectral_f1 = 0
+            spectral_f1_res = 0
             kmeans_labels_xy = []
             is_intv_found = 0
             gmm_bic = 0
@@ -165,6 +172,12 @@ class Spot:
             sse,score,coeff,hinge_count,interactions, rearth = self.slope_.FitSpline(X,y)
             y_pred = rf.predict_mars(X, rearth)
             residuals = y - y_pred
+
+            # Score for ONE MODEL
+            cost_all = self.ComputeScore(hinge_count, interactions, sse, score, len(y), self.Nodes[i].min_diff,
+                                         np.array([len(pa_i)]), show_graph=False)
+            print('COST for initial model is ' + str(cost_all))
+            final_cost = cost_all
 
             if is_intv:
                 labels_true = np.array([0] * int(self.attributes[2]) + [1] * int(self.attributes[3]))
@@ -212,6 +225,28 @@ class Spot:
 
                 kmeans_f1_res = self.compute_f1(kmeans_labels_res, labels_true)
 
+                ### Compute Spectral Clustering Accuracy on (X, y) ###
+                spectral_xy = SpectralClustering(n_clusters=2, random_state=19)
+                spectral_xy.fit(data_xy)
+                spectral_labels_xy = spectral_xy.labels_
+
+                spectral_acc_case1 = np.mean((spectral_labels_xy == 1) == labels_true)
+                spectral_acc_case2 = np.mean((spectral_labels_xy == 0) == labels_true)
+                spectral_acc = max(spectral_acc_case1, spectral_acc_case2)
+
+                spectral_f1 = self.compute_f1(spectral_labels_xy, labels_true)
+
+                ### Compute Spectral Clustering Accuracy on Residuals ###
+                spectral_res = SpectralClustering(n_clusters=2, random_state=19)
+                spectral_res.fit(residuals.reshape(-1, 1))
+                spectral_labels_res = spectral_res.labels_
+
+                spectral_acc_res_case1 = np.mean((spectral_labels_res == 1) == labels_true)
+                spectral_acc_res_case2 = np.mean((spectral_labels_res == 0) == labels_true)
+                spectral_acc_res = max(spectral_acc_res_case1, spectral_acc_res_case2)
+
+                spectral_f1_res = self.compute_f1(spectral_labels_res, labels_true)
+
 
             # Fit a Gaussian Mixture Model with 1 components
             gmm1 = GaussianMixture(n_components=1, random_state=19)
@@ -235,17 +270,13 @@ class Spot:
             #        f"Model with 1 component is preferred (BIC: {bic1:.2f}) over model with 2 components (BIC: {bic2:.2f}).")
             else:
                 gmm_bic = 1
-            #    print(
-            #        f"Model with 2 components is preferred (BIC: {bic2:.2f}) over model with 1 component (BIC: {bic1:.2f}).")
 
-            # Split the data into two groups based on the labels
-            #group1 = residuals[labels == 0]
-            #group2 = residuals[labels == 1]
             final_labels = labels.copy()
             first_iter = True
             num_iter = 0
             last_groups = labels.copy()
             only_one = False
+            prev_cost_split = math.inf
             while (True):
                 num_iter = num_iter + 1
                 # Fit different MARS lines for each group and check residuals
@@ -266,12 +297,21 @@ class Spot:
                 sse1, score1, coeff1, hinge_count1, interactions1, rearth1 = self.slope_.FitSpline(X_group1,
                                                                                                    y_group1)
                 y_pred1 = rf.predict_mars(X_group1, rearth1)
-                residuals_group1 = y_group1 - y_pred1
+                #residuals_group1 = y_group1 - y_pred1
                 # Group2 MARS
                 sse2, score2, coeff2, hinge_count2, interactions2, rearth2 = self.slope_.FitSpline(X_group2,
                                                                                                        y_group2)
                 y_pred2 = rf.predict_mars(X_group2, rearth2)
-                residuals_group2 = y_group2 - y_pred2
+                #residuals_group2 = y_group2 - y_pred2
+
+                # MDL Score for TWO MODELS
+                rows2 = sum(labels)  # == 0 ????
+                rows1 = len(labels) - rows2
+                #print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
+                cur_cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
+                                                    interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
+                                                    np.array([len(pa_i)]), show_graph=False)
+
                 # Reassign the data points
                 for j in range(X.shape[0]):
                     x = X[j, :]
@@ -286,56 +326,29 @@ class Spot:
                 if needed_nodes:
                     # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
                     if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
-                        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
-                        if not only_one:
-                            ax.scatter(X_group2, y_group2, color='blue', alpha=0.5, label='Group 2')
-                            ax.scatter(X_group1, y_group1, color='red', alpha=0.5, label='Group 1')
+                        self.plot.plot_2d_other(pa_i, variable_index, last_groups, "Method Iterations")
+                    elif len(pa_i) == 2:
+                        self.plot.plot_3d_other(pa_i, variable_index, last_groups, "Method Iterations")
 
-                            # Plot the MARS line for group1
-                            sorted_indices_g1 = np.argsort(X_group1.flatten())
-                            X_g1_sorted = X_group1[sorted_indices_g1]
-                            y_pred_g1_sorted = y_pred1[sorted_indices_g1]
-                            ax.plot(X_g1_sorted, y_pred_g1_sorted, color='purple', linestyle='--', linewidth=2,
-                                    label='MARS (Group1)')
-
-                            # Plot the MARS line for group2
-                            sorted_indices_g2 = np.argsort(X_group2.flatten())
-                            X_g2_sorted = X_group2[sorted_indices_g2]
-                            y_pred_g2_sorted = y_pred2[sorted_indices_g2]
-                            ax.plot(X_g2_sorted, y_pred_g2_sorted, color='orange', linestyle='--', linewidth=2,
-                                    label='MARS (Group2)')
-                        # Plot the MARS line for the full dataset
-                        X_all = self.vars[:, pa_i]
-                        y_all = self.vars[:, variable_index]
-                        sorted_indices_all = np.argsort(X_all.flatten())
-                        X_all_sorted = X_all[sorted_indices_all]
-                        y_all_sorted = y_pred[sorted_indices_all]
-                        ax.plot(X_all_sorted, y_all_sorted, color='green', linestyle='-', linewidth=2,
-                                label='MARS (All Data)')
-                        if only_one:
-                            ax.scatter(X_all, y_all, color='purple', alpha=0.5, label='Group 1')
-
-                        ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
-                        ax.set_xlabel(f'Parent Variable {pa_i}')
-                        ax.set_ylabel(f'Variable {variable_index}')
-                        ax.legend()
-                        plt.tight_layout()
-                        plt.show()
-
-
-                # if num_iter == 5:
-                change_threshold = 0.05 #0.05  # e.g., require less than 1% of changes to stop
+                change_threshold = 0.005 #0.05  # e.g., require less than 1% of changes to stop
                 changes = np.sum(labels != last_groups)
-                if (not first_iter and (changes / len(labels)) < change_threshold) or num_iter > 100: # FOR NOW
+                if (not first_iter and ( (changes / len(labels)) < change_threshold ) ) or num_iter > 100: # FOR NOW
                     final_labels = labels.copy()
+                    print('threshold BREAK ' + str(changes / len(labels)) + ' !!!')
                     #print('Initial split is settled for node ' + str(variable_index) + ' !!!')
                     break
+                if cur_cost_split >= prev_cost_split:
+                    final_labels = labels.copy()
+                    print('MDL score BREAK ' + str(cur_cost_split - prev_cost_split) + ' !!!')
+                    break
 
+                prev_cost_split = cur_cost_split
                 if first_iter:
                     first_iter = False
                 last_groups = labels.copy()
 
             cost_split = math.inf
+
             # Fit two models when it is possible
             y_pred1 = y_pred
             y_pred2 = y_pred
@@ -367,145 +380,17 @@ class Spot:
             if needed_nodes:
                 # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
                 if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
-                    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
-                    if not only_one:
-                        ax.scatter(X_group1, y_group1, color='blue', alpha=0.5, label='Group 1')
-                        ax.scatter(X_group2, y_group2, color='red', alpha=0.5, label='Group 2')
-                        # Plot the MARS line for group1
-                        sorted_indices_g1 = np.argsort(X_group1.flatten())
-                        X_g1_sorted = X_group1[sorted_indices_g1]
-                        y_pred_g1_sorted = y_pred1[sorted_indices_g1]
-                        ax.plot(X_g1_sorted, y_pred_g1_sorted, color='purple', linestyle='--', linewidth=2,
-                                label='MARS (Group1)')
-
-                        # Plot the MARS line for group2
-                        sorted_indices_g2 = np.argsort(X_group2.flatten())
-                        X_g2_sorted = X_group2[sorted_indices_g2]
-                        y_pred_g2_sorted = y_pred2[sorted_indices_g2]
-                        ax.plot(X_g2_sorted, y_pred_g2_sorted, color='orange', linestyle='--', linewidth=2,
-                                label='MARS (Group2)')
-                    # Plot the MARS line for the full dataset
-                    X_all = self.vars[:, pa_i]
-                    y_all = self.vars[:, variable_index]
-                    sorted_indices_all = np.argsort(X_all.flatten())
-                    X_all_sorted = X_all[sorted_indices_all]
-                    y_all_sorted = y_pred[sorted_indices_all]
-                    ax.plot(X_all_sorted, y_all_sorted, color='green', linestyle='-', linewidth=2,
-                            label='MARS (All Data)')
-                    if only_one:
-                        ax.scatter(X_all, y_all, color='purple', alpha=0.5, label='Group 1')
-
-
-                    ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
-                    ax.set_xlabel(f'Parent Variable {pa_i}')
-                    ax.set_ylabel(f'Variable {variable_index}')
-                    ax.legend()
-                    plt.tight_layout()
-                    plt.show()
-                    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(7, 7))
-                    X_orig = X[:int(self.attributes[2])]
-                    y_orig = y[:int(self.attributes[2])]
-                    X_intv = X[int(self.attributes[2]):]
-                    y_intv = y[int(self.attributes[2]):]
-                    ax.scatter(X_orig, y_orig, color='blue', alpha=0.5, label='Original')
-                    ax.scatter(X_intv, y_intv, color='red', alpha=0.5, label='Intervention')
-                    ax.set_title(f'Variable {variable_index} vs Parent {pa_i}')
-                    ax.set_xlabel(f'Parent Variable {pa_i}')
-                    ax.set_ylabel(f'Variable {variable_index}')
-                    ax.legend()
-                    plt.tight_layout()
-                    plt.show()
-
-                    # New: KMeans Clustering Plot
-                    fig, ax = plt.subplots(figsize=(7, 7))
-                    scatter = ax.scatter(X_all, y_all, c=kmeans_labels_xy, cmap='viridis', alpha=0.5)
-                    ax.set_title(f'KMeans Clusters for Variable {variable_index} vs Parent {pa_i}')
-                    ax.set_xlabel(f'Parent Variable {pa_i}')
-                    ax.set_ylabel(f'Variable {variable_index}')
-                    plt.colorbar(scatter, ax=ax, label='Cluster')
-                    plt.tight_layout()
-                    plt.show()
-
-                    # New: GMM Clustering Plot
-                    fig, ax = plt.subplots(figsize=(7, 7))
-                    scatter = ax.scatter(X_all, y_all, c=labels_xy, cmap='viridis', alpha=0.5)
-                    ax.set_title(f'GMM Clusters for Variable {variable_index} vs Parent {pa_i}')
-                    ax.set_xlabel(f'Parent Variable {pa_i}')
-                    ax.set_ylabel(f'Variable {variable_index}')
-                    plt.colorbar(scatter, ax=ax, label='Cluster')
-                    plt.tight_layout()
-                    plt.show()
+                    self.plot.plot_2d_results(only_one, pa_i, variable_index, final_labels, y_pred, y_pred1, y_pred2, labels_true)
+                    self.plot.plot_2d_other(pa_i, variable_index, kmeans_labels_xy, "KMeans")
+                    self.plot.plot_2d_other(pa_i, variable_index, labels_xy, "GMM")
+                    self.plot.plot_2d_other(pa_i, variable_index, spectral_labels_xy, "Spectral")
 
                 # PLOT THE FINAL RESULT IF 2 PARENTS
                 if len(pa_i) == 2:  # Only plot when there are two parents (3D case)
-                    fig = plt.figure(figsize=(10, 8))
-                    ax = fig.add_subplot(111, projection='3d')
-                    # Extract parent variables
-                    X_parent1 = self.vars[:, pa_i[0]]
-                    X_parent2 = self.vars[:, pa_i[1]]
-                    y_all = self.vars[:, variable_index]
-                    if not only_one:
-                        # Plot Group 1
-                        ax.scatter(X_group1[:, 0], X_group1[:, 1], y_group1, color='blue', alpha=0.5, label='Group 1')
-
-                        # Plot Group 2
-                        ax.scatter(X_group2[:, 0], X_group2[:, 1], y_group2, color='red', alpha=0.5, label='Group 2')
-                    else:
-                        ax.scatter(X_parent1, X_parent2, y_all, color='purple', alpha=0.5, label='Group 1')
-                    # Create a meshgrid for surface plot (MARS predictions over full dataset)
-                    x1_range = np.linspace(X_parent1.min(), X_parent1.max(), 50)
-                    x2_range = np.linspace(X_parent2.min(), X_parent2.max(), 50)
-                    X1_mesh, X2_mesh = np.meshgrid(x1_range, x2_range)
-                    X_mesh = np.column_stack([X1_mesh.ravel(), X2_mesh.ravel()])
-                    y_pred_mesh = rf.predict_mars(X_mesh, rearth).reshape(
-                        X1_mesh.shape)  # Replace `mars_model` with your prediction model
-
-                    # Plot the MARS surface for the full dataset
-                    ax.plot_surface(X1_mesh, X2_mesh, y_pred_mesh, color='green', alpha=0.3,
-                                    label='MARS (All Data)')
-
-                        # You can add separate surfaces or predictions for Group 1 and Group 2 if needed
-                    # ax.plot_surface(X1_g1_mesh, X2_g1_mesh, y_pred1_mesh, color='purple', alpha=0.3, label='MARS (Group1)')
-                    # ax.plot_surface(X1_g2_mesh, X2_g2_mesh, y_pred2_mesh, color='orange', alpha=0.3, label='MARS (Group2)')
-
-                    # Set labels and title
-                    ax.set_title(f'Variable {variable_index} vs Parents {pa_i[0]} and {pa_i[1]}')
-                    ax.set_xlabel(f'Parent Variable {pa_i[0]}')
-                    ax.set_ylabel(f'Parent Variable {pa_i[1]}')
-                    ax.set_zlabel(f'Variable {variable_index}')
-                    ax.legend()
-                    plt.tight_layout()
-                    plt.show()
-
-                    # New: KMeans 3D Clustering Plot
-                    fig = plt.figure(figsize=(10, 8))
-                    ax = fig.add_subplot(111, projection='3d')
-                    scatter = ax.scatter(X_parent1, X_parent2, y_all, c=kmeans_labels_xy, cmap='viridis', alpha=0.5)
-                    ax.set_title(f'KMeans Clusters for Variable {variable_index} vs Parents {pa_i[0]} and {pa_i[1]}')
-                    ax.set_xlabel(f'Parent Variable {pa_i[0]}')
-                    ax.set_ylabel(f'Parent Variable {pa_i[1]}')
-                    ax.set_zlabel(f'Variable {variable_index}')
-                    plt.colorbar(scatter, ax=ax, label='Cluster')
-                    plt.tight_layout()
-                    plt.show()
-
-                    # New: GMM 3D Clustering Plot
-                    fig = plt.figure(figsize=(10, 8))
-                    ax = fig.add_subplot(111, projection='3d')
-                    scatter = ax.scatter(X_parent1, X_parent2, y_all, c=labels_xy, cmap='viridis', alpha=0.5)
-                    ax.set_title(f'GMM Clusters for Variable {variable_index} vs Parents {pa_i[0]} and {pa_i[1]}')
-                    ax.set_xlabel(f'Parent Variable {pa_i[0]}')
-                    ax.set_ylabel(f'Parent Variable {pa_i[1]}')
-                    ax.set_zlabel(f'Variable {variable_index}')
-                    plt.colorbar(scatter, ax=ax, label='Cluster')
-                    plt.tight_layout()
-                    plt.show()
-
-
-            # Score for ONE MODEL
-            cost_all = self.ComputeScore(hinge_count, interactions, sse, score, len(y), self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
-            print('COST for initial model is ' + str(cost_all))
-            final_cost = cost_all
+                    self.plot.plot_3d_results(only_one, pa_i, variable_index, final_labels, rearth, y_pred1, y_pred2, labels_true)
+                    self.plot.plot_3d_other(pa_i, variable_index, kmeans_labels_xy, "KMeans")
+                    self.plot.plot_3d_other(pa_i, variable_index, labels_xy, "GMM")
+                    self.plot.plot_3d_other(pa_i, variable_index, spectral_labels_xy, "Spectral")
 
             print('COST for splitting model is ' + str(cost_split))
             eps = 0 #3100  # THREASHOLD FOR MDL DECISION (BITS)
@@ -543,10 +428,7 @@ class Spot:
                     print(f"True Positives (TP): {TP}")
                     print(f"True Negatives (TN): {TN}")
 
-                    # Check if it is one of the intv nodes if not:
-
                 else:
-                    #self.result = 0
                     print(f"Original model is better with cost difference {cost_split-cost_all}")
             else:
                 print(f"Original model is better with cost {cost_all}  SPLITTING NOT POSSIBLE")
@@ -580,13 +462,14 @@ class Spot:
             if not needed_nodes:
                 # id, num_parents, true_split, found_split, score_diff
                 with open(nodestats_file, "a") as stats:
-                    stats.write(f"{variable_index},{len(pa_i)}, {is_intv},{is_intv_found},{gmm_bic},{score_diff},{true_cost_gain},{num_iter},{accuracy},{gmm_acc},{gmm_acc_res},{kmeans_acc},{kmeans_acc_res},{f1},{gmm_f1},{gmm_f1_res},{kmeans_f1},{kmeans_f1_res} \n")
+                    stats.write(f"{variable_index},{len(pa_i)}, {is_intv},{is_intv_found},{gmm_bic},{score_diff},{true_cost_gain},{num_iter},{accuracy},{gmm_acc},{gmm_acc_res},{kmeans_acc},{kmeans_acc_res},{spectral_acc},{spectral_acc_res},{f1},{gmm_f1},{gmm_f1_res},{kmeans_f1},{kmeans_f1_res},{spectral_f1},{spectral_f1_res} \n")
 
         return self.foundIntv, accuracies
         # Finalize the logger
         #logger.WriteLog("END LOGGING FOR FILE: " + self.filename)
         #logger.End()
 
+    # CLUSTER DAG ANALYSIS PART
     def compute_f1(self, predicted_labels, labels_true):
         """Compute the best F1-score considering both direct and switched alignments."""
         # Case 1: Direct alignment
@@ -596,6 +479,7 @@ class Spot:
         f1_case2 = f1_score(labels_true, 1 - predicted_labels)  # Flip labels
 
         return max(f1_case1, f1_case2)
+
     def analyzeLabels(self):
         for node in self.ordering:
             if self.split[node] == 1:
@@ -659,56 +543,25 @@ class Spot:
         print('SCORE for splitting model is ' + str(score_split))
         return score_split
 
-    # ComputeScore(source,target,rows,child.GetMinDiff(),k=np.array([1]))
+    # SCORE COMPUTATION PART
     def ComputeScore(self, hinges, interactions, sse, model, rows, mindiff, k, show_graph=False):
         base_cost = self.slope_.model_score(k) + k * np.log2(self.V);
-        #print('BASE-cost: ' + str(base_cost))
         model_cost = self.slope_.model_score(hinges) + self.AggregateHinges(interactions, k);
-        #print('Model :  ' + str(model))
         residuals_cost = self.slope_.gaussian_score_emp_sse(sse, rows, mindiff)
-        residuals_avg_cost = residuals_cost/rows
-        #print('ROWS  is: ' + str(rows))
-        #print('AVG Cost of the residuals is (ONE): ' + str(residuals_avg_cost))
         models = model + model_cost
-        #print('ONE Model cost: ' + str(models))
-        #cost = residuals_avg_cost + base_cost + models/rows;
         cost = (residuals_cost + base_cost + models)
-        #print('FULL COST of one model: ' + str(cost))
-        #avg_cost = cost/ rows
-        #print('AVG COST of 1 model: ' + str(avg_cost))
         return cost;
 
-    def ComputeScoreSplit(self, hinges1, interactions1, sse1, model1, rows1, hinges2, interactions2, sse2, model2, rows2, mindiff, k, show_graph=False):
-        base_cost = self.slope_.model_score(k) + k * np.log2(self.V);
-        #print('BASE-cost: ' + str(base_cost))
-        model_cost1 = self.slope_.model_score(hinges1) + self.AggregateHinges(interactions1, k);
-        model_cost2 = self.slope_.model_score(hinges2) + self.AggregateHinges(interactions2, k);
-        #print('Model1 :  ' + str(model1))
-        #print('Model2 :  ' + str(model2))
-        #print('Cost of models ' + str(model_cost1) + ' and ' + str(model_cost2))
-        # Calculate Gaussian scores for each group using their SSE and row count
+    def ComputeScoreSplit(self, hinges1, interactions1, sse1, model1, rows1, hinges2, interactions2, sse2, model2, rows2, mindiff, m, show_graph=False):
+        base_cost = self.slope_.model_score(m) + m * np.log2(self.V); # m is the number of parent variables
+        model_cost1 = self.slope_.model_score(hinges1) + self.AggregateHinges(interactions1, m);
+        model_cost2 = self.slope_.model_score(hinges2) + self.AggregateHinges(interactions2, m);
         cost1 = self.slope_.gaussian_score_emp_sse(sse1, rows1, mindiff)
         cost2 = self.slope_.gaussian_score_emp_sse(sse2, rows2, mindiff)
-        #residuals_avg_cost1 = cost1/rows1
-        #residuals_avg_cost2 = cost2/rows2
-        #residuals_avg_cost = ( residuals_avg_cost1 + residuals_avg_cost2)/2
         residuals_avg_cost = (cost1 + cost2) / (rows1 + rows2)
         print('ROWS1 and ROWS2: ' + str(rows1) + ', ' + str(rows2))
-        #print('AVG Cost of the residuals is (TWO): ' + str(residuals_avg_cost))  #) + ' and ' + str(cost2))
-        #print('Cost of the residuals1 is: ' + str(residuals_avg_cost1))
-        #print('Cost of the residuals2 is: ' + str(residuals_avg_cost2))
         models = model1 + model2 + model_cost1 + model_cost2
-        #print('TWO Model cost: ' + str(models))
         total_cost = base_cost + cost1 + cost2 + models + rows1 + rows2
-        #print('FULL COST of two models: ' + str(total_cost))
-        #model1_cost = (base_cost + model1 + model_cost1 + cost1) / rows1
-        #model2_cost = (base_cost + model2 + model_cost2 + cost2) / rows2
-        #print('COST of M1: ' + str(model1_cost))
-        #print('COST of M2: ' + str(model2_cost))
-        #avg_total_cost = (model1_cost + model2_cost) / 2
-        #avg_total_cost = total_cost / (rows1 + rows2)
-        #print('Avg COST of 2: ' + str(avg_total_cost))
-        #total_cost = residuals_avg_cost + base_cost + models/(rows1 + rows2)
         return total_cost
 
     def OldComputeScore(self, source, target, rows, mindiff, k, show_graph=False):
