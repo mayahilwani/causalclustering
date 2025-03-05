@@ -1,4 +1,3 @@
-from spotRandom import SpotRandom;
 from spot import Spot;
 from slope import Slope;
 import sys;

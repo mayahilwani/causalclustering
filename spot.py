@@ -25,15 +25,17 @@ from plotting import Plotting
 class Spot:
 
     def __init__(self, max_int, log_results=True, vrb=True, dims=0):
+        self.M = max_int;
+        self.log_flag = log_results;
+        self.verbose = vrb;
+        self.V = dims;
+
         self.slope_ = Slope();
         self.plot = None
         self.vars = np.zeros((5, 5));
         self.gt = np.zeros((5, 5));
         self.attributes = [];
-        self.M = max_int;
         self.log_path = "./logs/log_" + str(datetime.now(tz=None)).replace(' ', '_') + ".txt";
-        self.log_flag = log_results;
-        self.verbose = vrb;
         self.filename = "";
         self.result = None;
         self.split = np.zeros(10);
@@ -42,11 +44,9 @@ class Spot:
         self.Nodes = [];
         self.terms = {0: 1, 1: 2, 2: 3, 3: 1, 4: 1, 5: 1, 6: 4, 7: 1, 8: 1}
         self.F = 9;
-        self.V = dims;
         self.ordering = np.zeros(10)
         self.foundIntv = []
         self.intv = []
-        #self.M = M;
         if self.log_flag:
             print("Saving results to: ", self.log_path)
 
@@ -57,38 +57,33 @@ class Spot:
             gt_file = f"{self.filename}/truth1.txt"
             gt = np.loadtxt(gt_file, delimiter=',')
             data_file1 = f"{self.filename}/data1.txt"
-            #data_file2 = f"{self.filename}/dataintv1.txt"
             data_file3 = f"{self.filename}/interventions1.txt"
             data1 = np.loadtxt(data_file1, delimiter=',')
-            #data2 = np.loadtxt(data_file2, delimiter=',')
             intvs = np.loadtxt(data_file3, delimiter=',', dtype=int)
             try:
                 intvs = np.loadtxt(data_file3, delimiter=',', dtype=int)
             except ValueError as e:
-                #print(f"Error: File empty: {e}")
                 intvs = []  # Or handle as needed
-            #if data1.shape[1] != data2.shape[1]:
-            #    raise ValueError("The two files must have the same number of columns for vertical concatenation.")
-            #variables = np.vstack((data1, data2))
             variables = data1
             attributes_file = f"{self.filename}/attributes1.txt"
             with open(attributes_file, "r") as atts:
                 lines = atts.readlines()
                 values = lines[1].strip()  # Second line contains the values
-                # Convert the values to a list (optional)
+                # Convert the values to a list
                 attributes = values.split(", ")
-
         except Exception as e:
             print(f"An error occurred: {e}")
-        self.attributes = attributes;
-        self.vars = variables;
-        self.gt = gt;
+        self.attributes = attributes
+        self.vars = variables
+        self.gt = gt
         self.intv = intvs
-        self.plot = Plotting(variables);
+        self.plot = Plotting(variables)
 
-    def run(self, needed_nodes = []):
+    def run(self, needed_nodes = [], random = False):
         if not needed_nodes:
-            nodestats_file = f"{self.filename}/node_STATS_spec.txt"
+            nodestats_file = f"{self.filename}/node_STATS.txt"
+            if random:
+                nodestats_file = f"{self.filename}/node_STATS_rand.txt"
             with open(nodestats_file, "w") as stats:
                 stats.write("id, num_parents, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, spectral_acc, spectral_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res, spectral_f1, spectral_f1_res\n")
 
@@ -258,6 +253,9 @@ class Spot:
             # Predict the cluster for each point
             labels = gmm2.predict(residuals.reshape(-1, 1))
 
+            if random:
+                labels = np.random.choice([0, 1], size=residuals.shape[0])
+
             # gmm.bic get BIC score and compair it with n_components=1    <<<<<<<<<<<<<<<<<<<<<<<
             # Get BIC scores
             bic1 = gmm1.bic(residuals.reshape(-1, 1))
@@ -308,9 +306,8 @@ class Spot:
                 rows2 = sum(labels)  # == 0 ????
                 rows1 = len(labels) - rows2
                 #print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
-                cur_cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
-                                                    interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
-                                                    np.array([len(pa_i)]), show_graph=False)
+                cur_cost_split = self.ComputeScoreSplit([hinge_count1, hinge_count2], [interactions1, interactions2], [sse1, sse2], [score1, score2],
+                                                        [rows1, rows2], self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
 
                 # Reassign the data points
                 for j in range(X.shape[0]):
@@ -372,9 +369,8 @@ class Spot:
                 rows2 = sum(final_labels)  # == 0 ????
                 rows1 = len(final_labels) - rows2
                 print(str(rows1) + ' members in group 1  and ' + str(rows2) + ' members in group 2')
-                cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
-                                                     interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
-                                                     np.array([len(pa_i)]), show_graph=False)
+                cost_split = self.ComputeScoreSplit([hinge_count1, hinge_count2], [interactions1, interactions2], [sse1, sse2], [score1, score2],
+                                                        [rows1, rows2], self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
 
 
             if needed_nodes:
@@ -450,9 +446,8 @@ class Spot:
                 rows1 = int(self.attributes[2])
                 rows2 = int(self.attributes[3])
 
-                true_cost_split = self.ComputeScoreSplit(hinge_count1, interactions1, sse1, score1, rows1, hinge_count2,
-                                                         interactions2, sse2, score2, rows2, self.Nodes[i].min_diff,
-                                                         np.array([len(pa_i)]), show_graph=False)
+                true_cost_split = self.ComputeScoreSplit([hinge_count1, hinge_count2], [interactions1, interactions2], [sse1, sse2], [score1, score2],
+                                                        [rows1, rows2], self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False)
                 true_cost_gain = cost_all - true_cost_split
 
             self.scoref[variable_index] = cost_all
@@ -552,7 +547,7 @@ class Spot:
         cost = (residuals_cost + base_cost + models)
         return cost;
 
-    def ComputeScoreSplit(self, hinges1, interactions1, sse1, model1, rows1, hinges2, interactions2, sse2, model2, rows2, mindiff, m, show_graph=False):
+    '''def ComputeScoreSplit(self, hinges1, interactions1, sse1, model1, rows1, hinges2, interactions2, sse2, model2, rows2, mindiff, m, show_graph=False):
         base_cost = self.slope_.model_score(m) + m * np.log2(self.V); # m is the number of parent variables
         model_cost1 = self.slope_.model_score(hinges1) + self.AggregateHinges(interactions1, m);
         model_cost2 = self.slope_.model_score(hinges2) + self.AggregateHinges(interactions2, m);
@@ -562,6 +557,25 @@ class Spot:
         print('ROWS1 and ROWS2: ' + str(rows1) + ', ' + str(rows2))
         models = model1 + model2 + model_cost1 + model_cost2
         total_cost = base_cost + cost1 + cost2 + models + rows1 + rows2
+        return total_cost'''
+
+    def ComputeScoreSplit(self, hinges, interactions, sse, models, rows, mindiff, m, show_graph=False):
+        base_cost = self.slope_.model_score(m) + m * np.log2(self.V)  # m is the number of parent variables
+        # Initialize total model cost and residuals cost
+        total_model_cost = 0
+        total_residuals_cost = 0
+        total_rows = 0
+        # Iterate over each cluster
+        for i in range(len(hinges)):
+            # Calculate model cost for the current cluster
+            model_cost = self.slope_.model_score(hinges[i]) + self.AggregateHinges(interactions[i], m)
+            total_model_cost += model_cost
+            # Calculate residuals cost for the current cluster
+            residuals_cost = self.slope_.gaussian_score_emp_sse(sse[i], rows[i], mindiff)
+            total_residuals_cost += residuals_cost
+            total_rows += rows[i]
+        print('Total ROWS: ' + str(total_rows)) # Print total rows for debugging
+        total_cost = base_cost + total_residuals_cost + total_model_cost + total_rows
         return total_cost
 
     def OldComputeScore(self, source, target, rows, mindiff, k, show_graph=False):

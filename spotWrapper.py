@@ -15,7 +15,6 @@ import RFunctions as rf
 
 class SpotWrapper:
     def __init__(self, slp, dims=0, M=2):
-        self.slope_ = slp;
         #self.sampler = Sampler();
         self.Transformer = DataTransformer(True);
         self.terms = {0: 1, 1: 2, 2: 3, 3: 1, 4: 1, 5: 1, 6: 4, 7: 1, 8: 1}
@@ -26,9 +25,10 @@ class SpotWrapper:
         print("Max interactions set to degree ", self.M);
 
     def generate_stats(self, file_path, n):
-        filename = "/expirement"
+        filename = "/experiment"
         # Create a new stats file
-        stats_file = f"{file_path}/STATS5_spec.txt"
+        stats_file_name = f"STATS{n}.txt"
+        stats_file = f"{file_path}/{stats_file_name}"
         with open(stats_file, "w") as stats:
             stats.write("id, intervention, dag_size, orig_data, intv_data, TP, TN, FP, FN, intv_acc, avg_cluster_acc, elapsed_time\n")
 
@@ -65,18 +65,6 @@ class SpotWrapper:
             # Update totals for averages
             total_intv_acc += intv_found_acc
             total_final_accuracies.extend(final_accuracies)
-
-        # Calculate and write overall averages to the stats file
-        overall_intv_acc = total_intv_acc / n
-        overall_avg_accuracy = (
-            sum(total_final_accuracies) / len(total_final_accuracies)
-            if total_final_accuracies
-            else 0
-        )
-        #with open(stats_file, "a") as stats:
-         #   stats.write("\n")
-          #  stats.write(f"Overall Interventions Found Accuracy: {overall_intv_acc:.2f}\n")
-           # stats.write(f"Overall Average Accuracy: {overall_avg_accuracy:.2f}\n")
 
         print(f"Stats file written to: {stats_file}")
 
@@ -127,7 +115,6 @@ class SpotWrapper:
         print(str(TP) + " INTERVENTIONS FOUND OUT OF " + str(intv_cnt) + " INTERVENTIONS")
         if TP == intv_cnt:
             print("ALL FOUND !!!")
-        #intv_acc = intv_found/intv_cnt
         return intv_accuracy, final_accuracies, TP, TN, FP, FN
 
         #spot.analyzeLabels()

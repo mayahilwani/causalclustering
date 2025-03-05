@@ -3,7 +3,7 @@ import numpy as np
 from dataTransformer import DataTransformer
 
 
-def gen_data(gt,num_samples=1000,intv_list=[],pre_config=None):
+def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config = None):
 	dims = gt.shape[1]
 	data = np.zeros((num_samples,dims))
 	transf = DataTransformer(True);
@@ -20,8 +20,8 @@ def gen_data(gt,num_samples=1000,intv_list=[],pre_config=None):
 	intv_type = [transf.intv_f, transf.intv_s, transf.intv_r, transf.intv_sh] # , transf.intv_sh
 	intv_name = ['flip', 'scale', 'random', 'shift']
 	init_set=[False for i in range(dims)]
-	f_id = np.random.randint(0,len(f))
-	intv_id = 0 #np.random.randint(0,len(intv_type))
+	#f_id = np.random.randint(0,len(f))
+	#intv_id = 0 #np.random.randint(0,len(intv_type))
 	fx = f[f_id]
 	intv = "None"
 	configs={}
