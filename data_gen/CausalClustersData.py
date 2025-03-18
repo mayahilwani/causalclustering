@@ -10,7 +10,7 @@ from dataTransformer import DataTransformer
 #np.random.seed(90001)
 np.random.seed(80300)
 
-def generate_data(filepath, n, orig, intv, intv_type, f, c=1):
+def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
     """
     Generate data based on the provided parameters.
 
@@ -31,7 +31,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=1):
     batch = n  # Use the number of tests (n) for the batch size
     md = 0.2  # ???
     dt = DataTransformer(True)
-    n_intv = 1
+    n_intv = c-1
     n_obs = 1  # ?
     n_samples = orig  # Use the number of original datapoints (orig)
 
@@ -66,7 +66,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=1):
                     all_data = [data1]  # Start with original data
                     valid_intv_list = None  # To ensure consistency across interventions
 
-                    for i in range(c):  # Loop for c interventions
+                    for i in range(n_intv):  # Loop for c-1 interventions
                         new_n_samples = intv  # Number of intervention datapoints
 
                         if valid_intv_list is None:
@@ -74,7 +74,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=1):
                             intv_list1 = list(np.random.choice(nd, intv_count, replace=False))
                             valid_intv_list = [intv for intv in intv_list1 if np.where(graph[:, intv] == 1)[0].size > 0]
 
-                        data2, _, intv = gen_data(graph, new_n_samples, valid_intv_list,0, 0, pre_config)
+                        data2, _, intv = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, pre_config)
 
                         if all_data[0].shape[1] != data2.shape[1]:
                             raise ValueError(
