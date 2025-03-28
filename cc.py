@@ -16,7 +16,8 @@ from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.metrics import accuracy_score
 import math
 from plotting import Plotting
-from traditionalClustering import TraditionalClustering as tc
+from traditionalClustering import TraditionalClustering
+from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, fowlkes_mallows_score
 
 class CC:
     def __init__(self, max_int, log_results=True, vrb=True, dims=0):
@@ -60,12 +61,22 @@ class CC:
                 intvs = np.loadtxt(intv_file, delimiter=',', dtype=int)
             except ValueError as e:
                 intvs = []  # Or handle as needed
+            self.intv = intvs
             self.vars = data
             self.plot = Plotting(self.vars)
             # Standardize the loaded data in self.vars
             #normalized_vars = self.vars  # Standardize(self.vars)
             self.V = self.vars.shape[1]
             self.result = np.zeros((self.V, self.vars.shape[0]))
+            self.node_labels = np.zeros((self.V, self.vars.shape[0]))
+            self.split = np.zeros(self.V)
+            self.k = np.zeros(self.V)
+            self.score_all = np.zeros(self.V)
+            self.score_split = np.zeros(self.V);
+            #self.Nodes = np.zeros(self.V);
+            #self.ordering = []
+            #self.foundIntv = []
+            #self.intv = []
             # Load Attributes
             attributes_file = f"{self.filename}/attributes1.txt"
             with open(attributes_file, "r") as atts:
@@ -82,7 +93,7 @@ class CC:
             if random:
                 nodestats_file = f"{self.filename}/node_STATS_rand.txt"
             with open(nodestats_file, "w") as stats:
-                stats.write("id, num_parents, k, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, spectral_acc, spectral_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res, spectral_f1, spectral_f1_res\n")
+                stats.write("id, num_parents, k, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, cc_ari, gmm_ari, gmm_ari_res, kmeans_ari, kmeans_ari_res, spectral_ari, spectral_ari_res, cc_nmi, gmm_nmi, gmm_nmi_res, kmeans_nmi, kmeans_nmi_res, spectral_nmi, spectral_nmi_res, cc_fmi, gmm_fmi, gmm_fmi_res, kmeans_fmi, kmeans_fmi_res, spectral_fmi, spectral_fmi_res\n")
 
         #headers = [i for i in range(0, self.V)]                                !! NO IDEA !!
         # Initialize the logger
@@ -112,10 +123,13 @@ class CC:
         for node in range(0, self.V):
             self.Nodes.append(Node(self.vars[:, node].reshape(self.vars.shape[0], -1), self))
 
-        accuracies = []
+        ari_scores = []
+        nmi_scores = []
+        fmi_scores = []
 
         for i,variable_index in enumerate(self.ordering):
             is_intv = 1 if variable_index in self.intv else 0
+            is_intv_found = 0
             # Get parents of the node
             pa_i = np.where(self.gt[:, variable_index] == 1)[0]
             print('ITER ' + str(i))
@@ -137,12 +151,13 @@ class CC:
             # Score for ONE MODEL
             cost_all = self.ComputeScore(hinge_count, interactions, sse, score, len(y), self.Nodes[i].min_diff,
                                          np.array([len(pa_i)]), show_graph=False)
-            self.scoref[variable_index] = cost_all
+            self.score_all[variable_index] = cost_all
+            print(f"Cost of ONE MODEL : {cost_all}")
             final_cost = cost_all
             min_cost = math.inf
             best_k = 1
             final_labels = np.zeros(self.vars.shape[0])
-            true_k = self.attributes[4] + 1
+            true_k = int(self.attributes[4]) + 1
             labels_true = np.array([0] * int(self.attributes[2]) +
                                    [i for i in range(1, true_k) for _ in range(int(self.attributes[3]))])
 
@@ -155,7 +170,7 @@ class CC:
                 sse_values = []
                 row_counts = []
 
-                for cluster in true_k:
+                for cluster in range(true_k):
                     X_group = X[labels_true == cluster, :]
                     y_group = y[labels_true == cluster]
 
@@ -175,39 +190,71 @@ class CC:
                 )
 
                 true_cost_gain = cost_all - true_cost_split
-
+            min_cc_ari = 0
+            min_cc_nmi = 0
+            min_cc_fmi = 0
             for clusters in range(2,k+1):
-                gmm_acc = 0
-                kmeans_acc = 0
-                gmm_acc_res = 0
-                kmeans_acc_res = 0
-                spectral_acc = 0
-                spectral_acc_res = 0
-                cc_accuracy = 0
-                cc_f1 = 0
-                gmm_f1 = 0
-                gmm_f1_res = 0
-                kmeans_f1 = 0
-                kmeans_f1_res = 0
-                spectral_f1 = 0
-                spectral_f1_res = 0
+                gmm_ari = 0
+                kmeans_ari = 0
+                spectral_ari = 0
+                gmm_ari_res = 0
+                kmeans_ari_res = 0
+                spectral_ari_res = 0
+                gmm_nmi = 0
+                kmeans_nmi = 0
+                spectral_nmi = 0
+                gmm_nmi_res = 0
+                kmeans_nmi_res = 0
+                spectral_nmi_res = 0
+                gmm_fmi = 0
+                kmeans_fmi = 0
+                spectral_fmi = 0
+                gmm_fmi_res = 0
+                kmeans_fmi_res = 0
+                spectral_fmi_res = 0
                 is_intv_found_k = 0
                 is_intv_k = 1 if ((variable_index in self.intv) and (clusters == true_k)) else 0
+                cc_ari = 0
+                cc_nmi = 0
+                cc_fmi = 0
+
+                # Initialize predicted labels with empty lists
+                gmm_labels = []
+                kmeans_labels = []
+                spectral_labels = []
+                gmm_res_labels = []
+                kmeans_res_labels = []
+                spectral_res_labels = []
 
                 # Get the clustering results ( accuracy and f1_score) of GMM , Kmeans, Spectral on Xy-data and on residuals
                 if is_intv:
-                    clustering_results = tc.getTraditionalClustering(data_xy, residuals, labels_true, clusters)
+                    tc = TraditionalClustering()
+                    clustering_results, predicted_labels = tc.getTraditionalClustering(data_xy, residuals, labels_true, clusters)
                     (
-                        gmm_acc, kmeans_acc, spectral_acc,
-                        gmm_acc_res, kmeans_acc_res, spectral_acc_res,
-                        gmm_f1, kmeans_f1, spectral_f1,
-                        gmm_f1_res, kmeans_f1_res, spectral_f1_res
+                        gmm_ari, kmeans_ari, spectral_ari,
+                        gmm_ari_res, kmeans_ari_res, spectral_ari_res,
+                        gmm_nmi, kmeans_nmi, spectral_nmi,
+                        gmm_nmi_res, kmeans_nmi_res, spectral_nmi_res,
+                        gmm_fmi, kmeans_fmi, spectral_fmi,
+                        gmm_fmi_res, kmeans_fmi_res, spectral_fmi_res
                     ) = (
                         clustering_results.get(key, 0) for key in [
-                        "gmm_xy_accuracy", "kmeans_xy_accuracy", "spectral_xy_accuracy",
-                        "gmm_res_accuracy", "kmeans_res_accuracy", "spectral_res_accuracy",
-                        "gmm_xy_f1", "kmeans_xy_f1", "spectral_xy_f1",
-                        "gmm_res_f1", "kmeans_res_f1", "spectral_res_f1"
+                        "gmm_xy_ARI", "kmeans_xy_ARI", "spectral_xy_ARI",
+                        "gmm_res_ARI", "kmeans_res_ARI", "spectral_res_ARI",
+                        "gmm_xy_NMI", "kmeans_xy_NMI", "spectral_xy_NMI",
+                        "gmm_res_NMI", "kmeans_res_NMI", "spectral_res_NMI",
+                        "gmm_xy_FMI", "kmeans_xy_FMI", "spectral_xy_FMI",
+                        "gmm_res_FMI", "kmeans_res_FMI", "spectral_res_FMI"
+                    ]
+                    )
+                    # Unpack predicted labels
+                    (
+                        gmm_labels, kmeans_labels, spectral_labels,
+                        gmm_res_labels, kmeans_res_labels, spectral_res_labels
+                    ) = (
+                        predicted_labels.get(key, []) for key in [
+                        "gmm_xy", "kmeans_xy", "spectral_xy",
+                        "gmm_res", "kmeans_res", "spectral_res"
                     ]
                     )
 
@@ -216,66 +263,82 @@ class CC:
 
                 if k_split_possible:
                     # compair scores and all that and save node row to the file.
-                    print('COST for splitting model is ' + str(cost_split))
+                    print(f'COST for splitting model with {clusters} is {str(cost_split)}')
                     eps = 0  # 3100  # THREASHOLD FOR MDL DECISION (BITS)
-
-                    if cost_split < min_cost:
-                        min_cost = cost_split
-                        best_k = clusters
-                        final_labels = labels_split
 
                     if cost_split < cost_all:
                         print(f"Splitting model with {clusters} is better with score  {cost_all - cost_split}")
                         #final_cost = cost_split
                         #self.foundIntv.append(variable_index)
                         is_intv_found_k = 1
-
-                        re_labels = tc.match_labels_sklearn(labels_split, labels_true)
-                        ami_score = adjusted_mutual_info_score(labels_true, re_labels)
-                        print("Adjusted Mutual Information Score:", ami_score)
-
-                        cc_f1 = tc.compute_f1(re_labels, labels_true)      # ALSO HAVE F1_SCORES ARRAY TO RETURN??
-                        cc_accuracy = accuracy_score(labels_true, re_labels)
-                        print(f"Accuracy: {cc_accuracy}")
-                        accuracies.append(cc_accuracy)
-                    else: print(f"Original model is better than {clusters} split, with cost difference {cost_split - cost_all}")
+                        is_intv_found = 1
+                        # Compute CC method clustering metrics
+                        cc_ari = adjusted_rand_score(labels_true, labels_split)
+                        cc_nmi = normalized_mutual_info_score(labels_true, labels_split)
+                        cc_fmi = fowlkes_mallows_score(labels_true, labels_split)
+                        print("CC ARI:", cc_ari)
+                        print("CC NMI:", cc_nmi)
+                        print("CC FMI:", cc_fmi)
+                    else:
+                        print(
+                            f"Original model is better than {clusters} split, with cost difference {cost_split - cost_all}")
+                    if cost_split < min_cost:
+                        min_cost = cost_split
+                        best_k = clusters
+                        final_labels = labels_split
+                        min_cc_ari = cc_ari
+                        min_cc_nmi = cc_nmi
+                        min_cc_fmi = cc_fmi
                 else: print(f"Original model is better with cost {cost_all}  SPLITTING with {clusters} clusters NOT POSSIBLE")
 
-                score_diff = cost_all - cost_split
+                if needed_nodes:
+                    # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
+                    if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
+                        #self.plot.plot_2d_results(only_one, pa_i, variable_index, final_labels, y_pred, y_pred1,
+                         #                         y_pred2, labels_true)
+                        self.plot.plot_2d_other(pa_i, variable_index, final_labels, 'CC method')
+                        self.plot.plot_2d_other(pa_i, variable_index, kmeans_labels, "KMeans")
+                        self.plot.plot_2d_other(pa_i, variable_index, kmeans_res_labels, "KMeans on residuals")
+                        self.plot.plot_2d_other(pa_i, variable_index, gmm_labels, "GMM")
+                        self.plot.plot_2d_other(pa_i, variable_index, gmm_res_labels, "GMM on residuals")
+                        self.plot.plot_2d_other(pa_i, variable_index, spectral_labels, "Spectral")
+                        self.plot.plot_2d_other(pa_i, variable_index, spectral_res_labels, "Spectral on residuals")
+
+                    # PLOT THE FINAL RESULT IF 2 PARENTS
+                    if len(pa_i) == 2:  # Only plot when there are two parents (3D case)
+                        self.plot.plot_3d_other(pa_i, variable_index, final_labels, 'CC method')
+                        self.plot.plot_3d_other(pa_i, variable_index, kmeans_labels, "KMeans")
+                        self.plot.plot_3d_other(pa_i, variable_index, kmeans_res_labels, "KMeans on residuals")
+                        self.plot.plot_3d_other(pa_i, variable_index, gmm_labels, "GMM")
+                        self.plot.plot_3d_other(pa_i, variable_index, gmm_res_labels, "GMM on residuals")
+                        self.plot.plot_3d_other(pa_i, variable_index, spectral_labels, "Spectral")
+                        self.plot.plot_3d_other(pa_i, variable_index, spectral_res_labels, "Spectral on residuals")
+                if cost_split is math.inf:
+                    score_diff = 0
+                else:
+                    score_diff = cost_all - cost_split
                 if not needed_nodes:
                     # id, num_parents, true_split, found_split, score_diff
                     with open(nodestats_file, "a") as stats:
                         stats.write(
-                            f"{variable_index},{len(pa_i)}, {clusters}, {is_intv_k},{is_intv_found_k},{gmm_bic},{score_diff},{true_cost_gain},{num_iter},{cc_accuracy},{gmm_acc},{gmm_acc_res},{kmeans_acc},{kmeans_acc_res},{spectral_acc},{spectral_acc_res},{cc_f1},{gmm_f1},{gmm_f1_res},{kmeans_f1},{kmeans_f1_res},{spectral_f1},{spectral_f1_res} \n")
+                            f"{variable_index},{len(pa_i)}, {clusters}, {is_intv_k},{is_intv_found_k},{gmm_bic},{score_diff},{true_cost_gain},{num_iter},{cc_ari}, {gmm_ari}, {gmm_ari_res}, {kmeans_ari}, {kmeans_ari_res}, {spectral_ari}, {spectral_ari_res}, {cc_nmi}, {gmm_nmi}, {gmm_nmi_res}, {kmeans_nmi}, {kmeans_nmi_res}, {spectral_nmi}, {spectral_nmi_res}, {cc_fmi}, {gmm_fmi}, {gmm_fmi_res}, {kmeans_fmi}, {kmeans_fmi_res}, {spectral_fmi}, {spectral_fmi_res} \n")
 
-                # "id, num_parents, k, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, method_acc, gmm_acc, gmm_acc_res, kmeans_acc, kmeans_acc_res, spectral_acc, spectral_acc_res, f1, gmm_f1, gmm_f1_res, kmeans_f1, kmeans_f1_res, spectral_f1, spectral_f1_res
-                #######################################################################################
-                # need to write values to file.
+            if min_cost is math.inf:
                 self.score_all[variable_index] = cost_all
+                min_cost = cost_all
+            else:
                 self.score_split[variable_index] = min_cost
-                self.node_labels[variable_index] = final_labels
-                self.k[variable_index] = best_k
-
-
-        # Plot when needed nodes only for k that had best score. ( OR FOR THE TRUE k ??? )
-        '''            if needed_nodes:
-                # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
-                if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
-                    self.plot.plot_2d_results(only_one, pa_i, variable_index, final_labels, y_pred, y_pred1, y_pred2, labels_true)
-                    self.plot.plot_2d_other(pa_i, variable_index, kmeans_labels_xy, "KMeans")
-                    self.plot.plot_2d_other(pa_i, variable_index, labels_xy, "GMM")
-                    self.plot.plot_2d_other(pa_i, variable_index, spectral_labels_xy, "Spectral")
-
-                # PLOT THE FINAL RESULT IF 2 PARENTS
-                if len(pa_i) == 2:  # Only plot when there are two parents (3D case)
-                    self.plot.plot_3d_results(only_one, pa_i, variable_index, final_labels, rearth, y_pred1, y_pred2, labels_true)
-                    self.plot.plot_3d_other(pa_i, variable_index, kmeans_labels_xy, "KMeans")
-                    self.plot.plot_3d_other(pa_i, variable_index, labels_xy, "GMM")
-                    self.plot.plot_3d_other(pa_i, variable_index, spectral_labels_xy, "Spectral")'''
-
-
-
-
+            print(f"Cost of one model is {cost_all} and Min cost is {min_cost}")
+            print(f"Best k is : {best_k}")
+            self.node_labels[variable_index] = final_labels
+            self.k[variable_index] = best_k
+            nmi_scores.append(min_cc_nmi)
+            fmi_scores.append(min_cc_fmi)
+            if is_intv_found:
+                self.foundIntv.append(variable_index)
+                self.split[variable_index] = 1
+                ari_scores.append(min_cc_ari)
+        return self.foundIntv, ari_scores  # ari only for nodes where foundIntv is true
 
 
     def my_function(self, i, pa_i, residuals, k, random, mdl_th, needed_nodes):
@@ -342,7 +405,7 @@ class CC:
                 group_sizes.append(len(y_group))
 
             if not k_split_possible:
-                return 0, [], k_split_possible, 0
+                return math.inf, [], k_split_possible, 0, gmm_bic
 
             # Reassign each data point to the best cluster based on residuals
             for j in range(X.shape[0]):
@@ -361,20 +424,20 @@ class CC:
                 # Assign the point to the cluster with the smallest residual
                 labels[j] = min(residuals_c, key=residuals_c.get)
 
-            '''# Plot results if needed             Move to the other function maybe
+            '''# Plot results if needed
             if needed_nodes:
                 if len(pa_i) == 1:
-                    self.plot.plot_2d_other(pa_i, variable_index, last_groups, "Method Iterations")
+                    self.plot.plot_2d_other(pa_i, i, labels, "Method Iterations")
                 elif len(pa_i) == 2:
-                    self.plot.plot_3d_other(pa_i, variable_index, last_groups, "Method Iterations")
-'''
+                    self.plot.plot_3d_other(pa_i, i, labels, "Method Iterations")'''
+
             # Stopping criteria
             change_threshold = 0.005
             changes = np.sum(labels != last_groups)
 
             if (not first_iter and ((changes / len(labels)) < change_threshold)) or num_iter > 100:
                 final_labels = labels.copy()
-                print(f'Threshold BREAK: {changes / len(labels)} !!!')
+                print(f'Threshold BREAK: {changes / len(labels)}  OR  NUM ITER: {num_iter}!!!')
                 break
 
             if mdl_th:
@@ -383,8 +446,8 @@ class CC:
                     hinge_counts, interactions, sse_values, scores, group_sizes,
                     self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False
                 )
-                if cur_cost_split >= prev_cost_split:
-                    final_labels = labels.copy()
+                if cur_cost_split > prev_cost_split:
+                    final_labels = last_groups.copy()
                     print(f'MDL Score BREAK: {cur_cost_split - prev_cost_split} !!!')
                     break
                 prev_cost_split = cur_cost_split
@@ -434,8 +497,8 @@ class CC:
             hinge_counts_list, interactions_list, sse_list, score_list,
             group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False
         )
-
-        return cost_split, final_labels, k_split_possible, num_iter
+        # cost_split, labels_split, k_split_possible, num_iter, gmm_bic
+        return cost_split, final_labels, k_split_possible, num_iter, gmm_bic
 
     # SCORE COMPUTATION PART
     def ComputeScore(self, hinges, interactions, sse, model, rows, mindiff, k, show_graph=False):

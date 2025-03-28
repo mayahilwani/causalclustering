@@ -1,6 +1,6 @@
 from top_sort import *
 import numpy as np
-from dataTransformer import DataTransformer
+from data_gen.dataTransformer import DataTransformer
 
 
 def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config = None):
@@ -16,7 +16,7 @@ def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config 
 	
 	ordering = g.nonRecursiveTopologicalSort()
 	# ADD FUNC HERE IF ADDED IN dataTransformer.py
-	f = [ transf.poly  ] # , transf.osc
+	f = [ transf.poly , transf.osc ] # , transf.osc
 	intv_type = [transf.intv_f, transf.intv_s, transf.intv_r, transf.intv_sh] # , transf.intv_sh
 	intv_name = ['flip', 'scale', 'random', 'shift']
 	init_set=[False for i in range(dims)]

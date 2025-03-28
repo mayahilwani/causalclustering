@@ -4,8 +4,8 @@ import os
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-from dgen import *
-from dataTransformer import DataTransformer
+from data_gen.dgen import *
+from data_gen.dataTransformer import DataTransformer
 
 #np.random.seed(90001)
 np.random.seed(80300)
@@ -72,9 +72,9 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
                         if valid_intv_list is None:
                             intv_count = np.random.randint(1, int(np.log2(nodes) + 1))  # Select intervention count
                             intv_list1 = list(np.random.choice(nd, intv_count, replace=False))
-                            valid_intv_list = [intv for intv in intv_list1 if np.where(graph[:, intv] == 1)[0].size > 0]
+                            valid_intv_list = [interv for interv in intv_list1 if np.where(graph[:, interv] == 1)[0].size > 0]
 
-                        data2, _, intv = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, pre_config)
+                        data2, _, intv_name = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, pre_config)
 
                         if all_data[0].shape[1] != data2.shape[1]:
                             raise ValueError(
@@ -101,7 +101,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
                     attributes_file = f"{store_path}attributes1.txt"
                     with open(attributes_file, "w") as atts:
                         atts.write("intervention_type, num_nodes, orig_data, intv_data, num_interventions\n")
-                        atts.write(f"{intv}, {str(nd)}, {str(n_samples)}, {str(new_n_samples)}, {str(c)}\n")
+                        atts.write(f"{intv_name}, {str(nd)}, {str(n_samples)}, {str(new_n_samples)}, {str(n_intv)}\n")
 
 def main():
     # Example usage

@@ -1,0 +1,1026 @@
+C:\Users\ziadh\AppData\Local\Programs\Python\Python312\python.exe C:\Users\ziadh\Documents\..MAYAMSC\maya_thesis\runTest.py 
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+Node:  10 :  polynomial , noise:  uniform Density:  2.0
+OLD COEF: [2.57137413 3.91743103]
+NEW COEF: [4.84291647 7.37807502]
+f-ids:   [0 1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [2]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment1/data1.txt
+OLD COEF: [-4.18112406 -3.3653579 ]
+NEW COEF: [-10.24798701  -8.24853402]
+f-ids:   [0 1]
+PRINT in intv()
+Y_val is changed. 
+OLD COEF: [ 4.22987939 -3.61505342]
+NEW COEF: [ 9.6122098  -8.21504556]
+f-ids:   [1 1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [0, 5]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment2/data1.txt
+OLD COEF: [4.34819771 2.14941174]
+NEW COEF: [7.21052093 3.56432237]
+f-ids:   [0 1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [1]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment3/data1.txt
+OLD COEF: [-3.56010442]
+NEW COEF: [-8.33113197]
+f-ids:   [1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [5]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment4/data1.txt
+OLD COEF: [-3.76481506]
+NEW COEF: [-6.89521434]
+f-ids:   [1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [0]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment5/data1.txt
+OLD COEF: [-3.7683745   3.27358744]
+NEW COEF: [-9.05423876  7.86541844]
+f-ids:   [0 1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [7]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment6/data1.txt
+OLD COEF: [ 2.88472721 -2.28280645]
+NEW COEF: [ 6.34238491 -5.01899699]
+f-ids:   [1 1]
+PRINT in intv()
+Y_val is changed. 
+Intervention 1: [8]
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment7/data1.txt
+Intervention 1: []
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment8/data1.txt
+Intervention 1: []
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment9/data1.txt
+Intervention 1: []
+SHAPE IS :  (600, 10)
+./tests/test_10_500_100_1_0_2_3_0/experiment10/data1.txt
+Max interactions set to degree  2
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment1
+Saving results to:  ./logs/log_2025-03-24_11:29:21.950643.txt
+ORDERING [0, 7, 6, 8, 4, 3, 9, 2, 5, 1]
+Interventions 2
+ITER 0
+Node 0 has no parents.
+ITER 1
+NODE 7 has parents [0]
+Threshold BREAK: 0.20833333333333334 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [9870.17555431]
+Splitting model with 2 is better with score  [3369.58699882]
+CC ARI: -0.0006025732804114319
+CC NMI: 1.7604484252484123e-05
+CC FMI: 0.6014542731517686
+Threshold BREAK: 0.22833333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [9746.13947621]
+Splitting model with 3 is better with score  [3493.62307691]
+CC ARI: -0.0016383973678467945
+CC NMI: 0.0011533846860429212
+CC FMI: 0.5499699200419066
+Cost of one model is [13239.76255313] and Min cost is [9746.13947621]
+ITER 2
+NODE 6 has parents [0]
+Threshold BREAK: 0.19666666666666666 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11077.57600444]
+Splitting model with 2 is better with score  [2277.94332435]
+CC ARI: 0.0040936027441369725
+CC NMI: 0.0011378706497495873
+CC FMI: 0.606234415491653
+Threshold BREAK: 0.2816666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10867.47759769]
+Splitting model with 3 is better with score  [2488.04173109]
+CC ARI: -0.0008358185333304842
+CC NMI: 0.0004317068068495101
+CC FMI: 0.4893462239693632
+Cost of one model is [13355.51932879] and Min cost is [10867.47759769]
+ITER 3
+NODE 8 has parents [6]
+Threshold BREAK: 0.0 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12989.88827117]
+Original model is better with cost [12812.78817049]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12812.78817049] and Min cost is [12989.88827117]
+ITER 4
+NODE 4 has parents [6 8]
+Original model is better with cost [7548.00395324]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [7548.00395324]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [7548.00395324] and Min cost is [7548.00395324]
+ITER 5
+NODE 3 has parents [6 8]
+Original model is better with cost [11980.30004038]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [11980.30004038]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [11980.30004038] and Min cost is [11980.30004038]
+ITER 6
+NODE 9 has parents [3 8]
+Original model is better with cost [9919.61744032]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [9919.61744032]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [9919.61744032] and Min cost is [9919.61744032]
+ITER 7
+NODE 2 has parents [6 8]
+Total ROWS: 600
+Graph is not fully connected, spectral embedding may not work as expected.
+Threshold BREAK: 0.0 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12714.95784238]
+Graph is not fully connected, spectral embedding may not work as expected.
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [11059.73612527]
+Cost of one model is [9583.44577825] and Min cost is [11059.73612527]
+ITER 8
+NODE 5 has parents [0 3]
+Original model is better with cost [136.53382073]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [136.53382073]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [136.53382073] and Min cost is [136.53382073]
+ITER 9
+NODE 1 has parents [0 8]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10671.49299314]
+Splitting model with 2 is better with score  [1573.89501707]
+CC ARI: -0.01601239428038353
+CC NMI: 0.0016804716387828554
+CC FMI: 0.8200841425301988
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10849.09064703]
+Splitting model with 3 is better with score  [1396.29736317]
+CC ARI: -0.00012253754593530023
+CC NMI: 0.005577990898352618
+CC FMI: 0.8075480930282459
+Original model is better than 3 split, with cost difference [-1396.29736317]
+Cost of one model is [12245.38801021] and Min cost is [10671.49299314]
+0 INTERVENTIONS FOUND OUT OF 1 INTERVENTIONS
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment2
+Saving results to:  ./logs/log_2025-03-24_11:37:03.594025.txt
+ORDERING [8, 4, 3, 2, 9, 7, 6, 1, 0, 5]
+Interventions [0 5]
+ITER 0
+Node 8 has no parents.
+ITER 1
+NODE 4 has parents [8]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10916.78614124]
+Splitting model with 2 is better with score  [25.59719099]
+CC ARI: -0.0078091596512684346
+CC NMI: 0.0037926996414352236
+CC FMI: 0.8440138347502821
+Threshold BREAK: 0.085 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10697.25866635]
+Splitting model with 3 is better with score  [245.12466588]
+CC ARI: 0.00369136755908669
+CC NMI: 0.0005787379375401219
+CC FMI: 0.6031361314412458
+Cost of one model is [10942.38333223] and Min cost is [10697.25866635]
+ITER 2
+Node 3 has no parents.
+ITER 3
+NODE 2 has parents [3 8]
+Threshold BREAK: 0.06833333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10383.35276271]
+Splitting model with 2 is better with score  [1137.83243963]
+CC ARI: 0.0001342983485116158
+CC NMI: 4.984860616344364e-05
+CC FMI: 0.6058837293528959
+Threshold BREAK: 0.16666666666666666 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10264.99563288]
+Splitting model with 3 is better with score  [1256.18956946]
+CC ARI: -0.001080794421594719
+CC NMI: 0.00016569174985675786
+CC FMI: 0.4906832961562242
+Cost of one model is [11521.18520234] and Min cost is [10264.99563288]
+ITER 4
+NODE 9 has parents [2 4]
+Threshold BREAK: 0.06833333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [13127.03040517]
+Threshold BREAK: 0.29333333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [13012.68813266]
+Cost of one model is [10905.48083608] and Min cost is [13012.68813266]
+ITER 5
+NODE 7 has parents [3 9]
+Original model is better with cost [8399.4306705]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [8399.4306705]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [8399.4306705] and Min cost is [8399.4306705]
+ITER 6
+NODE 6 has parents [8 9]
+Threshold BREAK: 0.005 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [13202.32199809]
+Threshold BREAK: 0.018333333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [11155.59544448]
+Splitting model with 3 is better with score  [1868.72938714]
+CC ARI: -0.014232705985718864
+CC NMI: 0.00073863332787636
+CC FMI: 0.6794474370346575
+Cost of one model is [13024.32483162] and Min cost is [11155.59544448]
+ITER 7
+NODE 1 has parents [2 3]
+Threshold BREAK: 0.006666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10492.68107654]
+Threshold BREAK: 0.145 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10344.42894258]
+Splitting model with 3 is better with score  [50.41876609]
+CC ARI: -0.004004613743068839
+CC NMI: 0.00029078728187209026
+CC FMI: 0.5015131287869393
+Cost of one model is [10394.84770866] and Min cost is [10344.42894258]
+ITER 8
+NODE 0 has parents [2 3]
+Total ROWS: 600
+Threshold BREAK: 0.016666666666666666 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11165.2132906]
+Splitting model with 2 is better with score  [4241.48245524]
+CC ARI: 0.9036385761721316
+CC NMI: 0.8043065495529771
+CC FMI: 0.9725897278319766
+Threshold BREAK: 0.105 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10823.44679238]
+Splitting model with 3 is better with score  [4583.24895347]
+CC ARI: 0.354780340453296
+CC NMI: 0.5247616616860611
+CC FMI: 0.71061643077502
+Cost of one model is [15406.69574585] and Min cost is [10823.44679238]
+ITER 9
+NODE 5 has parents [0 1]
+Total ROWS: 600
+Threshold BREAK: 0.028333333333333332 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12229.65238516]
+Splitting model with 2 is better with score  [1199.47226472]
+CC ARI: -0.02399761189788522
+CC NMI: 0.0025732032489612353
+CC FMI: 0.664275374583741
+Original model is better with cost [13429.12464988]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [13429.12464988] and Min cost is [12229.65238516]
+2 INTERVENTIONS FOUND OUT OF 2 INTERVENTIONS
+ALL FOUND !!!
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment3
+Saving results to:  ./logs/log_2025-03-24_11:59:43.360359.txt
+ORDERING [5, 4, 8, 7, 3, 9, 2, 1, 0, 6]
+Interventions 1
+ITER 0
+Node 5 has no parents.
+ITER 1
+Node 4 has no parents.
+ITER 2
+NODE 8 has parents [4]
+Threshold BREAK: 0.195 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10855.22680877]
+Original model is better with cost [10050.82099027]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [10050.82099027] and Min cost is [10855.22680877]
+ITER 3
+NODE 7 has parents [5 8]
+Threshold BREAK: 0.03833333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10384.63729741]
+Threshold BREAK: 0.19 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10255.35134429]
+Cost of one model is [9008.09217213] and Min cost is [10255.35134429]
+ITER 4
+Node 3 has no parents.
+ITER 5
+NODE 9 has parents [3 5]
+Threshold BREAK: 0.155 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [8913.65673687]
+Splitting model with 2 is better with score  [400.35209105]
+CC ARI: -0.0010380347130180697
+CC NMI: 1.959797213661661e-06
+CC FMI: 0.6015676367662462
+Threshold BREAK: 0.24666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [8944.8705752]
+Splitting model with 3 is better with score  [369.13825272]
+CC ARI: 0.008865026859135785
+CC NMI: 0.0031256217257064683
+CC FMI: 0.5078330085373403
+Original model is better than 3 split, with cost difference [-369.13825272]
+Cost of one model is [9314.00882791] and Min cost is [8913.65673687]
+ITER 6
+Node 2 has no parents.
+ITER 7
+NODE 1 has parents [3 9]
+Total ROWS: 600
+Threshold BREAK: 0.105 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11506.58621428]
+Splitting model with 2 is better with score  [36.17665538]
+CC ARI: 0.08677594435760573
+CC NMI: 0.03483849683503213
+CC FMI: 0.6665665418358564
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10962.5399449]
+Splitting model with 3 is better with score  [580.22292475]
+CC ARI: 0.029631892869308375
+CC NMI: 0.025539246379783213
+CC FMI: 0.6494172213082674
+Cost of one model is [11542.76286965] and Min cost is [10962.5399449]
+ITER 8
+NODE 0 has parents [5 9]
+Threshold BREAK: 0.02 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [8925.98527754]
+Splitting model with 2 is better with score  [745.08808341]
+CC ARI: 0.0062758193236904045
+CC NMI: 0.0002975828118448655
+CC FMI: 0.6481357223416613
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [8801.41876553]
+Splitting model with 3 is better with score  [869.65459542]
+CC ARI: 0.004424267675363153
+CC NMI: 0.0009641677635686743
+CC FMI: 0.5917001215928238
+Cost of one model is [9671.07336095] and Min cost is [8801.41876553]
+ITER 9
+NODE 6 has parents [0 4]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12679.2567483]
+Original model is better with cost [8533.17751757]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [8533.17751757] and Min cost is [12679.2567483]
+1 INTERVENTIONS FOUND OUT OF 1 INTERVENTIONS
+ALL FOUND !!!
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment4
+Saving results to:  ./logs/log_2025-03-24_12:15:00.270518.txt
+ORDERING [7, 3, 8, 5, 1, 9, 2, 0, 6, 4]
+Interventions 5
+ITER 0
+Node 7 has no parents.
+ITER 1
+Node 3 has no parents.
+ITER 2
+NODE 8 has parents [3]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [9836.68512575]
+Splitting model with 2 is better with score  [3310.33136893]
+CC ARI: -0.009873428780856211
+CC NMI: 0.00032176180434914144
+CC FMI: 0.7914567563792348
+Original model is better with cost [13147.01649468]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [13147.01649468] and Min cost is [9836.68512575]
+ITER 3
+NODE 5 has parents [3]
+Total ROWS: 600
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10537.63426241]
+Splitting model with 2 is better with score  [1422.2551914]
+CC ARI: 0.577001092524579
+CC NMI: 0.4813136612067835
+CC FMI: 0.9083414653448855
+Threshold BREAK: 0.07333333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10568.64971094]
+Splitting model with 3 is better with score  [1391.23974286]
+CC ARI: 0.3889901057597407
+CC NMI: 0.213830782591856
+CC FMI: 0.8030467783959399
+Original model is better than 3 split, with cost difference [-1391.23974286]
+Cost of one model is [11959.88945381] and Min cost is [10537.63426241]
+ITER 4
+NODE 1 has parents [3]
+Threshold BREAK: 0.17333333333333334 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10403.1140603]
+Splitting model with 2 is better with score  [1148.45314665]
+CC ARI: -0.0009281261901017848
+CC NMI: 0.0011217778026187842
+CC FMI: 0.5999643253199728
+Threshold BREAK: 0.25166666666666665 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10319.85096073]
+Splitting model with 3 is better with score  [1231.71624622]
+CC ARI: -0.0008179335643813629
+CC NMI: 0.003305222807780562
+CC FMI: 0.49146259804576214
+Cost of one model is [11551.56720695] and Min cost is [10319.85096073]
+ITER 5
+NODE 9 has parents [1 3]
+Original model is better with cost [9792.42741095]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [9792.42741095]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [9792.42741095] and Min cost is [9792.42741095]
+ITER 6
+NODE 2 has parents [5 9]
+Original model is better with cost [10819.1841918]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [10819.1841918]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [10819.1841918] and Min cost is [10819.1841918]
+ITER 7
+Node 0 has no parents.
+ITER 8
+NODE 6 has parents [0 7]
+Threshold BREAK: 0.056666666666666664 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10905.45620038]
+Threshold BREAK: 0.11666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10744.28920658]
+Cost of one model is [10431.82851404] and Min cost is [10744.28920658]
+ITER 9
+NODE 4 has parents [5 6]
+Threshold BREAK: 0.006666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10781.36917408]
+Splitting model with 2 is better with score  [1961.76658661]
+CC ARI: -0.005057602814440035
+CC NMI: 0.00034859415461957976
+CC FMI: 0.837419206479222
+Original model is better with cost [12743.13576069]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12743.13576069] and Min cost is [10781.36917408]
+1 INTERVENTIONS FOUND OUT OF 1 INTERVENTIONS
+ALL FOUND !!!
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment5
+Saving results to:  ./logs/log_2025-03-24_12:26:42.012541.txt
+ORDERING [5, 3, 1, 7, 6, 8, 0, 9, 2, 4]
+Interventions 0
+ITER 0
+Node 5 has no parents.
+ITER 1
+Node 3 has no parents.
+ITER 2
+Node 1 has no parents.
+ITER 3
+NODE 7 has parents [1 5]
+Threshold BREAK: 0.025 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11717.06462216]
+Threshold BREAK: 0.06666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [11522.05303393]
+Cost of one model is [10304.57982221] and Min cost is [11522.05303393]
+ITER 4
+NODE 6 has parents [7]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10388.66881067]
+Splitting model with 2 is better with score  [2295.75482929]
+CC ARI: -0.02147264576036968
+CC NMI: 0.001323418786004768
+CC FMI: 0.738063883149604
+Threshold BREAK: 0.013333333333333334 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10138.88446961]
+Splitting model with 3 is better with score  [2545.53917036]
+CC ARI: -0.0008830678510140697
+CC NMI: 3.634197080545227e-16
+CC FMI: 0.6247884766387515
+Cost of one model is [12684.42363997] and Min cost is [10138.88446961]
+ITER 5
+NODE 8 has parents [6]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12867.99860371]
+Original model is better with cost [9885.25744154]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [9885.25744154] and Min cost is [12867.99860371]
+ITER 6
+NODE 0 has parents [1]
+Total ROWS: 600
+Threshold BREAK: 0.05333333333333334 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10502.06228752]
+Splitting model with 2 is better with score  [2702.42997292]
+CC ARI: 0.23464437997449622
+CC NMI: 0.19162822973649835
+CC FMI: 0.713150850422662
+Threshold BREAK: 0.08666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10218.70172009]
+Splitting model with 3 is better with score  [2985.79054035]
+CC ARI: 0.24189534620698358
+CC NMI: 0.1966281751690245
+CC FMI: 0.7111180008090952
+Cost of one model is [13204.49226044] and Min cost is [10218.70172009]
+ITER 7
+NODE 9 has parents [0 6]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11825.71555268]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [12061.14266362]
+Original model is better than 3 split, with cost difference [860.75428296]
+Cost of one model is [11200.38838066] and Min cost is [11825.71555268]
+ITER 8
+NODE 2 has parents [0 1]
+Threshold BREAK: 0.005 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10102.04476131]
+Splitting model with 2 is better with score  [2604.74906193]
+CC ARI: 0.250124009579864
+CC NMI: 0.15741127564659135
+CC FMI: 0.7334317186654692
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [9488.56537546]
+Splitting model with 3 is better with score  [3218.22844778]
+CC ARI: 0.0909334021813482
+CC NMI: 0.11274109399192776
+CC FMI: 0.6034838054303496
+Cost of one model is [12706.79382324] and Min cost is [9488.56537546]
+ITER 9
+NODE 4 has parents [2 5]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11936.2967311]
+Splitting model with 2 is better with score  [879.22492831]
+CC ARI: 0.08372710983144781
+CC NMI: 0.019483593092074897
+CC FMI: 0.816082730638043
+Original model is better with cost [12815.52165941]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12815.52165941] and Min cost is [11936.2967311]
+1 INTERVENTIONS FOUND OUT OF 1 INTERVENTIONS
+ALL FOUND !!!
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment6
+Saving results to:  ./logs/log_2025-03-24_12:39:08.974643.txt
+ORDERING [4, 9, 2, 8, 7, 6, 5, 1, 0, 3]
+Interventions 7
+ITER 0
+Node 4 has no parents.
+ITER 1
+NODE 9 has parents [4]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12351.48755885]
+Splitting model with 2 is better with score  [1085.34276628]
+CC ARI: 0.009173391089744746
+CC NMI: 0.0002991667312433763
+CC FMI: 0.7061327151164221
+Original model is better with cost [13436.83032513]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [13436.83032513] and Min cost is [12351.48755885]
+ITER 2
+NODE 2 has parents [4 9]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10575.55495525]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10292.2387405]
+Splitting model with 3 is better with score  [225.89700181]
+CC ARI: -0.004587261663319158
+CC NMI: 0.0004238378857424966
+CC FMI: 0.5092575700502492
+Cost of one model is [10518.13574231] and Min cost is [10292.2387405]
+ITER 3
+NODE 8 has parents [2]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12536.58992255]
+Splitting model with 2 is better with score  [368.73528026]
+CC ARI: 0.01793594360074419
+CC NMI: 0.00517078063293641
+CC FMI: 0.8455418196470688
+Original model is better with cost [12905.32520281]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12905.32520281] and Min cost is [12536.58992255]
+ITER 4
+NODE 7 has parents [2 9]
+Total ROWS: 600
+Graph is not fully connected, spectral embedding may not work as expected.
+Threshold BREAK: 0.016666666666666666 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11836.9896252]
+Graph is not fully connected, spectral embedding may not work as expected.
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [11752.70467746]
+Cost of one model is [11438.24391343] and Min cost is [11752.70467746]
+ITER 5
+NODE 6 has parents [7 8]
+Original model is better with cost [13239.45175222]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [13239.45175222]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [13239.45175222] and Min cost is [13239.45175222]
+ITER 6
+NODE 5 has parents [2]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [13284.234461]
+Original model is better with cost [12905.32866809]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12905.32866809] and Min cost is [13284.234461]
+ITER 7
+NODE 1 has parents [4 9]
+Original model is better with cost [12987.85143332]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [12987.85143332]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12987.85143332] and Min cost is [12987.85143332]
+ITER 8
+NODE 0 has parents [9]
+Original model is better with cost [12917.96210293]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [12917.96210293]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12917.96210293] and Min cost is [12917.96210293]
+ITER 9
+NODE 3 has parents [0 1]
+Original model is better with cost [11249.78149303]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [11249.78149303]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [11249.78149303] and Min cost is [11249.78149303]
+0 INTERVENTIONS FOUND OUT OF 1 INTERVENTIONS
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment7
+Saving results to:  ./logs/log_2025-03-24_12:43:02.824184.txt
+ORDERING [5, 3, 1, 6, 4, 8, 0, 9, 7, 2]
+Interventions 8
+ITER 0
+Node 5 has no parents.
+ITER 1
+Node 3 has no parents.
+ITER 2
+Node 1 has no parents.
+ITER 3
+NODE 6 has parents [1 3]
+Threshold BREAK: 0.175 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [9627.92168251]
+Splitting model with 2 is better with score  [146.16551474]
+CC ARI: -0.0025317739911116747
+CC NMI: 0.0002845400061045071
+CC FMI: 0.6021889097944919
+Threshold BREAK: 0.22333333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [9808.34775497]
+Original model is better than 3 split, with cost difference [34.26055773]
+Cost of one model is [9774.08719725] and Min cost is [9627.92168251]
+ITER 4
+NODE 4 has parents [3 6]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12073.23393648]
+Splitting model with 2 is better with score  [1088.42434138]
+CC ARI: -0.026167655922615805
+CC NMI: 0.003963275868110099
+CC FMI: 0.8112251374815759
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [11534.70728117]
+Splitting model with 3 is better with score  [1626.95099669]
+CC ARI: 0.021417291601058604
+CC NMI: 0.0012143708679989405
+CC FMI: 0.7052509739675394
+Cost of one model is [13161.65827786] and Min cost is [11534.70728117]
+ITER 5
+NODE 8 has parents [3 4]
+Total ROWS: 600
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12725.0906405]
+Original model is better with cost [9657.17255993]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [9657.17255993] and Min cost is [12725.0906405]
+ITER 6
+NODE 0 has parents [4]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11257.78279659]
+Threshold BREAK: 0.0 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10578.85005637]
+Cost of one model is [8959.75184496] and Min cost is [10578.85005637]
+ITER 7
+NODE 9 has parents [0 3]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11808.06401961]
+Splitting model with 2 is better with score  [1894.10837897]
+CC ARI: -0.015186020989333665
+CC NMI: 0.007238153764330266
+CC FMI: 0.8385055532564495
+Original model is better with cost [13702.17239858]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [13702.17239858] and Min cost is [11808.06401961]
+ITER 8
+NODE 7 has parents [0 5]
+Original model is better with cost [13515.07498434]  SPLITTING with 2 clusters NOT POSSIBLE
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10787.95089353]
+Splitting model with 3 is better with score  [2727.12409081]
+CC ARI: -0.020001248262439618
+CC NMI: 0.009260913444848102
+CC FMI: 0.8348057987503227
+Cost of one model is [13515.07498434] and Min cost is [10787.95089353]
+ITER 9
+NODE 2 has parents [0 3]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11808.06401961]
+Splitting model with 2 is better with score  [1894.10837897]
+CC ARI: -0.015186020989333665
+CC NMI: 0.007238153764330266
+CC FMI: 0.8385055532564495
+Original model is better with cost [13702.17239858]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [13702.17239858] and Min cost is [11808.06401961]
+0 INTERVENTIONS FOUND OUT OF 1 INTERVENTIONS
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment8
+Saving results to:  ./logs/log_2025-03-24_12:49:45.219662.txt
+ORDERING [9, 7, 4, 5, 3, 8, 6, 2, 1, 0]
+Interventions []
+loadtxt: input contained no data: "./tests/test_10_500_100_1_0_2_3_0/experiment8/interventions1.txt"
+ITER 0
+Node 9 has no parents.
+ITER 1
+Node 7 has no parents.
+ITER 2
+Node 4 has no parents.
+ITER 3
+NODE 5 has parents [4 9]
+Threshold BREAK: 0.08166666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11095.23517618]
+Threshold BREAK: 0.21 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10995.33683929]
+Cost of one model is [10669.43060872] and Min cost is [10995.33683929]
+ITER 4
+NODE 3 has parents [4 9]
+Threshold BREAK: 0.13833333333333334 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10674.44621797]
+Splitting model with 2 is better with score  [547.36549071]
+CC ARI: -0.0010502525136249666
+CC NMI: 1.7512668244830918e-05
+CC FMI: 0.6000641577354449
+Threshold BREAK: 0.23166666666666666 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10404.62958952]
+Splitting model with 3 is better with score  [817.18211916]
+CC ARI: 0.0036748066360500187
+CC NMI: 0.0038084931665323322
+CC FMI: 0.49457789235608973
+Cost of one model is [11221.81170868] and Min cost is [10404.62958952]
+ITER 5
+NODE 8 has parents [3 7]
+Original model is better with cost [10078.39785754]  SPLITTING with 2 clusters NOT POSSIBLE
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [12599.61841818]
+Cost of one model is [10078.39785754] and Min cost is [12599.61841818]
+ITER 6
+NODE 6 has parents [5 8]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10460.5576195]
+Splitting model with 2 is better with score  [934.39297919]
+CC ARI: -0.029036701589215497
+CC NMI: 0.003321617511718893
+CC FMI: 0.6781184338730134
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10536.76294333]
+Splitting model with 3 is better with score  [858.18765535]
+CC ARI: -0.005008693244088954
+CC NMI: 0.008210689691162138
+CC FMI: 0.6053368362420963
+Original model is better than 3 split, with cost difference [-858.18765535]
+Cost of one model is [11394.95059868] and Min cost is [10460.5576195]
+ITER 7
+NODE 2 has parents [3 6]
+Original model is better with cost [8221.63664851]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [8221.63664851]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [8221.63664851] and Min cost is [8221.63664851]
+ITER 8
+NODE 1 has parents [4 7]
+Threshold BREAK: 0.09166666666666666 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10688.24861261]
+Splitting model with 2 is better with score  [2905.25574325]
+CC ARI: 0.000575614923235796
+CC NMI: 2.0172810855646878e-05
+CC FMI: 0.6287216773182228
+Threshold BREAK: 0.115 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10468.66888249]
+Splitting model with 3 is better with score  [3124.83547337]
+CC ARI: -0.0010377901135588353
+CC NMI: 0.0011965164421318165
+CC FMI: 0.49059371525430345
+Cost of one model is [13593.50435586] and Min cost is [10468.66888249]
+ITER 9
+NODE 0 has parents [5 7]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12558.05660421]
+Original model is better with cost [12025.05328765]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12025.05328765] and Min cost is [12558.05660421]
+0 INTERVENTIONS FOUND OUT OF 0 INTERVENTIONS
+ALL FOUND !!!
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment9
+Saving results to:  ./logs/log_2025-03-24_13:04:28.634897.txt
+ORDERING [7, 5, 9, 3, 2, 8, 1, 4, 0, 6]
+Interventions []
+loadtxt: input contained no data: "./tests/test_10_500_100_1_0_2_3_0/experiment8/interventions1.txt"
+loadtxt: input contained no data: "./tests/test_10_500_100_1_0_2_3_0/experiment9/interventions1.txt"
+ITER 0
+Node 7 has no parents.
+ITER 1
+Node 5 has no parents.
+ITER 2
+NODE 9 has parents [5 7]
+Threshold BREAK: 0.16333333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10837.88556344]
+Splitting model with 2 is better with score  [2868.0775158]
+CC ARI: -0.0007101658634689843
+CC NMI: 3.113105357061724e-05
+CC FMI: 0.6002693869225971
+Threshold BREAK: 0.29333333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10816.35114023]
+Splitting model with 3 is better with score  [2889.61193901]
+CC ARI: 0.0012786918941869042
+CC NMI: 0.00022548720144694896
+CC FMI: 0.5067542441738463
+Cost of one model is [13705.96307924] and Min cost is [10816.35114023]
+ITER 3
+NODE 3 has parents [5 7]
+Threshold BREAK: 0.043333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12496.7171195]
+Splitting model with 2 is better with score  [30.31444868]
+CC ARI: 0.002254782172144527
+CC NMI: 0.0018705981410093591
+CC FMI: 0.6017339291450445
+Threshold BREAK: 0.14666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [12249.57143602]
+Splitting model with 3 is better with score  [277.46013215]
+CC ARI: -0.0010839382251347622
+CC NMI: 0.000506608212375609
+CC FMI: 0.4907674585865276
+Cost of one model is [12527.03156817] and Min cost is [12249.57143602]
+ITER 4
+NODE 2 has parents [3 7]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12763.87225603]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [12587.88883069]
+Cost of one model is [12516.18477244] and Min cost is [12587.88883069]
+ITER 5
+NODE 8 has parents [2 5]
+Original model is better with cost [1861.53658769]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [1861.53658769]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [1861.53658769] and Min cost is [1861.53658769]
+ITER 6
+NODE 1 has parents [2]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11269.89701221]
+Splitting model with 2 is better with score  [1242.31711974]
+CC ARI: -0.008961602358408757
+CC NMI: 0.00023281210499405443
+CC FMI: 0.69552743524884
+Original model is better with cost [12512.21413194]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [12512.21413194] and Min cost is [11269.89701221]
+ITER 7
+NODE 4 has parents [1]
+Threshold BREAK: 0.0 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [13919.88269017]
+Original model is better with cost [8800.03284917]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [8800.03284917] and Min cost is [13919.88269017]
+ITER 8
+Node 0 has no parents.
+ITER 9
+NODE 6 has parents [0 2]
+Original model is better with cost [9631.29336914]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [9631.29336914]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [9631.29336914] and Min cost is [9631.29336914]
+0 INTERVENTIONS FOUND OUT OF 0 INTERVENTIONS
+ALL FOUND !!!
+FILE NAME ./tests/test_10_500_100_1_0_2_3_0/experiment10
+Saving results to:  ./logs/log_2025-03-24_13:15:39.968596.txt
+ORDERING [4, 2, 7, 1, 8, 5, 0, 9, 3, 6]
+Interventions []
+loadtxt: input contained no data: "./tests/test_10_500_100_1_0_2_3_0/experiment9/interventions1.txt"
+loadtxt: input contained no data: "./tests/test_10_500_100_1_0_2_3_0/experiment10/interventions1.txt"
+ITER 0
+Node 4 has no parents.
+ITER 1
+Node 2 has no parents.
+ITER 2
+NODE 7 has parents [2 4]
+Threshold BREAK: 0.16166666666666665 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10664.04032353]
+Threshold BREAK: 0.17666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10575.42027802]
+Cost of one model is [9666.4958667] and Min cost is [10575.42027802]
+ITER 3
+Node 1 has no parents.
+ITER 4
+NODE 8 has parents [1]
+Threshold BREAK: 0.2633333333333333 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [9937.14815194]
+Splitting model with 2 is better with score  [1515.13484966]
+CC ARI: 0.007845753566338485
+CC NMI: 0.0016965995685395033
+CC FMI: 0.6127319899886889
+Threshold BREAK: 0.145 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [9460.04386693]
+Splitting model with 3 is better with score  [1992.23913466]
+CC ARI: -0.0026858659426440257
+CC NMI: 0.0009298311763808383
+CC FMI: 0.515944410172555
+Cost of one model is [11452.28300159] and Min cost is [9460.04386693]
+ITER 5
+NODE 5 has parents [1 8]
+Threshold BREAK: 0.0016666666666666668 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12178.80635371]
+Splitting model with 2 is better with score  [294.96551145]
+CC ARI: 0.042352599904246856
+CC NMI: 0.0075509483395893124
+CC FMI: 0.8256466293762939
+Threshold BREAK: 0.0 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [12155.12163088]
+Splitting model with 3 is better with score  [318.65023427]
+CC ARI: 0.03827488860192406
+CC NMI: 0.006405344769597083
+CC FMI: 0.8155856900562511
+Cost of one model is [12473.77186516] and Min cost is [12155.12163088]
+ITER 6
+NODE 0 has parents [1 2]
+Threshold BREAK: 0.02666666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [10286.60044494]
+Splitting model with 2 is better with score  [3118.22671428]
+CC ARI: -0.0008331765320070306
+CC NMI: 9.521169236384375e-05
+CC FMI: 0.5998866693492119
+Threshold BREAK: 0.08166666666666667 !!!
+Total ROWS: 600
+COST for splitting model with 3 is [10100.02035451]
+Splitting model with 3 is better with score  [3304.80680471]
+CC ARI: 0.0005666620315304211
+CC NMI: 0.00041691585069355956
+CC FMI: 0.4927418741680054
+Cost of one model is [13404.82715922] and Min cost is [10100.02035451]
+ITER 7
+NODE 9 has parents [0 1]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [12931.87881687]
+Original model is better with cost [9873.62453026]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [9873.62453026] and Min cost is [12931.87881687]
+ITER 8
+NODE 3 has parents [5 9]
+Original model is better with cost [8530.07137532]  SPLITTING with 2 clusters NOT POSSIBLE
+Original model is better with cost [8530.07137532]  SPLITTING with 3 clusters NOT POSSIBLE
+Cost of one model is [8530.07137532] and Min cost is [8530.07137532]
+ITER 9
+NODE 6 has parents [0 8]
+Threshold BREAK: 0.0033333333333333335 !!!
+Total ROWS: 600
+COST for splitting model with 2 is [11115.47550625]
+Splitting model with 2 is better with score  [1143.78398747]
+CC ARI: 0.03219482815229502
+CC NMI: 0.004083136920090765
+CC FMI: 0.8184414309625612
+Threshold BREAK: 0.035 !!!
+loadtxt: input contained no data: "./tests/test_10_500_100_1_0_2_3_0/experiment10/interventions1.txt"
+Total ROWS: 600
+COST for splitting model with 3 is [11486.16855215]
+Splitting model with 3 is better with score  [773.09094156]
+CC ARI: 0.004049391239261537
+CC NMI: 0.002550948732219623
+CC FMI: 0.6051976126635135
+Original model is better than 3 split, with cost difference [-773.09094156]
+Cost of one model is [12259.25949372] and Min cost is [11115.47550625]
+0 INTERVENTIONS FOUND OUT OF 0 INTERVENTIONS
+ALL FOUND !!!
+Stats file written to: ./tests/test_10_500_100_1_0_2_3_0/STATS10.txt
+Total intervention accuracy 6.4  and Total final NMI scores [0.354780340453296, -0.02399761189788522, 0.029631892869308375, 0.577001092524579, 0.24189534620698358]
+
+Process finished with exit code 0
