@@ -79,7 +79,9 @@ def main():
     print(f"  intv (Intervention datapoints): {intv}")
     print(f"  intv_type (Intervention type): {intv_type}")
     print(f"  f (Function type): {f}")
-    print(f"  k (Function type): {k}")
+    print(f"  clusters (Number of clusters for data generation): {clusters}")
+    print(f"  k (Number of clusters for method): {k}")
+    print(f"  r (Random flag): {r}")
 
     # Filename
     foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}"
@@ -95,7 +97,7 @@ def main():
 
     # Initialize SpotWrapper
     cc = CCWrapper()
-    cc.generate_stats(filepath,n)
+    cc.generate_stats(filepath, n, k, [], r, False )
     #ARI (Adjusted Rand Index)
     #NMI (Normalized Mutual Information)
     #FMI (Fowlkes-Mallows Index)
