@@ -18,6 +18,7 @@ import math
 from plotting import Plotting
 from traditionalClustering import TraditionalClustering
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, fowlkes_mallows_score
+from sklearn.cluster import SpectralClustering
 
 class CC:
     def __init__(self, max_int, log_results=True, vrb=True, dims=0):
@@ -353,7 +354,8 @@ class CC:
         gmm_k = GaussianMixture(n_components=k, random_state=19)
         gmm_k.fit(residuals.reshape(-1, 1))
         initial_labels = gmm_k.predict(residuals.reshape(-1, 1))
-
+        #spec_k = SpectralClustering(n_clusters=k, random_state=19, affinity='nearest_neighbors')
+        #initial_labels = spec_k.fit_predict(residuals.reshape(-1, 1))
         # Get BIC scores
         bic1 = gmm1.bic(residuals.reshape(-1, 1))
         bic2 = gmm_k.bic(residuals.reshape(-1, 1))

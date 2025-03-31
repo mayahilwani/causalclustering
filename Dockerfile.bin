@@ -1,0 +1,27 @@
+ARG DROPBEAR_DEB=dropbear_2022.82-0.1_amd64.deb
+
+FROM projects.cispa.saarland:5005/css/ngc/pytorch:22.07-py3 AS builder
+ARG DROPBEAR_DEB
+RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list && \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get build-dep -y dropbear
+RUN git clone https://github.com/mkj/dropbear.git && cd dropbear && git checkout DROPBEAR_2022.82 && dpkg-buildpackage -uc -us
+
+FROM continuumio/anaconda3:latest@sha256:8115a7841dc0f82e0a9c2d156239164c86f0b85c071d4dc8d957bd8f3d24e024
+
+ARG DROPBEAR_DEB
+COPY --from=builder /workspace/$DROPBEAR_DEB ./
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt install -y libtomcrypt1 libtommath1
+RUN ls -al $DROPBEAR_DEB && dpkg -i $DROPBEAR_DEB && rm $DROPBEAR_DEB
+
+RUN apt update || true
+RUN apt install -y gcc gdb nano htop wget tmux r-base || true
+
+# Create and activate a new conda environment, and install necessary packages
+RUN conda create -n myenv python=3.12 numpy pandas
+RUN echo "source activate myenv" > ~/.bashrc
+RUN /bin/bash -c "source ~/.bashrc && conda activate myenv && conda install -c conda-forge ipython scikit-learn editdistance pillow python-graphviz && pip install hmmlearn rpy2"
+
+# Set the shell to use the new conda environment by default
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
+
