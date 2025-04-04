@@ -22,7 +22,7 @@ def print_usage():
     print("  <clusters>   : Number of clusters for data generation (integer, e.g., 2/3):")
     print("  <k>          : Number of clusters for method (integer, e.g., 2/3/4):")
     print("  <r>          : Flag for random (0 or 1):")
-
+   # python script.py 2 2000 500 0 0 2 2 0
 
 def main():
     # Check if the correct number of arguments is provided

@@ -22,13 +22,13 @@ def run_code(n, orig, intv, intv_type, f, clusters, k, r):
 
 def main():
 
-    n = 30          # Number of tests
-    orig = 1000       # Number of original datapoints
-    intv = 500      # Number of intervention datapoints
+    n = 5        # Number of tests
+    orig = 3000       # Number of original datapoints
+    intv = 1000      # Number of intervention datapoints
     intv_type = 0  # Type of intervention (0 to 4)
-    f = 1         # Function type (0 to 2)
+    f = 0         # Function type (0 to 2)
     clusters = 2   # Number of clusters for data generation
-    k = 3         # Number of clusters for method
+    k = 4         # Number of clusters for method
     r = 0          # Random flag
     run_code(n, orig, intv, intv_type, f, clusters, k, r)
 

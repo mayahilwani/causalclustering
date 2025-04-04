@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Path to the parent directory containing experiment folders
-parent_dir = "./tests/test_30_1000_500_2_0_2_2_0"  # Change this to your actual path
+parent_dir = "./tests/test_50_3000_1000_0_0_2_4_0"  # Change this to your actual path
 
 # Find all folders matching "experimentX"
 experience_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))

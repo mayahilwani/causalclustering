@@ -10,8 +10,6 @@ import RFunctions as rf
 from sklearn.mixture import GaussianMixture
 import seaborn as sns
 from combinator import Combinator
-import matplotlib
-matplotlib.use('TkAgg')
 from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.metrics import accuracy_score
 import math
@@ -105,19 +103,19 @@ class CC:
         dims = self.gt.shape[1]
         g = Graph(dims)
 
-        if not needed_nodes:
-            # Create Edges based on ground truth adjacency matrix
-            self.Edges = [[None for _ in range(self.V)] for _ in range(self.V)]
+        #if not needed_nodes:
+        # Create Edges based on ground truth adjacency matrix
+        self.Edges = [[None for _ in range(self.V)] for _ in range(self.V)]
 
-            # Construct the Edges from the ground truth (gt_network)
-            for i in range(dims):
-                for j in range(dims):
-                    if self.gt[i, j] == 1:
-                        g.addEdge(i, j)
-                        self.Edges[i][j] = Edge(i, j, [], 0)
-            self.ordering = g.nonRecursiveTopologicalSort()
-        else:
-            self.ordering = needed_nodes
+        # Construct the Edges from the ground truth (gt_network)
+        for i in range(dims):
+            for j in range(dims):
+                if self.gt[i, j] == 1:
+                    g.addEdge(i, j)
+                    self.Edges[i][j] = Edge(i, j, [], 0)
+        self.ordering = g.nonRecursiveTopologicalSort()
+        #else:
+        #self.ordering = needed_nodes
         print('ORDERING ' + str(self.ordering))
         print(f"Interventions {self.intv}")
         # Create Node objects from normalized variables
@@ -129,6 +127,7 @@ class CC:
         fmi_scores = []
 
         for i,variable_index in enumerate(self.ordering):
+            if needed_nodes and variable_index not in needed_nodes: continue
             is_intv = 1 if variable_index in self.intv else 0
             is_intv_found = 0
             # Get parents of the node
@@ -527,7 +526,8 @@ class CC:
             total_residuals_cost += residuals_cost
             total_rows += rows[i]
         print('Total ROWS: ' + str(total_rows)) # Print total rows for debugging
-        total_cost = base_cost + total_residuals_cost + total_model_cost + total_rows
+        labels_cost = total_rows * math.log2(len(hinges))
+        total_cost = base_cost + total_residuals_cost + total_model_cost + labels_cost
         return total_cost
 
     def OldComputeScore(self, source, target, rows, mindiff, k, show_graph=False):
