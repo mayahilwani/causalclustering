@@ -58,7 +58,8 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
                                 if parent not in parents_to_keep:
                                     graph[parent, node] = 0
                     # Generate obs data
-                    data1, pre_config, _ = gen_data(graph, n_samples)
+                    #gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config = None
+                    data1, pre_config, _ = gen_data(graph, n_samples, [], intv_type, f)
                     np.savetxt(store_path + "origdata" + str(d_counter) + ".txt", data1, delimiter=',', fmt='%0.7f')
                     np.savetxt(store_path + "truth" + str(d_counter) + ".txt", graph, delimiter=',', fmt='%d')
 

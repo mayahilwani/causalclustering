@@ -22,11 +22,12 @@ def print_usage():
     print("  <clusters>   : Number of clusters for data generation (integer, e.g., 2/3):")
     print("  <k>          : Number of clusters for method (integer, e.g., 2/3/4):")
     print("  <r>          : Flag for random (0 or 1):")
-   # python script.py 2 2000 500 0 0 2 2 0
+    print("  <mdl>          : Flag for mdl threshold break (0 or 1):")
+   # python script.py 30 2000 1000 0 1 2 5 0 0     13:04  15:16
 
 def main():
     # Check if the correct number of arguments is provided
-    if len(sys.argv) != 9:
+    if len(sys.argv) != 10:
         print_usage()
         sys.exit(1)
 
@@ -40,6 +41,7 @@ def main():
         clusters = int(sys.argv[6])   # Number of clusters for data generation
         k = int(sys.argv[7])          # Number of clusters for method
         r = int(sys.argv[8])          # Random flag
+        mdl = int(sys.argv[9])  # Random flag
 
     except ValueError:
         print("Error: All arguments must be integers.")
@@ -72,6 +74,11 @@ def main():
         print_usage()
         sys.exit(1)
 
+    if mdl < 0 or mdl > 1:
+        print(f"Error: mdl must be 0 or 1. Got {mdl}.")
+        print_usage()
+        sys.exit(1)
+
     # Print the arguments and their values
     print("Running script with the following arguments:")
     print(f"  n (Number of tests): {n}")
@@ -82,9 +89,10 @@ def main():
     print(f"  clusters (Number of clusters for data generation): {clusters}")
     print(f"  k (Number of clusters for method): {k}")
     print(f"  r (Random flag): {r}")
+    print(f"  mdl (mdl threshold flag): {mdl}")
 
     # Filename
-    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}"
+    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_{mdl}"
 
     # Data gen filepath
     dg_filepath = f"./tests/{foldername}"
@@ -97,13 +105,7 @@ def main():
 
     # Initialize SpotWrapper
     cc = CCWrapper()
-    cc.generate_stats(filepath, n, k, [], r, False )
-    #ARI (Adjusted Rand Index)
-    #NMI (Normalized Mutual Information)
-    #FMI (Fowlkes-Mallows Index)
-
-    # Generate stats using the provided arguments
-    #spot.generate_stats(filepath, n, orig, intv, intv_type)  # wth ?
+    cc.generate_stats(filepath, n, k, [], r, mdl)
 
 
 if __name__ == "__main__":

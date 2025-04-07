@@ -22,13 +22,13 @@ def run_code(n, orig, intv, intv_type, f, clusters, k, r):
 
 def main():
 
-    n = 5        # Number of tests
-    orig = 3000       # Number of original datapoints
+    n = 10        # Number of tests
+    orig = 2000       # Number of original datapoints
     intv = 1000      # Number of intervention datapoints
     intv_type = 0  # Type of intervention (0 to 4)
-    f = 0         # Function type (0 to 2)
+    f = 1         # Function type (0 to 2)
     clusters = 2   # Number of clusters for data generation
-    k = 4         # Number of clusters for method
+    k = 2         # Number of clusters for method
     r = 0          # Random flag
     run_code(n, orig, intv, intv_type, f, clusters, k, r)
 
@@ -38,7 +38,7 @@ def main():
 
     # Generate stats using the provided arguments
     #spot.generate_stats(filepath, n, orig, intv, intv_type)  # wth ?
-
+ #  15:03 srun with partition
 
 if __name__ == "__main__":
     main()

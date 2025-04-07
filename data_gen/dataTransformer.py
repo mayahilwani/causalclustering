@@ -109,7 +109,7 @@ class DataTransformer:
 			for i in range(dims):
 				tfs.append(self.transform(x[:, i], f_ids[i]))
 			dt = np.hstack(tfs)
-			shift = np.random.choice([-1, 1]) * np.random.uniform(10, 20)
+			shift = np.random.choice([-1, 1]) * np.random.uniform(20, 40)
 			print('PRINT in intv()')
 			Y_val = np.dot(dt, new_coeff) + np.random.normal(0, 2 * x.shape[1],
 															 x.shape[0])  # np.random.normal(0, 0.2, x.shape[0])
@@ -121,18 +121,48 @@ class DataTransformer:
 			new_config = (new_coeff, f_ids)
 		return Y_val, new_config
 
-	def poly(self,x,num_samples,parents_exist,pre_config):
+	def lin(self,x,num_samples,parents_exist,pre_config):
 		Y_val=np.random.normal(0,3*x.shape[1],x.shape[0])
 		#Y_val = np.random.uniform(low=-3*x.shape[1], high=3*x.shape[1], size=x.shape[0])
 		dims = x.shape[1]
 		#f_ids = np.random.randint(0,2,dims) # was 3
-		#f_ids = np.zeros(dims, dtype=int)
+		f_ids = np.zeros(dims, dtype=int)
+		if pre_config is not None:
+			f_ids = pre_config[1]
+
+		tfs = []
+		signed_coeffs=[]
+		if parents_exist:
+			for i in range(dims):
+				tfs.append(self.transform(x[:,i],f_ids[i]))
+
+			dt = np.hstack(tfs)
+			new_dims = dt.shape[1]
+			s_dict={};
+			s_dict[0] = -1
+			s_dict[1] =  1
+
+			if pre_config is None:
+				coeffs = np.random.uniform(2,5,new_dims)
+				signs  = np.array( [ s_dict[ss] for ss in list(np.random.randint(0,2,new_dims))  ]  )
+				signed_coeffs = coeffs * signs
+			else:
+				signed_coeffs = pre_config[0]
+
+			Y_val 	= np.dot(dt,signed_coeffs)+np.random.normal(0,2*x.shape[1],x.shape[0])
+			#mu_ 	= np.mean(Y_val);
+			#sdev_ 	= np.std(Y_val);
+			#Y_val 	= (Y_val - mu_) / sdev_;
+		return Y_val,(signed_coeffs,f_ids)
+
+	def poly(self,x,num_samples,parents_exist,pre_config):
+		Y_val=np.random.normal(0,3*x.shape[1],x.shape[0])
+		dims = x.shape[1]
 		# Generate until at least one element is 1
 		while True:
 			f_ids = np.random.randint(0, 2, dims)
 			if np.any(f_ids == 1):  # Check if there's at least one 1
 				break
-		# Set all to 0 !!!!!!!!!!!!!!!
 		if pre_config is not None:
 			f_ids = pre_config[1]
 
