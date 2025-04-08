@@ -520,9 +520,11 @@ class CC:
         for i in range(len(hinges)):
             # Calculate model cost for the current cluster
             model_cost = self.slope_.model_score(hinges[i]) + self.AggregateHinges(interactions[i], m)
+            print(f'MODEL COST: {model_cost}')
             total_model_cost += model_cost
             # Calculate residuals cost for the current cluster
             residuals_cost = self.slope_.gaussian_score_emp_sse(sse[i], rows[i], mindiff)
+            print(f'RESIDUAL COST: {residuals_cost}')
             total_residuals_cost += residuals_cost
             total_rows += rows[i]
         print('Total ROWS: ' + str(total_rows)) # Print total rows for debugging

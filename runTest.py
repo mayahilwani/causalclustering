@@ -24,7 +24,7 @@ def main():
 
     n = 10        # Number of tests
     orig = 2000       # Number of original datapoints
-    intv = 1000      # Number of intervention datapoints
+    intv = 500      # Number of intervention datapoints
     intv_type = 0  # Type of intervention (0 to 4)
     f = 1         # Function type (0 to 2)
     clusters = 2   # Number of clusters for data generation

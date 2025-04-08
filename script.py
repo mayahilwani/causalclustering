@@ -23,7 +23,7 @@ def print_usage():
     print("  <k>          : Number of clusters for method (integer, e.g., 2/3/4):")
     print("  <r>          : Flag for random (0 or 1):")
     print("  <mdl>          : Flag for mdl threshold break (0 or 1):")
-   # python script.py 30 2000 1000 0 1 2 5 0 0     13:04  15:16
+   # python script.py 2 2000 1000 0 1 2 5 0 0     13:04  15:16
 
 def main():
     # Check if the correct number of arguments is provided

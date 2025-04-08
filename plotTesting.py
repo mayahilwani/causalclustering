@@ -9,9 +9,9 @@ def main():
     log_results = True;  # Set this to true if you would like to store the log of the experiment to a text file
     verbose = True;  # Set this to true if you would like see the log output printed to the screen
     cc = CC(Max_Interactions, log_results, verbose);
-    filename1 = filepath + str('experiment7')
+    filename1 = filepath + str('experiment10')
     cc.loadData(filename1)
-    cc.run(2, [9], False, False)
+    cc.run(2, [4], True, False)
 
 
 
