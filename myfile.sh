@@ -17,7 +17,7 @@ cd ~/CISPA-home/causalclustering
 export PYTHONPATH=$(pwd)
 export OMP_NUM_THREADS="1"
 
-srun --container-image=projects.cispa.saarland:5005#c01mahi/mydockermain:v1 --container-mounts=$JOBTMPDIR:/tmp --pty bash -c "source /opt/conda/bin/activate && conda activate myenv && cd $HOME/CISPA-home/causalclustering && python3 $HOME/CISPA-home/causalclustering/script.py 2 2000 1000 0 1 2 5 0 0"
+srun --container-image=projects.cispa.saarland:5005#c01mahi/mydockermain:v1 --container-mounts=$JOBTMPDIR:/tmp --pty bash -c "source /opt/conda/bin/activate && conda activate myenv && cd $HOME/CISPA-home/causalclustering && python3 $HOME/CISPA-home/causalclustering/script.py 50 2000 500 0 1 2 3 0 0"
 
 srun mv /tmp/job-"$SLURM_JOB_ID".out "$JOBDATADIR"/out.txt
 srun mv "$JOBTMPDIR" "$JOBDATADIR"/data

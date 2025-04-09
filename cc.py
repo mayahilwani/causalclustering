@@ -276,9 +276,9 @@ class CC:
                         cc_ari = adjusted_rand_score(labels_true, labels_split)
                         cc_nmi = normalized_mutual_info_score(labels_true, labels_split)
                         cc_fmi = fowlkes_mallows_score(labels_true, labels_split)
-                        print("CC ARI:", cc_ari)
-                        print("CC NMI:", cc_nmi)
-                        print("CC FMI:", cc_fmi)
+                        #print("CC ARI:", cc_ari)
+                        #print("CC NMI:", cc_nmi)
+                        #print("CC FMI:", cc_fmi)
                     else:
                         print(
                             f"Original model is better than {clusters} split, with cost difference {cost_split - cost_all}")
@@ -328,7 +328,7 @@ class CC:
                 min_cost = cost_all
             else:
                 self.score_split[variable_index] = min_cost
-            print(f"Cost of one model is {cost_all} and Min cost is {min_cost}")
+            #print(f"Cost of one model is {cost_all} and Min cost is {min_cost}")
             print(f"Best k is : {best_k}")
             self.node_labels[variable_index] = final_labels
             self.k[variable_index] = best_k
@@ -520,14 +520,14 @@ class CC:
         for i in range(len(hinges)):
             # Calculate model cost for the current cluster
             model_cost = self.slope_.model_score(hinges[i]) + self.AggregateHinges(interactions[i], m)
-            print(f'MODEL COST: {model_cost}')
+            #print(f'MODEL COST: {model_cost}')
             total_model_cost += model_cost
             # Calculate residuals cost for the current cluster
             residuals_cost = self.slope_.gaussian_score_emp_sse(sse[i], rows[i], mindiff)
-            print(f'RESIDUAL COST: {residuals_cost}')
+            #print(f'RESIDUAL COST: {residuals_cost}')
             total_residuals_cost += residuals_cost
             total_rows += rows[i]
-        print('Total ROWS: ' + str(total_rows)) # Print total rows for debugging
+        #print('Total ROWS: ' + str(total_rows)) # Print total rows for debugging
         labels_cost = total_rows * math.log2(len(hinges))
         total_cost = base_cost + total_residuals_cost + total_model_cost + labels_cost
         return total_cost
