@@ -10,6 +10,7 @@ from cc import CC
 from node import Node;
 import time
 import RFunctions as rf
+import multiprocessing
 
 
 
@@ -34,40 +35,58 @@ class CCWrapper:
 
         total_intv_acc = 0
         total_final_ari_scores = []
+        # Create a Pool of worker processes
+        pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())  # Use all available CPUs
 
-        # Loop through the test cases
-        for i in range(n):
-            filename1 = file_path + filename + str(i + 1)
-            print("FILE NAME " + str(filename1))
-            attributes_file = f"{filename1}/attributes1.txt"
-            with open(attributes_file, "r") as atts:
-                lines = atts.readlines()
-                values = lines[1].strip()  # Second line contains the values
-                # Convert the values to a list (optional)
-                attributes = values.split(", ")
-            # START TIME
-            start_time = time.time()  # Record the start time
-            # Get interventions found and accuracies
-            intv_found_acc, final_ari_scores, TP, TN, FP, FN = self.idk(filename1, int(attributes[1]), k, needed_nodes, rand, mdl_th)
-            # END TIME
-            end_time = time.time()  # Record the end time
-            # Calculate elapsed time
-            elapsed_time = end_time - start_time
-            # Write to the stats file for each test case
-            with open(stats_file, "a") as stats:
-                avg_ari_score = (
-                    sum(final_ari_scores) / len(final_ari_scores) if final_ari_scores else 0
-                )#ADD TIME TO THE FILE AT THE END OF THE LINE
-                stats.write(
-                    f"{i + 1},{attributes[0]}, {attributes[1]}, {attributes[2]}, {attributes[3]}, {TP:.2f}, {TN:.2f}, {FP:.2f}, {FN:.2f}, {intv_found_acc:.2f}, {avg_ari_score:.2f}, {elapsed_time:.4f}\n"
-                )
+        # Prepare the arguments for each test case
+        tasks = [(i, file_path, n, k, needed_nodes, rand, mdl_th, stats_file) for i in range(n)]
 
-            # Update totals for averages
+        # Map the tasks to the processes in the pool
+        results = pool.starmap(self.process_test_case, tasks)
+
+        # After all the tasks are done, close the pool
+        pool.close()
+        pool.join()
+        # Aggregate results
+        for intv_found_acc, final_ari_scores, TP, TN, FP, FN in results:
             total_intv_acc += intv_found_acc
             total_final_ari_scores.extend(final_ari_scores)
 
         print(f"Stats file written to: {stats_file}")
-        print(f"Total intervention accuracy {total_intv_acc}  and Total final NMI scores {total_final_ari_scores}")
+        print(f"Total intervention accuracy {total_intv_acc} and Total final NMI scores {total_final_ari_scores}")
+
+    def process_test_case(self, i, file_path, n, k, needed_nodes, rand, mdl_th, stats_file):
+        filename1 = file_path + "/experiment" + str(i + 1)
+        print(f"FILE NAME {filename1}")
+        attributes_file = f"{filename1}/attributes1.txt"
+
+        # Read attributes file
+        with open(attributes_file, "r") as atts:
+            lines = atts.readlines()
+            values = lines[1].strip()  # Second line contains the values
+            attributes = values.split(", ")
+
+        # Start time for the test case
+        start_time = time.time()
+
+        # Get interventions found and accuracies
+        intv_found_acc, final_ari_scores, TP, TN, FP, FN = self.idk(filename1, int(attributes[1]), k, needed_nodes,
+                                                                    rand, mdl_th)
+
+        # End time
+        end_time = time.time()
+
+        # Calculate elapsed time
+        elapsed_time = end_time - start_time
+
+        # Write results to the stats file
+        with open(stats_file, "a") as stats:
+            avg_ari_score = (sum(final_ari_scores) / len(final_ari_scores)) if final_ari_scores else 0
+            stats.write(
+                f"{i + 1},{attributes[0]},{attributes[1]},{attributes[2]},{attributes[3]},{TP:.2f},{TN:.2f},{FP:.2f},{FN:.2f},{intv_found_acc:.2f},{avg_ari_score:.2f},{elapsed_time:.4f}\n"
+            )
+
+        return intv_found_acc, final_ari_scores, TP, TN, FP, FN
 
     def idk(self, filename, nodes, k, needed_nodes, rand, mdl_th):
         Max_Interactions = 2;  # See the Instantiation section of the publication
