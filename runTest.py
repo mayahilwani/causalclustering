@@ -32,7 +32,7 @@ def main():
     r = 0          # Random flag
     mdl_th = 0
     run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th)
-
+    # script.py 50 2000 500 0 1 2 4 0 0
     #ARI (Adjusted Rand Index)
     #NMI (Normalized Mutual Information)
     #FMI (Fowlkes-Mallows Index)

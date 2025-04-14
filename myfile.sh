@@ -3,7 +3,7 @@
 #SBATCH --job-name=mayaj
 #SBATCH --output=/tmp/job-%j.out
 #SBATCH --partition=r65257773x
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 
 JOBDATADIR=`ws create work --space $SLURM_JOB_ID --duration "1 00:00:00"`
 JOBTMPDIR=/tmp/job-$SLURM_JOB_ID

@@ -63,7 +63,7 @@ class DataTransformer:
 		for i in range(dims):
 			tfs.append(self.transform(x[:, i], f_ids[i]))
 		dt = np.hstack(tfs)
-		shift = np.random.choice([-1, 1]) * np.random.uniform(1.5, 2.5)
+		shift = np.random.choice([-1, 1]) * np.random.uniform(25, 35)
 		print('PRINT in intv()')
 		Y_val = np.dot(dt, new_coeff) + np.random.normal(0,2*x.shape[1],x.shape[0]) #np.random.normal(0, 0.2, x.shape[0])
 		#mu_ 	= np.mean(y_vals);
