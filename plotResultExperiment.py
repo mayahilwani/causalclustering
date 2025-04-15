@@ -7,7 +7,7 @@ import numpy as np
 import re
 
 # Path to the parent directory containing experiment folders
-parent_dir = "./inheritancetests/test_30_2000_1000_0_1_2_2_0"  # Change this as needed
+parent_dir = "./inheritancetests/test_30_2000_1000_0_1_1_2_0_nointv"  # Change this as needed
 
 # Get all experiment folders
 experience_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))
@@ -52,10 +52,13 @@ if df_list:
     # Count TP and FN
     tp_count = ((merged_df["true_split"] == 1) & (merged_df["found_split"] == 1)).sum()
     fn_count = ((merged_df["true_split"] == 1) & (merged_df["found_split"] == 0)).sum()
+    tn_count = ((merged_df["true_split"] == 0) & (merged_df["found_split"] == 0)).sum()
+    fp_count = ((merged_df["true_split"] == 0) & (merged_df["found_split"] == 1)).sum()
 
     print(f"True Positives (TP): {tp_count}")
     print(f"False Negatives (FN): {fn_count}")
-
+    print(f"True Negatives (TN): {tn_count}")
+    print(f"False Positives (FP): {fp_count}")
     # Pie Plot of TP vs FN
     plt.figure(figsize=(6, 6))
     plt.pie([tp_count, fn_count],

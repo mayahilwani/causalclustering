@@ -5,7 +5,7 @@ from data_gen.interventioninheritance import generate_data
 
 def run_code(n, orig, intv, intv_type, f, clusters, k, r):
     # test folder name
-    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}"
+    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_nointv"
 
     # Data gen filepath
     dg_filepath = f"./inheritancetests/{foldername}"
@@ -27,7 +27,7 @@ def main():
     intv = 1000      # Number of intervention datapoints
     intv_type = 0  # Type of intervention (0 to 4)
     f = 1         # Function type (0 to 2)
-    clusters = 2   # Number of clusters for data generation
+    clusters = 1   # Number of clusters for data generation
     k = 2         # Number of clusters for method
     r = 0          # Random flag
     run_code(n, orig, intv, intv_type, f, clusters, k, r)

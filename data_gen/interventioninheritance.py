@@ -57,11 +57,12 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
                     np.savetxt(store_path + "truth" + str(d_counter) + ".txt", graph, delimiter=',', fmt='%d')
 
                     # Generate INTERVENTION data
+                    intv_name = "None"
                     all_data = [data1]  # Start with original data
-                    valid_intv_list = [1]  # To ensure consistency across interventions
+                    valid_intv_list = []  # To ensure consistency across interventions
+                    new_n_samples = intv  # Number of intervention datapoints
 
                     for i in range(n_intv):  # Loop for c-1 interventions
-                        new_n_samples = intv  # Number of intervention datapoints
 
                         data2, _, intv_name = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, pre_config)
 

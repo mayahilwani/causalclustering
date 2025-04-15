@@ -4,7 +4,7 @@ from top_sort import *
 import RFunctions as rf
 import matplotlib
 
-#matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')    # REMOVE IT LATER
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
 
