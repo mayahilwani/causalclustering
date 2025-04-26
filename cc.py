@@ -8,6 +8,7 @@ from datetime import datetime
 from top_sort import *
 import RFunctions as rf
 from sklearn.mixture import GaussianMixture
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import seaborn as sns
 from combinator import Combinator
 from sklearn.metrics import adjusted_mutual_info_score
@@ -24,7 +25,6 @@ class CC:
         self.log_flag = log_results
         self.verbose = vrb
         self.V = dims
-
         self.slope_ = Slope()
         self.plot = None
         self.vars = None #np.zeros((5, 5)); # basically all data
@@ -92,7 +92,7 @@ class CC:
             if random:
                 nodestats_file = f"{self.filename}/node_STATS_rand.txt"
             with open(nodestats_file, "w") as stats:
-                stats.write("id, num_parents, k, true_split, found_split, gmm_bic, score_diff, true_score_diff, num_iter, cc_ari, gmm_ari, gmm_ari_res, kmeans_ari, kmeans_ari_res, spectral_ari, spectral_ari_res, cc_nmi, gmm_nmi, gmm_nmi_res, kmeans_nmi, kmeans_nmi_res, spectral_nmi, spectral_nmi_res, cc_fmi, gmm_fmi, gmm_fmi_res, kmeans_fmi, kmeans_fmi_res, spectral_fmi, spectral_fmi_res\n")
+                stats.write("id,num_parents,k,true_split,found_split,gmm_bic,score_diff,true_score_diff,num_iter,initial_split,per_intv,parent_intv,cc_ari,gmm_ari,gmm_ari_res,kmeans_ari,kmeans_ari_res,spectral_ari,spectral_ari_res,cc_nmi,gmm_nmi,gmm_nmi_res,kmeans_nmi,kmeans_nmi_res,spectral_nmi,spectral_nmi_res,cc_fmi,gmm_fmi,gmm_fmi_res,kmeans_fmi,kmeans_fmi_res,spectral_fmi,spectral_fmi_res\n")
 
         #headers = [i for i in range(0, self.V)]                                !! NO IDEA !!
         # Initialize the logger
@@ -127,11 +127,17 @@ class CC:
         fmi_scores = []
 
         for i,variable_index in enumerate(self.ordering):
+            initial_split = 0
             if needed_nodes and variable_index not in needed_nodes: continue
             is_intv = 1 if variable_index in self.intv else 0
             is_intv_found = 0
+            parent_intv = 0
             # Get parents of the node
             pa_i = np.where(self.gt[:, variable_index] == 1)[0]
+            for parent in pa_i:
+                if parent in self.foundIntv:
+                    parent_intv = 1
+
             print('ITER ' + str(i))
             # If node has no parents print and skip it
             if len(pa_i) == 0:
@@ -194,6 +200,7 @@ class CC:
             min_cc_nmi = 0
             min_cc_fmi = 0
             for clusters in range(2,k+1):
+                per_intv = 0
                 gmm_ari = 0
                 kmeans_ari = 0
                 spectral_ari = 0
@@ -259,7 +266,7 @@ class CC:
                     )
 
                 # Get the cost for splitting with k = clusters (WHEN POSSIBLE)
-                cost_split, labels_split, k_split_possible, num_iter, gmm_bic = self.my_function(variable_index, pa_i, residuals, clusters, random, mdl_th, needed_nodes)
+                cost_split, labels_split, k_split_possible, num_iter, gmm_bic, initial_split = self.my_function(variable_index, pa_i, residuals, clusters, random, mdl_th, needed_nodes)
 
                 if k_split_possible:
                     # compair scores and all that and save node row to the file.
@@ -289,6 +296,10 @@ class CC:
                         min_cc_ari = cc_ari
                         min_cc_nmi = cc_nmi
                         min_cc_fmi = cc_fmi
+                    cluster_sizes = np.zeros(clusters)
+                    for j in labels_split:
+                        cluster_sizes[j] += 1
+                    per_intv = ((self.vars.shape[0] - max(cluster_sizes)) / self.vars.shape[0]) * 100
                 else: print(f"Original model is better with cost {cost_all}  SPLITTING with {clusters} clusters NOT POSSIBLE")
 
                 if needed_nodes:
@@ -321,8 +332,8 @@ class CC:
                     # id, num_parents, true_split, found_split, score_diff
                     with open(nodestats_file, "a") as stats:
                         stats.write(
-                            f"{variable_index},{len(pa_i)}, {clusters}, {is_intv_k},{is_intv_found_k},{gmm_bic},{score_diff},{true_cost_gain},{num_iter},{cc_ari}, {gmm_ari}, {gmm_ari_res}, {kmeans_ari}, {kmeans_ari_res}, {spectral_ari}, {spectral_ari_res}, {cc_nmi}, {gmm_nmi}, {gmm_nmi_res}, {kmeans_nmi}, {kmeans_nmi_res}, {spectral_nmi}, {spectral_nmi_res}, {cc_fmi}, {gmm_fmi}, {gmm_fmi_res}, {kmeans_fmi}, {kmeans_fmi_res}, {spectral_fmi}, {spectral_fmi_res} \n")
-
+                            f"{variable_index},{len(pa_i)},{clusters},{is_intv_k},{is_intv_found_k},{gmm_bic},{int(score_diff)},{int(true_cost_gain)},{num_iter},{initial_split},{per_intv},{parent_intv},{cc_ari},{gmm_ari},{gmm_ari_res},{kmeans_ari},{kmeans_ari_res},{spectral_ari},{spectral_ari_res},{cc_nmi},{gmm_nmi},{gmm_nmi_res},{kmeans_nmi},{kmeans_nmi_res},{spectral_nmi},{spectral_nmi_res},{cc_fmi},{gmm_fmi},{gmm_fmi_res},{kmeans_fmi},{kmeans_fmi_res},{spectral_fmi},{spectral_fmi_res}\n")
+                else: print(f"INITIAL SPLIT :  {initial_split}")
             if min_cost is math.inf:
                 self.score_all[variable_index] = cost_all
                 min_cost = cost_all
@@ -340,11 +351,11 @@ class CC:
                 ari_scores.append(min_cc_ari)
         return self.foundIntv, ari_scores  # ari only for nodes where foundIntv is true
 
-
     def my_function(self, i, pa_i, residuals, k, random, mdl_th, needed_nodes):
         X = self.vars[:, pa_i]
         y = self.vars[:, i]
-
+        best_cost = math.inf
+        best_result = None
         # Fit GMM with 1 component
         gmm1 = GaussianMixture(n_components=1, random_state=19)
         gmm1.fit(residuals.reshape(-1, 1))
@@ -353,153 +364,130 @@ class CC:
         gmm_k = GaussianMixture(n_components=k, random_state=19)
         gmm_k.fit(residuals.reshape(-1, 1))
         initial_labels = gmm_k.predict(residuals.reshape(-1, 1))
-        #spec_k = SpectralClustering(n_clusters=k, random_state=19, affinity='nearest_neighbors')
-        #initial_labels = spec_k.fit_predict(residuals.reshape(-1, 1))
+        # spec_k = SpectralClustering(n_clusters=k, random_state=19, affinity='nearest_neighbors')
+        # initial_labels = spec_k.fit_predict(residuals.reshape(-1, 1))
         # Get BIC scores
         bic1 = gmm1.bic(residuals.reshape(-1, 1))
         bic2 = gmm_k.bic(residuals.reshape(-1, 1))
 
         # Compare BIC scores
-        gmm_bic = 0 if bic1 <= bic2 else 1                  # NEEDED TO RETURN (save to file)
+        gmm_bic = 0 if bic1 <= bic2 else 1
+        def quantile_split(residuals, k):
+            quantiles = np.percentile(residuals, np.linspace(0, 100, k + 1))
+            return np.digitize(residuals, quantiles[1:-1])
 
-        if random:
-            initial_labels = np.random.choice(np.arrange(k), size=residuals.shape[0])
+        def random_split(residuals, k):
+            return np.random.choice(k, size=residuals.shape[0])
 
-        first_iter = True
-        num_iter = 0
-        last_groups = initial_labels.copy()
-        prev_cost_split = math.inf
-        labels = initial_labels.copy()
+        def gmm_split(residuals, k):
+            gmm = GaussianMixture(n_components=k, random_state=19)
+            gmm.fit(residuals.reshape(-1, 1))
+            return gmm.predict(residuals.reshape(-1, 1))
+        initial_split = 0
+        for init_type in ['gmm', 'random', 'quantile']:
+            if init_type == 'gmm':
+                initial_labels = gmm_split(residuals, k)
+                initial_split = 0
+            elif init_type == 'random':
+                initial_labels = random_split(residuals, k)
+                initial_split = 1
+            elif init_type == 'quantile':
+                initial_labels = quantile_split(residuals, k)
+                initial_split = 2
 
-        while True:
-            num_iter += 1
+            first_iter = True
+            num_iter = 0
+            last_groups = initial_labels.copy()
+            prev_cost_split = math.inf
+            labels = initial_labels.copy()
 
-            # Fit different MARS lines for each of the k groups
-            mars_models = {}  # Store MARS models
-            group_residuals = {}  # Store residuals
-            hinge_counts = []
-            interactions = []
-            sse_values = []
-            scores = []
-            group_sizes = []
-            k_split_possible = True
+            while True:
+                num_iter += 1
+                mars_models = {}
+                group_residuals = {}
+                hinge_counts = []
+                interactions = []
+                sse_values = []
+                scores = []
+                group_sizes = []
+                k_split_possible = True
+
+                for cluster in range(k):
+                    X_group = X[labels == cluster, :]
+                    y_group = y[labels == cluster]
+
+                    if X_group.shape[0] <= 1:
+                        k_split_possible = False
+                        break
+
+                    sse, score, coeff, hinge_count, interaction, rearth = self.slope_.FitSpline(X_group, y_group)
+                    mars_models[cluster] = rearth
+                    hinge_counts.append(hinge_count)
+                    interactions.append(interaction)
+                    sse_values.append(sse)
+                    scores.append(score)
+                    group_sizes.append(len(y_group))
+
+                if not k_split_possible:
+                    continue
+
+                for j in range(X.shape[0]):
+                    x = X[j, :]
+                    y_actual = y[j]
+                    residuals_c = {
+                        c: abs(y_actual - rf.predict_mars(x, mars_models[c]))
+                        if c in mars_models else float('inf')
+                        for c in range(k)
+                    }
+                    labels[j] = min(residuals_c, key=residuals_c.get)
+
+                changes = np.sum(labels != last_groups)
+                if (not first_iter and (changes / len(labels) < 0.005)) or num_iter > 100:
+                    final_labels = labels.copy()
+                    break
+
+                if mdl_th:
+                    cur_cost_split = self.ComputeScoreSplit(
+                        hinge_counts, interactions, sse_values, scores,
+                        group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]),
+                        show_graph=False
+                    )
+                    if cur_cost_split > prev_cost_split:
+                        final_labels = last_groups.copy()
+                        break
+                    prev_cost_split = cur_cost_split
+
+                first_iter = False
+                last_groups = labels.copy()
+
+            # Final model fit for scoring
+            sse_list, score_list, hinge_counts_list, interactions_list, final_group_sizes = [], [], [], [], []
+            mars_models = {}
 
             for cluster in range(k):
-                empty_group = False
-                X_group = X[labels == cluster, :]
-                y_group = y[labels == cluster]
+                X_group = X[final_labels == cluster, :]
+                y_group = y[final_labels == cluster]
 
-                if X_group.shape[0] <= 1:  # Prevent empty groups    WTF DOES THIS DO??
-                    empty_group = True
-                    group_sizes.append(0)
-                    k_split_possible = False
-                    break
+                if X_group.shape[0] > 1:
+                    sse, score, coeff, hinge_count, interactions, rearth = self.slope_.FitSpline(X_group, y_group)
+                    sse_list.append(sse)
+                    score_list.append(score)
+                    hinge_counts_list.append(hinge_count)
+                    interactions_list.append(interactions)
+                    final_group_sizes.append(len(y_group))
+                    mars_models[cluster] = rearth
 
-                # Fit MARS model for this cluster
-                sse, score, coeff, hinge_count, interaction, rearth = self.slope_.FitSpline(X_group, y_group)
-                mars_models[cluster] = rearth
+            cost_split = self.ComputeScoreSplit(
+                hinge_counts_list, interactions_list, sse_list, score_list,
+                final_group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]),
+                show_graph=False
+            )
 
-                hinge_counts.append(hinge_count)
-                interactions.append(interaction)
-                sse_values.append(sse)
-                scores.append(score)
-                group_sizes.append(len(y_group))
+            if cost_split < best_cost:
+                best_cost = cost_split
+                best_result = (cost_split, final_labels, k_split_possible, num_iter, gmm_bic, initial_split)
 
-            if not k_split_possible:
-                return math.inf, [], k_split_possible, 0, gmm_bic
-
-            # Reassign each data point to the best cluster based on residuals
-            for j in range(X.shape[0]):
-                x = X[j, :]
-                y_actual = y[j]
-
-                # Compute residuals for each cluster
-                residuals_c = {}
-                for c in range(k):
-                    if c in mars_models:  # Check if the model exists for this cluster
-                        residuals_c[c] = abs(y_actual - rf.predict_mars(x, mars_models[c]))
-                    else:
-                        # Handle the case where the model doesn't exist
-                        residuals_c[c] = float('inf')  # Assign infinity or a large value to discourage assignment
-
-                # Assign the point to the cluster with the smallest residual
-                labels[j] = min(residuals_c, key=residuals_c.get)
-
-            '''# Plot results if needed
-            if needed_nodes:
-                if len(pa_i) == 1:
-                    self.plot.plot_2d_other(pa_i, i, labels, "Method Iterations")
-                elif len(pa_i) == 2:
-                    self.plot.plot_3d_other(pa_i, i, labels, "Method Iterations")'''
-
-            # Stopping criteria
-            change_threshold = 0.005
-            changes = np.sum(labels != last_groups)
-
-            if (not first_iter and ((changes / len(labels)) < change_threshold)) or num_iter > 100:
-                final_labels = labels.copy()
-                print(f'Threshold BREAK: {changes / len(labels)}  OR  NUM ITER: {num_iter}!!!')
-                break
-
-            if mdl_th:
-                # Compute MDL Score for k Models
-                cur_cost_split = self.ComputeScoreSplit(
-                    hinge_counts, interactions, sse_values, scores, group_sizes,
-                    self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False
-                )
-                if cur_cost_split > prev_cost_split:
-                    final_labels = last_groups.copy()
-                    print(f'MDL Score BREAK: {cur_cost_split - prev_cost_split} !!!')
-                    break
-                prev_cost_split = cur_cost_split
-
-            first_iter = False
-            last_groups = labels.copy()
-
-        cost_split = math.inf
-
-        # Initialize lists to store model information for all clusters
-        sse_list = []
-        score_list = []
-        hinge_counts_list = []
-        interactions_list = []
-        group_sizes = []
-        mars_models = {}
-
-        # Iterate over all clusters
-        for cluster in range(k):
-            # Get the data for the current cluster
-            X_group = X[final_labels == cluster, :]
-            y_group = y[final_labels == cluster]
-
-            # Check if the group is not empty
-            if X_group.shape[0] > 1:
-                # Fit MARS model for this cluster
-                sse, score, coeff, hinge_count, interactions, rearth = self.slope_.FitSpline(X_group, y_group)
-                #y_pred = rf.predict_mars(X_group, rearth)
-
-                # Store model information
-                sse_list.append(sse)
-                score_list.append(score)
-                hinge_counts_list.append(hinge_count)
-                interactions_list.append(interactions)
-                group_sizes.append(len(y_group))
-                mars_models[cluster] = rearth
-            '''else:
-                # Handle empty groups (e.g., assign default values) CHANGE THIS APPROACH
-                sse_list.append(float('inf'))  # Large SSE to discourage selection
-                score_list.append(0)
-                hinge_counts_list.append(0)
-                interactions_list.append(0)
-                group_sizes.append(0)'''
-
-        # Compute the score for all models
-        cost_split = self.ComputeScoreSplit(
-            hinge_counts_list, interactions_list, sse_list, score_list,
-            group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False
-        )
-        # cost_split, labels_split, k_split_possible, num_iter, gmm_bic
-        return cost_split, final_labels, k_split_possible, num_iter, gmm_bic
+        return best_result
 
     # SCORE COMPUTATION PART
     def ComputeScore(self, hinges, interactions, sse, model, rows, mindiff, k, show_graph=False):

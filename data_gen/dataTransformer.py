@@ -1,5 +1,6 @@
 import numpy as np;
 import random
+from sklearn.ensemble import IsolationForest
 
 np.random.seed(42)
 
@@ -124,12 +125,19 @@ class DataTransformer:
 	def lin(self,x,num_samples,parents_exist,pre_config):
 		Y_val=np.random.normal(0,3*x.shape[1],x.shape[0])
 		#Y_val = np.random.uniform(low=-3*x.shape[1], high=3*x.shape[1], size=x.shape[0])
+		# Apply Isolation Forest to detect and remove outliers from Y_val
+		iso_forest = IsolationForest(contamination=0.05, random_state=42)
+		outliers = iso_forest.fit_predict(Y_val.reshape(-1, 1))
+		inlier_values = Y_val[outliers == 1]
+		Y_val_fixed = Y_val.copy()
+		outlier_indices = np.where(outliers == -1)[0]
+		Y_val_fixed[outlier_indices] = np.random.choice(inlier_values, size=len(outlier_indices), replace=True)
+		Y_val = Y_val_fixed
 		dims = x.shape[1]
 		#f_ids = np.random.randint(0,2,dims) # was 3
 		f_ids = np.zeros(dims, dtype=int)
 		if pre_config is not None:
 			f_ids = pre_config[1]
-
 		tfs = []
 		signed_coeffs=[]
 		if parents_exist:
@@ -153,10 +161,19 @@ class DataTransformer:
 			#mu_ 	= np.mean(Y_val);
 			#sdev_ 	= np.std(Y_val);
 			#Y_val 	= (Y_val - mu_) / sdev_;
-		return Y_val,(signed_coeffs,f_ids)
+
+		return Y_val, (signed_coeffs, f_ids)
 
 	def poly(self,x,num_samples,parents_exist,pre_config):
 		Y_val=np.random.normal(0,3*x.shape[1],x.shape[0])
+		# Apply Isolation Forest to detect and remove outliers from Y_val
+		iso_forest = IsolationForest(contamination=0.05, random_state=42)
+		outliers = iso_forest.fit_predict(Y_val.reshape(-1, 1))
+		inlier_values = Y_val[outliers == 1]
+		Y_val_fixed = Y_val.copy()
+		outlier_indices = np.where(outliers == -1)[0]
+		Y_val_fixed[outlier_indices] = np.random.choice(inlier_values, size=len(outlier_indices), replace=True)
+		Y_val = Y_val_fixed
 		dims = x.shape[1]
 		# Generate until at least one element is 1
 		while True:
@@ -189,6 +206,7 @@ class DataTransformer:
 			#mu_ 	= np.mean(Y_val);
 			#sdev_ 	= np.std(Y_val);
 			#Y_val 	= (Y_val - mu_) / sdev_;
+
 		return Y_val,(signed_coeffs,f_ids)
 
 	def osc(self,x,num_samples,parents_exist,pre_config):		

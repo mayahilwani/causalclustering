@@ -3,15 +3,16 @@ from slope import Slope;
 import sys;
 
 def main():
-    filepath= "./tests/test_50_2000_500_3_1_2_4_0_0/"
+    #filepath= "./tests/test_50_2000_500_1_2_2_4_0_0/"
+    filepath = "C:/Users/ziadh/Documents/..MAYAMSC/results/tests/test_1_2000_500_0_1_2_2_0_NOoutliers/"
     slope = Slope()
     Max_Interactions = 2;  # See the Instantiation section of the publication
     log_results = True;  # Set this to true if you would like to store the log of the experiment to a text file
     verbose = True;  # Set this to true if you would like see the log output printed to the screen
     cc = CC(Max_Interactions, log_results, verbose);
-    filename1 = filepath + str('experiment11')
+    filename1 = filepath + str('experiment1')
     cc.loadData(filename1)
-    cc.run(2, [6], False, False)
+    cc.run(2, [8, 4], False, False)
 
 
 
