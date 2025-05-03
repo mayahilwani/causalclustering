@@ -56,6 +56,11 @@ class CC:
             intv_file = f"{self.filename}/interventions1.txt"
             self.gt = np.loadtxt(gt_file, delimiter=',')
             data = np.loadtxt(data_file, delimiter=',')
+            print("Any NaNs in data?", np.isnan(data).any())
+            if np.isnan(data).any():
+                nan_rows = np.where(np.isnan(data).any(axis=1))[0]
+                print("Rows with NaNs:", nan_rows)
+                print("Values in those rows:\n", data[nan_rows])
             try:
                 intvs = np.loadtxt(intv_file, delimiter=',', dtype=int)
             except ValueError as e:
@@ -166,7 +171,7 @@ class CC:
             true_k = int(self.attributes[4]) + 1
             labels_true = np.array([0] * int(self.attributes[2]) +
                                    [i for i in range(1, true_k) for _ in range(int(self.attributes[3]))])
-
+            #print(labels_true)
             # Calculating True cost gain if there were interventions
             true_cost_gain = 0
             if is_intv:
@@ -194,8 +199,9 @@ class CC:
                     hinge_counts, interactions, sse_values, scores, row_counts,
                     self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False
                 )
-
+                print(f"True Cost Split: {true_cost_split}")
                 true_cost_gain = cost_all - true_cost_split
+
             min_cc_ari = 0
             min_cc_nmi = 0
             min_cc_fmi = 0
@@ -324,6 +330,7 @@ class CC:
                         self.plot.plot_3d_other(pa_i, variable_index, gmm_res_labels, "GMM on residuals")
                         self.plot.plot_3d_other(pa_i, variable_index, spectral_labels, "Spectral")
                         self.plot.plot_3d_other(pa_i, variable_index, spectral_res_labels, "Spectral on residuals")
+                print(f"{cost_split}")
                 if cost_split is math.inf:
                     score_diff = 0
                 else:
@@ -333,6 +340,7 @@ class CC:
                     with open(nodestats_file, "a") as stats:
                         stats.write(
                             f"{variable_index},{len(pa_i)},{clusters},{is_intv_k},{is_intv_found_k},{gmm_bic},{int(score_diff)},{int(true_cost_gain)},{num_iter},{initial_split},{per_intv},{parent_intv},{cc_ari},{gmm_ari},{gmm_ari_res},{kmeans_ari},{kmeans_ari_res},{spectral_ari},{spectral_ari_res},{cc_nmi},{gmm_nmi},{gmm_nmi_res},{kmeans_nmi},{kmeans_nmi_res},{spectral_nmi},{spectral_nmi_res},{cc_fmi},{gmm_fmi},{gmm_fmi_res},{kmeans_fmi},{kmeans_fmi_res},{spectral_fmi},{spectral_fmi_res}\n")
+
                 else: print(f"INITIAL SPLIT :  {initial_split}")
             if min_cost is math.inf:
                 self.score_all[variable_index] = cost_all
@@ -349,6 +357,8 @@ class CC:
                 self.foundIntv.append(variable_index)
                 self.split[variable_index] = 1
                 ari_scores.append(min_cc_ari)
+        labels_file = f"{self.filename}/node_labels.txt"
+        np.savetxt(labels_file, self.node_labels, fmt="%d")
         return self.foundIntv, ari_scores  # ari only for nodes where foundIntv is true
 
     def my_function(self, i, pa_i, residuals, k, random, mdl_th, needed_nodes):
@@ -384,16 +394,16 @@ class CC:
             gmm.fit(residuals.reshape(-1, 1))
             return gmm.predict(residuals.reshape(-1, 1))
         initial_split = 0
-        for init_type in ['gmm', 'random', 'quantile']:
+        for init_type in ['gmm']: #, 'random', 'quantile'
             if init_type == 'gmm':
                 initial_labels = gmm_split(residuals, k)
                 initial_split = 0
-            elif init_type == 'random':
+            '''elif init_type == 'random':
                 initial_labels = random_split(residuals, k)
-                initial_split = 1
-            elif init_type == 'quantile':
+                initial_split = 1'''
+            '''elif init_type == 'quantile':   # Spectral on residuals .
                 initial_labels = quantile_split(residuals, k)
-                initial_split = 2
+                initial_split = 2'''
 
             first_iter = True
             num_iter = 0
@@ -405,11 +415,11 @@ class CC:
                 num_iter += 1
                 mars_models = {}
                 group_residuals = {}
-                hinge_counts = []
+                hinge_counts = [] #np.zeros(k)
                 interactions = []
                 sse_values = []
                 scores = []
-                group_sizes = []
+                group_sizes = [] #np.zeros(k)
                 k_split_possible = True
 
                 for cluster in range(k):
@@ -428,8 +438,8 @@ class CC:
                     scores.append(score)
                     group_sizes.append(len(y_group))
 
-                if not k_split_possible:
-                    continue
+                #if not k_split_possible:
+                #    continue
 
                 for j in range(X.shape[0]):
                     x = X[j, :]
@@ -461,7 +471,7 @@ class CC:
                 last_groups = labels.copy()
 
             # Final model fit for scoring
-            sse_list, score_list, hinge_counts_list, interactions_list, final_group_sizes = [], [], [], [], []
+            sse_list, score_list, hinge_counts_list, interactions_list, final_group_sizes = [],[],[], [], []
             mars_models = {}
 
             for cluster in range(k):
@@ -475,6 +485,7 @@ class CC:
                     hinge_counts_list.append(hinge_count)
                     interactions_list.append(interactions)
                     final_group_sizes.append(len(y_group))
+                    final_group_sizes.append(len(y_group))
                     mars_models[cluster] = rearth
 
             cost_split = self.ComputeScoreSplit(
@@ -482,7 +493,7 @@ class CC:
                 final_group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]),
                 show_graph=False
             )
-
+            print(f"COST SPLIT {cost_split}")
             if cost_split < best_cost:
                 best_cost = cost_split
                 best_result = (cost_split, final_labels, k_split_possible, num_iter, gmm_bic, initial_split)

@@ -23,11 +23,20 @@ def print_usage():
     print("  <k>          : Number of clusters for method (integer, e.g., 2/3/4):")
     print("  <r>          : Flag for random (0 or 1):")
     print("  <mdl>          : Flag for mdl threshold break (0 or 1):")
+    print("  <intv_s>     : strenght of intervention (integer, 0 to 2):")
+    print("                 0: Weak Intervention")
+    print("                 1: Medium Intervention")
+    print("                 2: Strong Intervention")
+    print("  <noise>      : Noise level (integer, 0 to 2):")
+    print("                 0: Low noise")
+    print("                 1: Medium noise")
+    print("                 2: High noise")
+    #"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_{mdl_th}_{intv_strength}_{noise_level}"
    # python script.py 2 2000 1000 0 1 2 5 0 0     13:04  15:16
 
 def main():
     # Check if the correct number of arguments is provided
-    if len(sys.argv) != 10:
+    if len(sys.argv) != 12:
         print_usage()
         sys.exit(1)
 
@@ -42,6 +51,8 @@ def main():
         k = int(sys.argv[7])          # Number of clusters for method
         r = int(sys.argv[8])          # Random flag
         mdl = int(sys.argv[9])  # Random flag
+        intv_strength = int(sys.argv[10])
+        noise_level = int(sys.argv[11])
 
     except ValueError:
         print("Error: All arguments must be integers.")
@@ -79,6 +90,16 @@ def main():
         print_usage()
         sys.exit(1)
 
+    if intv_strength < 0 or intv_strength > 2:
+        print(f"Error: intv_strength must be between 0 and 2. Got {intv_strength}.")
+        print_usage()
+        sys.exit(1)
+
+    if noise_level < 0 or noise_level > 2:
+        print(f"Error: noise_level must be between 0 and 2. Got {noise_level}.")
+        print_usage()
+        sys.exit(1)
+
     # Print the arguments and their values
     print("Running script with the following arguments:")
     print(f"  n (Number of tests): {n}")
@@ -90,9 +111,11 @@ def main():
     print(f"  k (Number of clusters for method): {k}")
     print(f"  r (Random flag): {r}")
     print(f"  mdl (mdl threshold flag): {mdl}")
+    print(f"  intv_strength (Intervention strength): {intv_strength}")
+    print(f"  noise_level (Noise level): {noise_level}")
 
     # Filename
-    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_{mdl}"
+    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_{mdl}_{intv_strength}_{noise_level}"
 
     # Data gen filepath
     dg_filepath = f"./tests/{foldername}"
@@ -101,7 +124,7 @@ def main():
     filepath = f"./tests/{foldername}"
 
     # Generate the test data
-    generate_data(dg_filepath, n, orig, intv, intv_type, f, clusters)
+    generate_data(dg_filepath, n, orig, intv, intv_type, f, clusters, intv_strength, noise_level)
 
     # Initialize SpotWrapper
     cc = CCWrapper()

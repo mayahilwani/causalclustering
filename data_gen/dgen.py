@@ -3,7 +3,7 @@ import numpy as np
 from data_gen.dataTransformer import DataTransformer
 
 
-def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config = None):
+def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, intv_strength = 0, noise_level = 0, pre_config = None,):
 	dims = gt.shape[1]
 	data = np.zeros((num_samples,dims))
 	transf = DataTransformer(True);
@@ -39,7 +39,7 @@ def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config 
 			x = data[:,pa_i]
 			parents_exist=True
 		curr_config = None if pre_config is None else pre_config[variable]
-		tot,cfg = fx(x,num_samples,parents_exist,curr_config)
+		tot,cfg = fx(x,num_samples,parents_exist, intv_strength, noise_level, curr_config)
 		data[:,variable]=tot.reshape(-1)
 		configs[variable]=cfg
 		init_set[variable]=True

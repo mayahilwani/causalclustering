@@ -3,18 +3,18 @@ from slope import Slope
 import sys
 from data_gen.CausalClustersData import generate_data
 
-def run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th):
+def run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th, intv_strength, noise_level):
     # test folder name
-    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_NOoutliers"
+    foldername = f"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_{mdl_th}_{intv_strength}_{noise_level}"
 
     # Data gen filepath
-    dg_filepath = f"C:/Users/ziadh/Documents/..MAYAMSC/results/tests/{foldername}"
+    dg_filepath = f"/Users/mayahilwani/PycharmProjects/tests/{foldername}"
 
     # Filepath
-    filepath = f"C:/Users/ziadh/Documents/..MAYAMSC/results/tests/{foldername}"
+    filepath = f"/Users/mayahilwani/PycharmProjects/tests/{foldername}" #f"C:/Users/ziadh/Documents/..MAYAMSC/results/tests/{foldername}"
 
     # Generate the test data
-    generate_data(dg_filepath, n, orig, intv, intv_type, f, clusters)
+    generate_data(dg_filepath, n, orig, intv, intv_type, f, clusters, intv_strength, noise_level)
 
     # Initialize SpotWrapper
     cc = CCWrapper()
@@ -23,15 +23,17 @@ def run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th):
 def main():
 
     n = 1        # Number of tests
-    orig = 2000       # Number of original datapoints
-    intv = 500      # Number of intervention datapoints
-    intv_type = 0  # Type of intervention (0 to 4)
-    f = 1         # Function type (0 to 2)
+    orig = 20       # Number of original datapoints
+    intv = 10      # Number of intervention datapoints
+    intv_type = 3   # Type of intervention (0 to 3)
+    f = 0         # Function type (0 to 2)
     clusters = 2   # Number of clusters for data generation
     k = 2         # Number of clusters for method
     r = 0          # Random flag
     mdl_th = 0
-    run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th)
+    intv_strength = 1  # 0, 1 or 2
+    noise_level = 0 # 0, 1 or 2
+    run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th, intv_strength, noise_level)
     # script.py 50 2000 500 0 1 2 4 0 0
     #ARI (Adjusted Rand Index)
     #NMI (Normalized Mutual Information)

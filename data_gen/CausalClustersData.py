@@ -10,7 +10,7 @@ from data_gen.dataTransformer import DataTransformer
 #np.random.seed(90001)
 np.random.seed(80300)
 
-def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
+def generate_data(filepath, n, orig, intv, intv_type, f, c=2, intv_strength=0, noise_level=0):
     """
     Generate data based on the provided parameters.
 
@@ -59,7 +59,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
                                     graph[parent, node] = 0
                     # Generate obs data
                     #gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config = None
-                    data1, pre_config, _ = gen_data(graph, n_samples, [], intv_type, f)
+                    data1, pre_config, _ = gen_data(graph, n_samples, [], intv_type, f, intv_strength, noise_level)
                     np.savetxt(store_path + "origdata" + str(d_counter) + ".txt", data1, delimiter=',', fmt='%0.7f')
                     np.savetxt(store_path + "truth" + str(d_counter) + ".txt", graph, delimiter=',', fmt='%d')
 
@@ -75,7 +75,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2):
                             intv_list1 = list(np.random.choice(nd, intv_count, replace=False))
                             valid_intv_list = [interv for interv in intv_list1 if np.where(graph[:, interv] == 1)[0].size > 0]
 
-                        data2, _, intv_name = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, pre_config)
+                        data2, _, intv_name = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, intv_strength, noise_level, pre_config)
 
                         if all_data[0].shape[1] != data2.shape[1]:
                             raise ValueError(
