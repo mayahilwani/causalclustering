@@ -104,7 +104,7 @@ class DataTransformer:
 		dims = x.shape[1]
 
 		func_type = self.determine_function_type(f_ids)
-		shift, coef_scale = self.get_intervention_parameters(func_type, strength)
+		shift, _ = self.get_intervention_parameters(func_type, strength)
 		noise_scale = self.get_noise_scale(noise_level)
 
 		print(f'Function Type: {func_type}')

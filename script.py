@@ -32,7 +32,7 @@ def print_usage():
     print("                 1: Medium noise")
     print("                 2: High noise")
     #"test_{n}_{orig}_{intv}_{intv_type}_{f}_{clusters}_{k}_{r}_{mdl_th}_{intv_strength}_{noise_level}"
-   # python script.py 2 2000 1000 0 1 2 5 0 0     13:04  15:16
+   # python script.py 50 2000 500 1 0 2 3 0 0 0 0    13:04  15:16
 
 def main():
     # Check if the correct number of arguments is provided
