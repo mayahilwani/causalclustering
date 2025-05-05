@@ -174,13 +174,14 @@ class CC:
             #print(labels_true)
             # Calculating True cost gain if there were interventions
             true_cost_gain = 0
+            min_dif = self.Nodes[variable_index].min_diff
             if is_intv:
-                scores = []
+                '''scores = []
                 hinge_counts = []
                 interactions = []
                 sse_values = []
                 row_counts = []
-
+                print(f"True K is {true_k}")
                 for cluster in range(true_k):
                     X_group = X[labels_true == cluster, :]
                     y_group = y[labels_true == cluster]
@@ -198,7 +199,28 @@ class CC:
                 true_cost_split = self.ComputeScoreSplit(
                     hinge_counts, interactions, sse_values, scores, row_counts,
                     self.Nodes[i].min_diff, np.array([len(pa_i)]), show_graph=False
+                )'''
+                true_split_data = {}
+                for cluster_label in np.unique(labels_true):
+                    indices = np.where(labels_true == cluster_label)[0]
+                    X_group = X[indices, :]
+                    y_group = y[indices]
+                    sse, score, coeff, hinge_count, interaction, _ = self.slope_.FitSpline(X_group, y_group)
+                    true_split_data[cluster_label] = {'sse': sse, 'hinge_count': hinge_count,
+                                                      'interaction': interaction, 'score': score,
+                                                      'row_count': len(X_group)}
+
+                # Ensure consistent ordering of keys when passing to ComputeScoreSplit
+                sorted_true_labels = sorted(true_split_data.keys())
+                true_cost_split = self.ComputeScoreSplit(
+                    [true_split_data[label]['hinge_count'] for label in sorted_true_labels],
+                    [true_split_data[label]['interaction'] for label in sorted_true_labels],
+                    [true_split_data[label]['sse'] for label in sorted_true_labels],
+                    [true_split_data[label]['score'] for label in sorted_true_labels],
+                    [true_split_data[label]['row_count'] for label in sorted_true_labels],
+                    min_dif, np.array([len(pa_i)]), show_graph=False
                 )
+                print(f"True Cost Split (Modified): {true_cost_split}")
                 print(f"True Cost Split: {true_cost_split}")
                 true_cost_gain = cost_all - true_cost_split
 
@@ -272,7 +294,7 @@ class CC:
                     )
 
                 # Get the cost for splitting with k = clusters (WHEN POSSIBLE)
-                cost_split, labels_split, k_split_possible, num_iter, gmm_bic, initial_split = self.my_function(variable_index, pa_i, residuals, clusters, random, mdl_th, needed_nodes)
+                cost_split, labels_split, k_split_possible, num_iter, gmm_bic, initial_split = self.my_function(variable_index, pa_i, residuals, clusters, random, mdl_th, needed_nodes,min_dif)
 
                 if k_split_possible:
                     # compair scores and all that and save node row to the file.
@@ -302,6 +324,10 @@ class CC:
                         min_cc_ari = cc_ari
                         min_cc_nmi = cc_nmi
                         min_cc_fmi = cc_fmi
+                        #print(f"FOR NODE {variable_index} AND K={clusters}:")
+                        #print("LABELS TRUE:", labels_true)
+                        #print("FINAL LABELS:", final_labels)
+                        #print("ARE THEY IDENTICAL?", np.array_equal(labels_true, final_labels))
                     cluster_sizes = np.zeros(clusters)
                     for j in labels_split:
                         cluster_sizes[j] += 1
@@ -353,6 +379,7 @@ class CC:
             self.k[variable_index] = best_k
             nmi_scores.append(min_cc_nmi)
             fmi_scores.append(min_cc_fmi)
+
             if is_intv_found:
                 self.foundIntv.append(variable_index)
                 self.split[variable_index] = 1
@@ -361,7 +388,7 @@ class CC:
         np.savetxt(labels_file, self.node_labels, fmt="%d")
         return self.foundIntv, ari_scores  # ari only for nodes where foundIntv is true
 
-    def my_function(self, i, pa_i, residuals, k, random, mdl_th, needed_nodes):
+    def my_function(self, i, pa_i, residuals, k, random, mdl_th, needed_nodes, min_dif):
         X = self.vars[:, pa_i]
         y = self.vars[:, i]
         best_cost = math.inf
@@ -459,7 +486,7 @@ class CC:
                 if mdl_th:
                     cur_cost_split = self.ComputeScoreSplit(
                         hinge_counts, interactions, sse_values, scores,
-                        group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]),
+                        group_sizes, min_dif, np.array([len(pa_i)]),
                         show_graph=False
                     )
                     if cur_cost_split > prev_cost_split:
@@ -473,7 +500,7 @@ class CC:
             # Final model fit for scoring
             sse_list, score_list, hinge_counts_list, interactions_list, final_group_sizes = [],[],[], [], []
             mars_models = {}
-
+            print(f"Calculated K is {k}")
             for cluster in range(k):
                 X_group = X[final_labels == cluster, :]
                 y_group = y[final_labels == cluster]
@@ -485,7 +512,6 @@ class CC:
                     hinge_counts_list.append(hinge_count)
                     interactions_list.append(interactions)
                     final_group_sizes.append(len(y_group))
-                    final_group_sizes.append(len(y_group))
                     mars_models[cluster] = rearth
 
             cost_split = self.ComputeScoreSplit(
@@ -493,6 +519,28 @@ class CC:
                 final_group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]),
                 show_graph=False
             )
+            calculated_split_data = {}
+            for cluster_label in np.unique(final_labels):
+                indices = np.where(final_labels == cluster_label)[0]
+                X_group = X[indices, :]
+                y_group = y[indices]
+                if X_group.shape[0] > 1:
+                    sse, score, coeff, hinge_count, interactions, rearth = self.slope_.FitSpline(X_group, y_group)
+                    calculated_split_data[cluster_label] = {'sse': sse, 'hinge_count': hinge_count,
+                                                            'interaction': interactions, 'score': score,
+                                                            'row_count': len(y_group)}
+
+            # Ensure consistent ordering of keys when passing to ComputeScoreSplit
+            sorted_calculated_labels = sorted(calculated_split_data.keys())
+            cost_split = self.ComputeScoreSplit(
+                [calculated_split_data[label]['hinge_count'] for label in sorted_calculated_labels],
+                [calculated_split_data[label]['interaction'] for label in sorted_calculated_labels],
+                [calculated_split_data[label]['sse'] for label in sorted_calculated_labels],
+                [calculated_split_data[label]['score'] for label in sorted_calculated_labels],
+                [calculated_split_data[label]['row_count'] for label in sorted_calculated_labels],
+                min_dif, np.array([len(pa_i)]), show_graph=False
+            )
+            print(f"COST SPLIT (Modified): {cost_split}")
             print(f"COST SPLIT {cost_split}")
             if cost_split < best_cost:
                 best_cost = cost_split
@@ -510,7 +558,15 @@ class CC:
         return cost;
 
     def ComputeScoreSplit(self, hinges, interactions, sse, models, rows, mindiff, m, show_graph=False):
+        #print("--- SPLIT PARAMETERS ---")
+        #print("hinge_counts:", hinges)
+        #print("interactions:", interactions)
+        #print("sse_values:", sse)
+        #print("scores:", models)
+        #print("row_counts:", rows)
+        #print(f"MINDIF: {mindiff}")
         base_cost = self.slope_.model_score(m) + m * np.log2(self.V)  # m is the number of parent variables
+        #print(f"Base cost: {base_cost} and m: {m}")
         # Initialize total model cost and residuals cost
         total_model_cost = 0
         total_residuals_cost = 0
@@ -518,7 +574,7 @@ class CC:
         # Iterate over each cluster
         for i in range(len(hinges)):
             # Calculate model cost for the current cluster
-            model_cost = self.slope_.model_score(hinges[i]) + self.AggregateHinges(interactions[i], m)
+            model_cost = self.slope_.model_score(hinges[i]) + self.AggregateHinges(interactions[i], m) + models[i]
             #print(f'MODEL COST: {model_cost}')
             total_model_cost += model_cost
             # Calculate residuals cost for the current cluster
@@ -527,6 +583,7 @@ class CC:
             total_residuals_cost += residuals_cost
             total_rows += rows[i]
         #print('Total ROWS: ' + str(total_rows)) # Print total rows for debugging
+
         labels_cost = total_rows * math.log2(len(hinges))
         total_cost = base_cost + total_residuals_cost + total_model_cost + labels_cost
         return total_cost

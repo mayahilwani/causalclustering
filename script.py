@@ -23,10 +23,10 @@ def print_usage():
     print("  <k>          : Number of clusters for method (integer, e.g., 2/3/4):")
     print("  <r>          : Flag for random (0 or 1):")
     print("  <mdl>          : Flag for mdl threshold break (0 or 1):")
-    print("  <intv_s>     : strenght of intervention (integer, 0 to 2):")
+    print("  <intv_s>     : strenght of intervention (integer, 0 to 5):")
     print("                 0: Weak Intervention")
     print("                 1: Medium Intervention")
-    print("                 2: Strong Intervention")
+    print("                 2: Strong Intervention .. etc")
     print("  <noise>      : Noise level (integer, 0 to 2):")
     print("                 0: Low noise")
     print("                 1: Medium noise")
@@ -91,7 +91,7 @@ def main():
         sys.exit(1)
 
     if intv_strength < 0 or intv_strength > 2:
-        print(f"Error: intv_strength must be between 0 and 2. Got {intv_strength}.")
+        print(f"Error: intv_strength must be between 0 and 5. Got {intv_strength}.")
         print_usage()
         sys.exit(1)
 

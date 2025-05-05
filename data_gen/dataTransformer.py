@@ -146,6 +146,7 @@ class DataTransformer:
 		shift = strength * 5 #0.1
 		coef_scale = 1 + (strength * 0.5) #0.05
 		return shift, coef_scale
+		# return shift, coef_scale
 
 	def lin(self,x,num_samples,parents_exist, intv_strength=1, noise_level=0, pre_config=None):
 		noise_std = self.get_noise_scale(noise_level) # * np.sqrt(x.shape[1])
