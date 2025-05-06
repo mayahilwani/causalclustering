@@ -4,7 +4,7 @@ import sys;
 
 def main():
     #filepath= "./tests/test_50_2000_500_1_2_2_4_0_0/"
-    filepath = "/Users/mayahilwani/PycharmProjects/tests/test_1_500_100_3_1_2_2_0_0_2_2/"
+    filepath = "/Users/mayahilwani/PycharmProjects/tests/test_1_1000_200_3_1_2_2_0_0_1_2/"
     slope = Slope()
     Max_Interactions = 2;  # See the Instantiation section of the publication
     log_results = True;  # Set this to true if you would like to store the log of the experiment to a text file
@@ -12,7 +12,7 @@ def main():
     cc = CC(Max_Interactions, log_results, verbose);
     filename1 = filepath + str('experiment1')
     cc.loadData(filename1)
-    cc.run(2, [1], False, False)
+    cc.run(2, [0,3], False, False)
 
 
 

@@ -1,6 +1,7 @@
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, fowlkes_mallows_score
+import time
 
 
 class TraditionalClustering:
@@ -8,6 +9,7 @@ class TraditionalClustering:
     def getTraditionalClustering(self, data_xy, residuals, labels_true, k):
         results = {}
         predicted_labels = {}
+        runtimes = {}
 
         for method, dataset, name in [
             (GaussianMixture(n_components=k, random_state=19), data_xy, "gmm_xy"),
@@ -18,12 +20,14 @@ class TraditionalClustering:
             (SpectralClustering(n_clusters=k, random_state=19, affinity='nearest_neighbors'), residuals.reshape(-1, 1),
              "spectral_res")
         ]:
+            start_time = time.time()
             model = method.fit(dataset)
             labels_pred = model.predict(dataset) if hasattr(model, 'predict') else model.labels_
 
             # Store predicted labels
             predicted_labels[name] = labels_pred
-
+            end_time = time.time()
+            runtimes[name] = end_time - start_time
             # Replace accuracy and F1-score with ARI, NMI, and FMI
             ari = adjusted_rand_score(labels_true, labels_pred)
             nmi = normalized_mutual_info_score(labels_true, labels_pred)
@@ -33,4 +37,4 @@ class TraditionalClustering:
             results[f"{name}_NMI"] = nmi
             results[f"{name}_FMI"] = fmi
 
-        return results, predicted_labels
+        return results, predicted_labels, runtimes

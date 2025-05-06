@@ -90,7 +90,7 @@ def main():
         print_usage()
         sys.exit(1)
 
-    if intv_strength < 0 or intv_strength > 2:
+    if intv_strength < 0 or intv_strength > 5:
         print(f"Error: intv_strength must be between 0 and 5. Got {intv_strength}.")
         print_usage()
         sys.exit(1)

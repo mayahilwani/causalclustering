@@ -4,6 +4,7 @@ from slope import Slope;
 from utils import *
 from logger import Logger
 import numpy as np;
+import time
 from datetime import datetime
 from top_sort import *
 import RFunctions as rf
@@ -130,6 +131,15 @@ class CC:
         ari_scores = []
         nmi_scores = []
         fmi_scores = []
+        methods_runtimes = {'cc': 0, 'gmm': 0, 'kmeans': 0, 'spectral': 0, 'gmm_res': 0, 'kmeans_res': 0, 'spectral_res': 0}
+        gmm_runtimes = 0
+        kmeans_runtimes = 0
+        spectral_runtimes = 0
+        gmm_res_runtimes = 0
+        kmeans_res_runtimes = 0
+        spectral_res_runtimes = 0
+        total_run_time_my_function = 0
+        number_runtimes = 0
 
         for i,variable_index in enumerate(self.ordering):
             initial_split = 0
@@ -140,7 +150,7 @@ class CC:
             # Get parents of the node
             pa_i = np.where(self.gt[:, variable_index] == 1)[0]
             for parent in pa_i:
-                if parent in self.foundIntv:
+                if parent in self.intv:
                     parent_intv = 1
 
             print('ITER ' + str(i))
@@ -264,7 +274,7 @@ class CC:
                 # Get the clustering results ( accuracy and f1_score) of GMM , Kmeans, Spectral on Xy-data and on residuals
                 if is_intv:
                     tc = TraditionalClustering()
-                    clustering_results, predicted_labels = tc.getTraditionalClustering(data_xy, residuals, labels_true, clusters)
+                    clustering_results, predicted_labels, runtimes = tc.getTraditionalClustering(data_xy, residuals, labels_true, clusters)
                     (
                         gmm_ari, kmeans_ari, spectral_ari,
                         gmm_ari_res, kmeans_ari_res, spectral_ari_res,
@@ -292,14 +302,34 @@ class CC:
                         "gmm_res", "kmeans_res", "spectral_res"
                     ]
                     )
+                    # Unpack runtimes
+                    ( gmm_runtime, kmeans_runtime, spectral_runtime,
+                      gmm_res_runtime, kmeans_res_runtime, spectral_res_runtime
+                    ) = (
+                        runtimes.get(key, []) for key in [
+                        "gmm_xy", "kmeans_xy", "spectral_xy",
+                        "gmm_res", "kmeans_res", "spectral_res"
+                    ]
+                    )
+                    gmm_runtimes += gmm_runtime
+                    kmeans_runtimes += kmeans_runtime
+                    spectral_runtimes += spectral_runtime
+                    gmm_res_runtimes += gmm_res_runtime
+                    kmeans_res_runtimes += kmeans_res_runtime
+                    spectral_res_runtimes += spectral_res_runtime
 
                 # Get the cost for splitting with k = clusters (WHEN POSSIBLE)
+                start_time_run = time.time()
                 cost_split, labels_split, k_split_possible, num_iter, gmm_bic, initial_split = self.my_function(variable_index, pa_i, residuals, clusters, random, mdl_th, needed_nodes,min_dif)
+                end_time_run = time.time()
 
                 if k_split_possible:
                     # compair scores and all that and save node row to the file.
                     print(f'COST for splitting model with {clusters} is {str(cost_split)}')
                     eps = 0  # 3100  # THREASHOLD FOR MDL DECISION (BITS)
+                    one_run_time = end_time_run - start_time_run
+                    total_run_time_my_function += one_run_time
+                    number_runtimes += 1
 
                     if cost_split < cost_all:
                         print(f"Splitting model with {clusters} is better with score  {cost_all - cost_split}")
@@ -386,7 +416,17 @@ class CC:
                 ari_scores.append(min_cc_ari)
         labels_file = f"{self.filename}/node_labels.txt"
         np.savetxt(labels_file, self.node_labels, fmt="%d")
-        return self.foundIntv, ari_scores  # ari only for nodes where foundIntv is true
+        # Fill methods_runtimes = {'cc': 0, 'gmm': 0, 'kmeans': 0, 'spectral': 0, 'gmm_res': 0, 'kmeans_res': 0, 'spectral_res': 0}
+        methods_runtimes['cc'] = total_run_time_my_function/number_runtimes
+        num_intvs = len(self.intv)
+        methods_runtimes['gmm'] = gmm_runtimes / num_intvs
+        methods_runtimes['kmeans'] = kmeans_runtimes / num_intvs
+        methods_runtimes['spectral'] = spectral_runtimes / num_intvs
+        methods_runtimes['gmm_res'] = gmm_res_runtimes / num_intvs
+        methods_runtimes['kmeans_res'] = kmeans_res_runtimes / num_intvs
+        methods_runtimes['spectral_res'] = spectral_res_runtimes / num_intvs
+
+        return self.foundIntv, ari_scores, methods_runtimes  # ari only for nodes where foundIntv is true
 
     def my_function(self, i, pa_i, residuals, k, random, mdl_th, needed_nodes, min_dif):
         X = self.vars[:, pa_i]
@@ -498,7 +538,7 @@ class CC:
                 last_groups = labels.copy()
 
             # Final model fit for scoring
-            sse_list, score_list, hinge_counts_list, interactions_list, final_group_sizes = [],[],[], [], []
+            '''sse_list, score_list, hinge_counts_list, interactions_list, final_group_sizes = [],[],[], [], []
             mars_models = {}
             print(f"Calculated K is {k}")
             for cluster in range(k):
@@ -518,7 +558,7 @@ class CC:
                 hinge_counts_list, interactions_list, sse_list, score_list,
                 final_group_sizes, self.Nodes[i].min_diff, np.array([len(pa_i)]),
                 show_graph=False
-            )
+            )'''
             calculated_split_data = {}
             for cluster_label in np.unique(final_labels):
                 indices = np.where(final_labels == cluster_label)[0]
@@ -540,7 +580,7 @@ class CC:
                 [calculated_split_data[label]['row_count'] for label in sorted_calculated_labels],
                 min_dif, np.array([len(pa_i)]), show_graph=False
             )
-            print(f"COST SPLIT (Modified): {cost_split}")
+            #print(f"COST SPLIT (Modified): {cost_split}")
             print(f"COST SPLIT {cost_split}")
             if cost_split < best_cost:
                 best_cost = cost_split

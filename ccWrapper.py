@@ -31,7 +31,7 @@ class CCWrapper:
         stats_file_name = f"STATS{n}.txt"
         stats_file = f"{file_path}/{stats_file_name}"
         with open(stats_file, "w") as stats:
-            stats.write("id, intervention, dag_size, orig_data, intv_data, TP, TN, FP, FN, intv_acc, avg_ari_score, elapsed_time\n")
+            stats.write("id,intervention,dag_size,orig_data,intv_data,TP,TN,FP,FN,intv_acc,avg_ari_score,elapsed_time,method_time,gmm_time,kmeans_time,spectral_time,gmm_res_time,kmeans_res_time,spectral_res_time\n")
 
         total_intv_acc = 0
         total_final_ari_scores = []
@@ -70,7 +70,7 @@ class CCWrapper:
         start_time = time.time()
 
         # Get interventions found and accuracies
-        intv_found_acc, final_ari_scores, TP, TN, FP, FN = self.idk(filename1, int(attributes[1]), k, needed_nodes,
+        intv_found_acc, final_ari_scores, TP, TN, FP, FN, runtimes = self.idk(filename1, int(attributes[1]), k, needed_nodes,
                                                                     rand, mdl_th)
 
         # End time
@@ -78,12 +78,21 @@ class CCWrapper:
 
         # Calculate elapsed time
         elapsed_time = end_time - start_time
-
+        # Unpack runtime
+        (
+            method_runtime, gmm_runtime, kmeans_runtime, spectral_runtime,
+            gmm_res_runtime, kmeans_res_runtime, spectral_res_runtime
+        ) = (
+            runtimes.get(key, []) for key in [
+            'cc', 'gmm', 'kmeans', 'spectral', 'gmm_res', 'kmeans_res', 'spectral_res'
+        ]
+        )
+        # {'cc': 0, 'gmm': 0, 'kmeans': 0, 'spectral': 0, 'gmm_res': 0, 'kmeans_res': 0, 'spectral_res': 0}
         # Write results to the stats file
         with open(stats_file, "a") as stats:
             avg_ari_score = (sum(final_ari_scores) / len(final_ari_scores)) if final_ari_scores else 0
             stats.write(
-                f"{i + 1},{attributes[0]},{attributes[1]},{attributes[2]},{attributes[3]},{TP:.2f},{TN:.2f},{FP:.2f},{FN:.2f},{intv_found_acc:.2f},{avg_ari_score:.2f},{elapsed_time:.4f}\n"
+                f"{i + 1},{attributes[0]},{attributes[1]},{attributes[2]},{attributes[3]},{TP:.2f},{TN:.2f},{FP:.2f},{FN:.2f},{intv_found_acc:.2f},{avg_ari_score:.2f},{elapsed_time:.4f},{method_runtime:.4f},{gmm_runtime:.4f},{kmeans_runtime:.4f},{spectral_runtime:.4f},{gmm_res_runtime:.4f},{kmeans_res_runtime:.4f},{spectral_res_runtime:.4f}\n"
             )
 
         return intv_found_acc, final_ari_scores, TP, TN, FP, FN
@@ -94,7 +103,8 @@ class CCWrapper:
         verbose = True;  # Set this to true if you would like see the log output printed to the screen
         self.cc = CC(Max_Interactions, log_results, verbose);
         self.cc.loadData(filename);
-        found_intv, ari_scores = self.cc.run(k, needed_nodes, rand, mdl_th);
+        found_intv, ari_scores, runtimes = self.cc.run(k, needed_nodes, rand, mdl_th);
+        # runtimes {'cc': 0, 'gmm': 0, 'kmeans': 0, 'spectral': 0, 'gmm_res': 0, 'kmeans_res': 0, 'spectral_res': 0}
         try:
             intv_file = f"{filename}/interventions1.txt"
             intvs = np.loadtxt(intv_file, delimiter=',', dtype=int)
@@ -135,7 +145,7 @@ class CCWrapper:
         print(str(TP) + " INTERVENTIONS FOUND OUT OF " + str(intv_cnt) + " INTERVENTIONS")
         if TP == intv_cnt:
             print("ALL FOUND !!!")
-        return intv_accuracy, final_ari_scores, TP, TN, FP, FN
+        return intv_accuracy, final_ari_scores, TP, TN, FP, FN, runtimes
 
         #spot.analyzeLabels()
 
