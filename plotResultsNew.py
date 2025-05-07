@@ -7,7 +7,7 @@ import numpy as np
 import ast
 
 # --- Setup Paths ---
-parent_dir = "./tests/test_50_2000_500_0_0_2_4_0_0/"
+parent_dir = "./tests/test_50_2000_500_3_1_2_3_0_0_1_2/"
 experiment_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))
 experiment_folders = [folder.replace("\\", "/") for folder in experiment_folders]
 
@@ -40,6 +40,9 @@ for folder in experiment_folders:
             "score_diff": row["score_diff"],
             "true_score_diff": row["true_score_diff"],
             "num_iter": row["num_iter"],
+            "initial_split": row["initial_split"],
+            "per_intv": row["per_intv"],
+            "parent_intv": row["parent_intv"],
             "cc_ari": row["cc_ari"], "gmm_ari": row["gmm_ari"], "gmm_ari_res": row["gmm_ari_res"],
             "kmeans_ari": row["kmeans_ari"], "kmeans_ari_res": row["kmeans_ari_res"],
             "spectral_ari": row["spectral_ari"], "spectral_ari_res": row["spectral_ari_res"],
@@ -52,6 +55,13 @@ for folder in experiment_folders:
         })
 print(f" last global id : {next_global_id}")
 global_df = pd.DataFrame(global_data)
+# --- ARI Score Boxplot (k=2 & true_score_diff <= 0) ---
+low_score_df = global_df[
+    (global_df["k"] == 2) &
+    (pd.to_numeric(global_df["true_score_diff"], errors="coerce") <= 0)
+]
+
+global_df = global_df[(global_df["k"] == 2) & (pd.to_numeric(global_df["true_score_diff"], errors="coerce") > 300)]
 
 # --- Type Conversions ---
 numeric_cols = [
@@ -59,23 +69,48 @@ numeric_cols = [
     "cc_nmi", "gmm_nmi", "kmeans_nmi", "spectral_nmi",
     "cc_fmi", "gmm_fmi", "kmeans_fmi", "spectral_fmi"
 ]
+numeric_cols.extend(["initial_split", "per_intv", "parent_intv"])
+
 global_df[numeric_cols] = global_df[numeric_cols].apply(pd.to_numeric, errors="coerce")
 
 # --- ARI Score Boxplot (TP only) ---
 filtered_df = global_df[(global_df["true_split"] == 1) & (global_df["found_split"] == 1)]
-ari_cols = ["cc_ari", "gmm_ari", "gmm_ari_res", "kmeans_ari", "kmeans_ari_res", "spectral_ari", "spectral_ari_res"]
-filtered_df[ari_cols] = filtered_df[ari_cols].apply(pd.to_numeric, errors="coerce")
+#ari_cols = ["cc_ari", "gmm_ari", "gmm_ari_res", "kmeans_ari", "kmeans_ari_res", "spectral_ari", "spectral_ari_res"]
+nmi_cols = ["cc_nmi", "gmm_nmi","gmm_nmi_res", "kmeans_nmi",  "kmeans_nmi_res", "spectral_nmi", "spectral_nmi_res"]
+#filtered_df[ari_cols] = filtered_df[ari_cols].apply(pd.to_numeric, errors="coerce")
+filtered_df[nmi_cols] = filtered_df[nmi_cols].apply(pd.to_numeric, errors="coerce")
 
 plt.figure(figsize=(8, 6))
-sns.boxplot(data=filtered_df[ari_cols])
-plt.title("ARI Score Comparison (True & Found Split)")
+#sns.boxplot(data=filtered_df[ari_cols])
+sns.boxplot(data=filtered_df[nmi_cols])
+#plt.title("ARI Score Comparison (True & Found Split)")
+plt.title("NMI Score Comparison")
 plt.xticks(rotation=15)
-plt.ylabel("ARI Score")
+#plt.ylabel("ARI Score")
+plt.ylabel("NMI Score")
 plt.xlabel("Methods")
 plt.tight_layout()
 plt.show()
 #plt.close()
+# Convert ARI columns to numeric if not already
+#low_score_df[ari_cols] = low_score_df[ari_cols].apply(pd.to_numeric, errors="coerce")
+low_score_df[nmi_cols] = low_score_df[nmi_cols].apply(pd.to_numeric, errors="coerce")
 
+# Check if we have any data to plot
+if not low_score_df.empty:
+    plt.figure(figsize=(8, 6))
+    #sns.boxplot(data=low_score_df[ari_cols])
+    sns.boxplot(data=low_score_df[nmi_cols])
+    #plt.title("ARI Score Comparison (k=2 & true_score_diff ≤ 0)")
+    plt.title("NMI Score Comparison (k=2 & true_score_diff ≤ 0)")
+    plt.xticks(rotation=15)
+    #plt.ylabel("ARI Score")
+    plt.ylabel("NMI Score")
+    plt.xlabel("Methods")
+    plt.tight_layout()
+    plt.show()
+else:
+    print("⚠️ No data to plot for k=2 & true_score_diff ≤ 0.")
 # Identify nodes that were already counted in TP or FN
 used_nodes = set(global_df[(global_df["true_split"] == 1)]["global_node_id"])
 print(f"Nodes with true split (used for TP/FN): {len(used_nodes)}")
@@ -108,12 +143,14 @@ plt.tight_layout()
 plt.show()
 #plt.close()
 
+values = [FP, TN]
 plt.figure(figsize=(6, 6))
-plt.pie([FP, TN], labels=["False Positives", "True Negatives"], autopct="%1.1f%%", colors=["orange", "blue"])
-plt.title("FP vs TN")
-plt.tight_layout()
-plt.show()
-#plt.close()
+if sum(values) == 0:
+    print("Nothing to plot: all values are zero.")
+else:
+    plt.pie(values, labels=["False Positives", "True Negatives"], autopct="%1.1f%%", colors=["orange", "blue"])
+    plt.title("False Positives vs True Negatives")
+    plt.show()
 
 # --- Check if Minimum score_diff aligns with correct k ---
 correct_k_count = 0

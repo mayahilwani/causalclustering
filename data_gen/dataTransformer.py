@@ -272,7 +272,7 @@ class DataTransformer:
 			else:
 				signed_coeffs = pre_config[0]
 
-			noise = np.random.normal(0, noise_scale, size=(x.shape[0], 1))
+			noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
 			Y_val = np.dot(dt, signed_coeffs) + noise
 			#Y_val = np.dot(dt,signed_coeffs)+ np.random.normal(0,0.2,x.shape[0])
 			#mu_ 	= np.mean(Y_val);

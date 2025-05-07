@@ -23,10 +23,10 @@ def run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th, intv_strength,
 def main():
 
     n = 1        # Number of tests
-    orig = 1000       # Number of original datapoints
-    intv = 200      # Number of intervention datapoints
+    orig = 2000       # Number of original datapoints
+    intv = 500      # Number of intervention datapoints
     intv_type = 3   # Type of intervention (0 to 3)
-    f = 1         # Function type (0 to 2)
+    f = 2         # Function type (0 to 2)
     clusters = 2   # Number of clusters for data generation
     k = 2         # Number of clusters for method
     r = 0          # Random flag

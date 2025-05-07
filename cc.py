@@ -418,13 +418,24 @@ class CC:
         np.savetxt(labels_file, self.node_labels, fmt="%d")
         # Fill methods_runtimes = {'cc': 0, 'gmm': 0, 'kmeans': 0, 'spectral': 0, 'gmm_res': 0, 'kmeans_res': 0, 'spectral_res': 0}
         methods_runtimes['cc'] = total_run_time_my_function/number_runtimes
-        num_intvs = len(self.intv)
-        methods_runtimes['gmm'] = gmm_runtimes / num_intvs
-        methods_runtimes['kmeans'] = kmeans_runtimes / num_intvs
-        methods_runtimes['spectral'] = spectral_runtimes / num_intvs
-        methods_runtimes['gmm_res'] = gmm_res_runtimes / num_intvs
-        methods_runtimes['kmeans_res'] = kmeans_res_runtimes / num_intvs
-        methods_runtimes['spectral_res'] = spectral_res_runtimes / num_intvs
+        if self.intv.size == 0:
+            methods_runtimes['gmm'] = 0
+            methods_runtimes['kmeans'] = 0
+            methods_runtimes['spectral'] = 0
+            methods_runtimes['gmm_res'] = 0
+            methods_runtimes['kmeans_res'] = 0
+            methods_runtimes['spectral_res'] = 0
+        else:
+            try:
+                num_intvs = len(self.intv)
+            except:
+                num_intvs = 1
+            methods_runtimes['gmm'] = gmm_runtimes / num_intvs
+            methods_runtimes['kmeans'] = kmeans_runtimes / num_intvs
+            methods_runtimes['spectral'] = spectral_runtimes / num_intvs
+            methods_runtimes['gmm_res'] = gmm_res_runtimes / num_intvs
+            methods_runtimes['kmeans_res'] = kmeans_res_runtimes / num_intvs
+            methods_runtimes['spectral_res'] = spectral_res_runtimes / num_intvs
 
         return self.foundIntv, ari_scores, methods_runtimes  # ari only for nodes where foundIntv is true
 
