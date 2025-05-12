@@ -7,7 +7,7 @@ import numpy as np
 import ast
 
 # --- Setup Paths ---
-parent_dir = "./tests/test_50_2000_500_3_1_2_3_0_0_1_2/"
+parent_dir = "./tests/test_50_2000_500_1_0_2_3_0_0_2_1/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
 experiment_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))
 experiment_folders = [folder.replace("\\", "/") for folder in experiment_folders]
 
@@ -60,6 +60,9 @@ low_score_df = global_df[
     (global_df["k"] == 2) &
     (pd.to_numeric(global_df["true_score_diff"], errors="coerce") <= 0)
 ]
+low_score = low_score_df[low_score_df["true_split"] == 1]
+all_scores = global_df[(global_df["true_split"] == 1) & (global_df["k"] == 2)]
+print(f"LOW SCORE CASES: {low_score.shape[0]} . ALL CASES: {all_scores.shape[0]}")
 
 global_df = global_df[(global_df["k"] == 2) & (pd.to_numeric(global_df["true_score_diff"], errors="coerce") > 300)]
 

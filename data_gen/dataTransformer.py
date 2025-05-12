@@ -25,7 +25,6 @@ class DataTransformer:
 		# Determine function type and intervention parameters
 		func_type = self.determine_function_type(f_ids)
 		shift, coef_scale = self.get_intervention_parameters(func_type, strength)
-		noise_scale = self.get_noise_scale(noise_level)
 
 		#print(f'Function Type: {func_type}')
 		#print(f'Intervention Strength: {strength} -> Shift: {shift}, Coef Scale: {coef_scale}')
@@ -33,27 +32,22 @@ class DataTransformer:
 
 		# Apply selective flipping and scaling
 		new_coeff = coeff.copy()
-		flip_prob = np.clip(strength * 0.3, 0.2, 0.8)  # Flip prob depends on strength
-
-		for i in range(dims):
-			flip = np.random.rand() < flip_prob  # Random decision to flip
-			sign = -1 if flip else 1
-			f_type = f_ids[i]
-
-			if f_type == 0:  # linear
-				new_coeff[i] *= sign * coef_scale * np.random.uniform(0.9, 1.1)
-			elif f_type in [1, 2]:  # polynomial
-				new_coeff[i] *= sign * coef_scale
-			elif f_type in [4, 5]:  # periodic
+		sign = -1  # if flip else 1
+		if strength == 4:
+			for i in range(dims):
 				new_coeff[i] *= sign * coef_scale * np.random.uniform(0.9, 1.2)
-
+		else:
+			intv_pa = random.choice(range(dims))
+			new_coeff[intv_pa] *= sign * coef_scale * np.random.uniform(0.9, 1.1)
 		# Transform input
 		tfs = [self.transform(x[:, i], f_ids[i]) for i in range(dims)]
 		dt = np.hstack(tfs)
 
-		# Add noise and shift
-		noise = np.random.normal(0, noise_scale, size=(x.shape[0], 1))
-		Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + shift + noise
+		Y_val = np.dot(dt, new_coeff)
+		noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
+		noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
+		Y_val = Y_val + noise
+		#Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + shift + noise
 
 		new_config = (new_coeff, f_ids)
 		return Y_val, new_config
@@ -66,18 +60,28 @@ class DataTransformer:
 
 		func_type = self.determine_function_type(f_ids)
 		shift, coef_scale = self.get_intervention_parameters(func_type, strength)
-		noise_scale = self.get_noise_scale(noise_level)
-
+		coef_scale = coef_scale + np.random.uniform(0.1, 0.4)
 		#print(f'Function Type: {func_type}')
 		#print(f'Scaling Strength: {strength} -> Coef Scale: {coef_scale}')
 		#print(f'Noise Level: {noise_level} -> Noise Std: {noise_scale}')
 
-		new_coeff = coeff.copy() * coef_scale * np.random.uniform(0.8, 1.3, size=coeff.shape)
+		new_coeff = coeff.copy()
+		if strength == 3:
+			for i in range(dims):
+				new_coeff[i] *= coef_scale * np.random.uniform(0.9, 1.2)
+		else:
+			intv_pa = random.choice(range(dims))
+			print(type(new_coeff[intv_pa]), new_coeff[intv_pa])
+			print(coef_scale * np.random.uniform(0.9, 1.1))
 
+			new_coeff[intv_pa] *= coef_scale * np.random.uniform(0.9, 1.1)
 		tfs = [self.transform(x[:, i], f_ids[i]) for i in range(dims)]
 		dt = np.hstack(tfs)
-		noise = np.random.normal(0, noise_scale, size=(x.shape[0], 1))
-		Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + noise
+		Y_val = np.dot(dt, new_coeff)
+		noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
+		noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
+		Y_val = Y_val + noise
+		#Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + noise
 
 		new_config = (new_coeff, f_ids)
 		return Y_val, new_config
@@ -107,16 +111,19 @@ class DataTransformer:
 		shift, _ = self.get_intervention_parameters(func_type, strength)
 		noise_scale = self.get_noise_scale(noise_level)
 
-		print(f'Function Type: {func_type}')
-		print(f'Shift Strength: {strength} -> Shift: {shift}')
-		print(f'Noise Level: {noise_level} -> Noise Std: {noise_scale}')
+		#print(f'Function Type: {func_type}')
+		#print(f'Shift Strength: {strength} -> Shift: {shift}')
+		#print(f'Noise Level: {noise_level} -> Noise Std: {noise_scale}')
 
 		new_coeff = coeff.copy()  # No scaling, just a shift
 
 		tfs = [self.transform(x[:, i], f_ids[i]) for i in range(dims)]
 		dt = np.hstack(tfs)
-		noise = np.random.normal(0, noise_scale, size=(x.shape[0], 1))
-		Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + shift + noise
+		Y_val = np.dot(dt, new_coeff)
+		noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
+		noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
+		Y_val = Y_val + shift + noise
+		#Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + shift + noise
 
 		new_config = (new_coeff, f_ids)
 		return Y_val, new_config
@@ -134,16 +141,16 @@ class DataTransformer:
     # The data looks too noisy.
 	def get_noise_scale(self, noise_level):
 		levels = {
-			0: 0.3,
-			1: 0.5,
-			2: 1,
+			0: 0.05,
+			1: 0.09,
+			2: 0.18,
 		}
 		#print(f'Noise Level: {levels.get(noise_level, 0.1)}')
 		return levels.get(noise_level, 0.1)
 
 	def get_intervention_parameters(self, func_type, strength):
 		# Dummy implementation — adjust to your needs
-		shift = strength * 5 #0.1
+		shift = max((strength * 0.5), 0.3) #0.1
 		coef_scale = 1 + (strength * 0.5) #0.05
 		return shift, coef_scale
 		# return shift, coef_scale
@@ -185,8 +192,10 @@ class DataTransformer:
 			else:
 				signed_coeffs = pre_config[0]
 
-			noise = np.random.normal(0, noise_scale, size=(x.shape[0], 1))
-			Y_val = np.dot(dt, signed_coeffs) + noise
+			Y_val = np.dot(dt, signed_coeffs)
+			noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
+			noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
+			Y_val = Y_val + noise
 			#Y_val 	= np.dot(dt,signed_coeffs)+np.random.normal(0,2*x.shape[1],x.shape[0])
 			#mu_ 	= np.mean(Y_val);
 			#sdev_ 	= np.std(Y_val);
@@ -234,9 +243,11 @@ class DataTransformer:
 			else:
 				signed_coeffs = pre_config[0]
 
-			#noise = np.random.normal(0, noise_scale, size=(x.shape[0], 1))
-			noise = np.random.normal(0, noise_scale, x.shape[0])
-			Y_val = np.dot(dt, signed_coeffs) + noise
+			Y_val = np.dot(dt, signed_coeffs)
+			noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
+			noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
+			Y_val = Y_val + noise
+			
 			#print(Y_val.shape)
 			#Y_val 	= np.dot(dt,signed_coeffs)+np.random.normal(0,2*x.shape[1],x.shape[0])
 			#mu_ 	= np.mean(Y_val);
@@ -246,7 +257,7 @@ class DataTransformer:
 		return Y_val,(signed_coeffs,f_ids)
 
 	def osc(self,x,num_samples,parents_exist, intv_strength=1, noise_level=0, pre_config = None):
-		noise_scale = self.get_noise_scale(noise_level) * np.sqrt(x.shape[1])
+		noise_scale = self.get_noise_scale(noise_level) #* np.sqrt(x.shape[1])
 		Y_val = np.random.normal(0, noise_scale, x.shape[0])
 		#Y_val=np.random.normal(0,np.pi/2.0,x.shape[0])
 		dims = x.shape[1]
@@ -272,8 +283,10 @@ class DataTransformer:
 			else:
 				signed_coeffs = pre_config[0]
 
+			Y_val = np.dot(dt, signed_coeffs)
+			noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
 			noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
-			Y_val = np.dot(dt, signed_coeffs) + noise
+			Y_val = Y_val + noise
 			#Y_val = np.dot(dt,signed_coeffs)+ np.random.normal(0,0.2,x.shape[0])
 			#mu_ 	= np.mean(Y_val);
 			#sdev_ 	= np.std(Y_val);

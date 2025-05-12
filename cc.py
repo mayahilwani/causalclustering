@@ -57,11 +57,11 @@ class CC:
             intv_file = f"{self.filename}/interventions1.txt"
             self.gt = np.loadtxt(gt_file, delimiter=',')
             data = np.loadtxt(data_file, delimiter=',')
-            print("Any NaNs in data?", np.isnan(data).any())
-            if np.isnan(data).any():
+            #print("Any NaNs in data?", np.isnan(data).any())
+            '''if np.isnan(data).any():
                 nan_rows = np.where(np.isnan(data).any(axis=1))[0]
                 print("Rows with NaNs:", nan_rows)
-                print("Values in those rows:\n", data[nan_rows])
+                print("Values in those rows:\n", data[nan_rows])'''
             try:
                 intvs = np.loadtxt(intv_file, delimiter=',', dtype=int)
             except ValueError as e:
@@ -230,7 +230,6 @@ class CC:
                     [true_split_data[label]['row_count'] for label in sorted_true_labels],
                     min_dif, np.array([len(pa_i)]), show_graph=False
                 )
-                print(f"True Cost Split (Modified): {true_cost_split}")
                 print(f"True Cost Split: {true_cost_split}")
                 true_cost_gain = cost_all - true_cost_split
 
@@ -370,6 +369,7 @@ class CC:
                         #self.plot.plot_2d_results(only_one, pa_i, variable_index, final_labels, y_pred, y_pred1,
                          #                         y_pred2, labels_true)
                         self.plot.plot_2d_other(pa_i, variable_index, final_labels, 'CC method')
+                        self.plot.plot_2d_other(pa_i, variable_index, labels_true, 'True clusters')
                         self.plot.plot_2d_other(pa_i, variable_index, kmeans_labels, "KMeans")
                         self.plot.plot_2d_other(pa_i, variable_index, kmeans_res_labels, "KMeans on residuals")
                         self.plot.plot_2d_other(pa_i, variable_index, gmm_labels, "GMM")
@@ -380,6 +380,7 @@ class CC:
                     # PLOT THE FINAL RESULT IF 2 PARENTS
                     if len(pa_i) == 2:  # Only plot when there are two parents (3D case)
                         self.plot.plot_3d_other(pa_i, variable_index, final_labels, 'CC method')
+                        self.plot.plot_3d_other(pa_i, variable_index, labels_true, 'True clusters')
                         self.plot.plot_3d_other(pa_i, variable_index, kmeans_labels, "KMeans")
                         self.plot.plot_3d_other(pa_i, variable_index, kmeans_res_labels, "KMeans on residuals")
                         self.plot.plot_3d_other(pa_i, variable_index, gmm_labels, "GMM")
@@ -482,6 +483,9 @@ class CC:
             '''elif init_type == 'quantile':   # Spectral on residuals .
                 initial_labels = quantile_split(residuals, k)
                 initial_split = 2'''
+            if random:
+                initial_labels = random_split(residuals, k)
+                initial_split = 1
 
             first_iter = True
             num_iter = 0
