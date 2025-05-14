@@ -36,7 +36,8 @@ class CCWrapper:
         total_intv_acc = 0
         total_final_ari_scores = []
         # Create a Pool of worker processes
-        pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())  # Use all available CPUs
+        print(f"!!!!!!!!!!!CPUS = {multiprocessing.cpu_count()}!!!!!!!!!!!")
+        pool = multiprocessing.Pool(processes=16)  # Use all available CPUs
 
         # Prepare the arguments for each test case
         tasks = [(i, file_path, n, k, needed_nodes, rand, mdl_th, stats_file) for i in range(n)]
