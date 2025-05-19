@@ -47,7 +47,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2, intv_strength=0, n
                     generator = tb.AcyclicGraphGenerator(mec, nodes=nd, npoints=1, noise=n, noise_coeff=0.3, dag_type='erdos', expected_degree=md * nd)
                     _, G = generator.generate()
                     graph = nx.to_numpy_array(G).astype(int)
-                    # Enforce a maximum of 2 parents for each node
+                    '''# Enforce a maximum of 2 parents for each node
                     for node in range(graph.shape[1]):  # Iterate over all nodes
                         parents = np.where(graph[:, node] == 1)[0]  # Find parent nodes
                         if len(parents) > 2:
@@ -56,7 +56,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2, intv_strength=0, n
                             # Remove other edges
                             for parent in parents:
                                 if parent not in parents_to_keep:
-                                    graph[parent, node] = 0
+                                    graph[parent, node] = 0'''
                     # Generate obs data
                     #gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, pre_config = None
                     data1, pre_config, _ = gen_data(graph, n_samples, [], intv_type, f, intv_strength, noise_level)
