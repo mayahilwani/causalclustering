@@ -23,16 +23,16 @@ def run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th, intv_strength,
 def main():
    # 2500   2000-500  2250-250
     n = 1        # Number of tests
-    orig = 2250       # Number of original datapoints
-    intv = 250      # Number of intervention datapoints
-    intv_type = 0   # Type of intervention (0 to 3)
+    orig = 2500       # Number of original datapoints
+    intv = 500      # Number of intervention datapoints
+    intv_type = 3   # Type of intervention (0 to 3)
     f = 2 # Function type (0 to 2) 0: linear,  1:poly degree2 , 2: periodic
     clusters = 2   # Number of clusters for data generation
     k = 2         # Number of clusters for method
     r = 0          # Random flag
     mdl_th = 0
-    intv_strength = 0  # 0, 1 or 2
-    noise_level = 0 # 0, 1 or 2
+    intv_strength = 1  # 0, 1 or 2
+    noise_level = 0  # 0, 1 or 2
     run_code(n, orig, intv, intv_type, f, clusters, k, r, mdl_th, intv_strength, noise_level)
     # sbatch 50 2000 500 0 0 2 3 0 0 0 0
     # script.py 50 2000 500 0 1 2 4 0 0

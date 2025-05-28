@@ -7,7 +7,7 @@ import numpy as np
 import ast
 
 # --- Setup Paths ---
-parent_dir = "./tests/test_50_2250_250_3_1_2_3_0_0_2_1/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
+parent_dir = "./tests/test_50_2250_250_0_1_2_3_0_0_0_2/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
 experiment_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))
 experiment_folders = [folder.replace("\\", "/") for folder in experiment_folders]
 
@@ -156,7 +156,7 @@ else:
     plt.show()
 
 # --- Check if Minimum score_diff aligns with correct k ---
-correct_k_count = 0
+'''correct_k_count = 0
 total_k_candidates = 0
 
 for node_id, group in global_df.groupby("global_node_id"):
@@ -173,7 +173,7 @@ for node_id, group in global_df.groupby("global_node_id"):
 
 
 print(f"\n✅ Correct k Detection: {correct_k_count}/{total_k_candidates} "
-      f"({100 * correct_k_count / total_k_candidates:.2f}%)\n")
+      f"({100 * correct_k_count / total_k_candidates:.2f}%)\n")'''
 
 '''# --- Line Plot: score_diff vs k for Valid Nodes ---
 # Step 1: Get valid node IDs

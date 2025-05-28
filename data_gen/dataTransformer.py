@@ -122,6 +122,7 @@ class DataTransformer:
 		Y_val = np.dot(dt, new_coeff)
 		noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
 		noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
+		shift = shift * np.std(Y_val)
 		Y_val = Y_val + shift + noise
 		#Y_val = np.dot(dt, new_coeff).reshape(-1, 1) + shift + noise
 
@@ -150,7 +151,7 @@ class DataTransformer:
 
 	def get_intervention_parameters(self, func_type, strength):
 		# Dummy implementation — adjust to your needs
-		shift = max((strength * 0.5), 0.3) #0.1
+		shift = max((strength * 0.8), 0.5) #0.1
 		coef_scale = 1 + (strength * 0.5) #0.05
 		return shift, coef_scale
 		# return shift, coef_scale
@@ -262,28 +263,32 @@ class DataTransformer:
 		#Y_val=np.random.normal(0,np.pi/2.0,x.shape[0])
 		dims = x.shape[1]
 		f_ids = np.random.randint(4,6,dims)
+
 		if pre_config is not None:
 			f_ids = pre_config[1]
+		print("f_ids ", f_ids)
 		tfs = []
-		signed_coeffs = []
+		coeffs = []
 		if parents_exist:
 			for i in range(dims):
 				tfs.append(self.transform(x[:,i],f_ids[i]))
 
 			dt = np.hstack(tfs)
-			new_dims = dt.shape[1]
+			#new_dims = dt.shape[1]
 			s_dict={};
 			s_dict[0] = -1
 			s_dict[1] =  1
 
 			if pre_config is None:
-				coeffs = np.random.uniform(2,5,new_dims)
-				signs  = np.array( [ s_dict[ss] for ss in list(np.random.randint(0,2,new_dims))  ]  )
-				signed_coeffs = coeffs * signs
+				coeffs = np.ones(dims) #np.random.uniform(2,5,new_dims)
+				#signs  = np.array( [ s_dict[ss] for ss in list(np.random.randint(0,2,new_dims))  ]  )
+				#signed_coeffs = coeffs * signs
 			else:
-				signed_coeffs = pre_config[0]
-
-			Y_val = np.dot(dt, signed_coeffs)
+				coeffs = pre_config[0]
+				#print("coeffs ", coeffs)
+			#print(f"Coeff shape: {len(coeffs)}   dt shape:  {dt.shape}")
+			#Y_val = np.dot(dt, signed_coeffs)
+			Y_val = np.dot(dt, coeffs)
 			noise_scale = self.get_noise_scale(noise_level) * np.std(Y_val)
 			noise = np.random.normal(0, noise_scale, size=(x.shape[0]))
 			Y_val = Y_val + noise
@@ -291,7 +296,7 @@ class DataTransformer:
 			#mu_ 	= np.mean(Y_val);
 			#sdev_ 	= np.std(Y_val);
 			#Y_val 	= (Y_val - mu_) / sdev_;
-		return Y_val,(signed_coeffs,f_ids)
+		return Y_val,(coeffs,f_ids)
 
 
 	# EXAMPLE def nn(self,..):
@@ -321,12 +326,16 @@ class DataTransformer:
 			x[:,1] = s.reshape(-1)**2;
 			x[:,2] = s.reshape(-1)**3;
 			x[:,3] = s.reshape(-1)**4;
-		elif function_id==4:
-			x = np.zeros((s.shape[0],1))#,dtype=dt);
-			x[:,0] = np.sin(s).reshape(-1);
-		elif function_id==5:
-			x = np.zeros((s.shape[0],1))#,dtype=dt);
-			x[:,0] = np.cos(s).reshape(-1);
+		elif function_id == 4:
+			# Adaptive frequency scale
+			frequency_scale = 2 * np.pi / (np.max(s) - np.min(s) + 1e-6)
+			x = np.zeros((s.shape[0], 1))
+			x[:, 0] = np.sin(s * frequency_scale)
+
+		elif function_id == 5:
+			frequency_scale = 2 * np.pi / (np.max(s) - np.min(s) + 1e-6)
+			x = np.zeros((s.shape[0], 1))
+			x[:, 0] = np.cos(s * frequency_scale)
 		else:
 			print ('WARNING: unknown function id',function_id, 'encountered, returning column as-is...');
 			x = np.zeros((s.shape[0],1),dtype=dt);
@@ -344,3 +353,11 @@ class DataTransformer:
 			Y_val 	= (vals - mu_) / sdev_
 			new_data[:,n] = Y_val
 		return new_data
+
+
+'''elif function_id==4:
+			x = np.zeros((s.shape[0],1))#,dtype=dt);
+			x[:,0] = np.sin(s).reshape(-1);
+		elif function_id==5:
+			x = np.zeros((s.shape[0],1))#,dtype=dt);
+			x[:,0] = np.cos(s).reshape(-1);'''

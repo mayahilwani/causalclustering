@@ -418,7 +418,9 @@ class CC:
         labels_file = f"{self.filename}/node_labels.txt"
         np.savetxt(labels_file, self.node_labels, fmt="%d")
         # Fill methods_runtimes = {'cc': 0, 'gmm': 0, 'kmeans': 0, 'spectral': 0, 'gmm_res': 0, 'kmeans_res': 0, 'spectral_res': 0}
-        methods_runtimes['cc'] = total_run_time_my_function/number_runtimes
+        if number_runtimes != 0:
+            methods_runtimes['cc'] = total_run_time_my_function/number_runtimes
+        else: methods_runtimes['cc'] = 0
         if self.intv.size == 0:
             methods_runtimes['gmm'] = 0
             methods_runtimes['kmeans'] = 0

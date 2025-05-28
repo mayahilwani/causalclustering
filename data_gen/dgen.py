@@ -39,6 +39,7 @@ def gen_data(gt,num_samples=1000,intv_list=[],intv_id = 0, f_id = 0, intv_streng
 			x = data[:,pa_i]
 			parents_exist=True
 		curr_config = None if pre_config is None else pre_config[variable]
+		#print(curr_config)
 		tot,cfg = fx(x,num_samples,parents_exist, intv_strength, noise_level, curr_config)
 		data[:,variable]=tot.reshape(-1)
 		configs[variable]=cfg
