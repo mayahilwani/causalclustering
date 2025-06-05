@@ -1,0 +1,2 @@
+intervention_type, num_nodes, orig_data, intv_data, num_interventions
+flip, 10, 4000, 1000, 1
