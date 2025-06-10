@@ -16,8 +16,8 @@ class TraditionalClustering:
             (GaussianMixture(n_components=k, random_state=19), residuals.reshape(-1, 1), "gmm_res"),
             (KMeans(n_clusters=k, random_state=19), data_xy, "kmeans_xy"),
             (KMeans(n_clusters=k, random_state=19), residuals.reshape(-1, 1), "kmeans_res"),
-            (SpectralClustering(n_clusters=k, random_state=19, affinity='nearest_neighbors'), data_xy, "spectral_xy"),
-            (SpectralClustering(n_clusters=k, random_state=19, affinity='nearest_neighbors'), residuals.reshape(-1, 1),
+            (SpectralClustering(n_clusters=k, random_state=19), data_xy, "spectral_xy"), # , affinity='nearest_neighbors'
+            (SpectralClustering(n_clusters=k, random_state=19), residuals.reshape(-1, 1), #, affinity='nearest_neighbors'
              "spectral_res")
         ]:
             start_time = time.time()

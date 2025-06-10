@@ -8,7 +8,7 @@ import ast
 
 # --- Setup Paths ---
 #parent_dir = "./tests/test_50_2500_500_0_2_2_3_0_0_0_0/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
-parent_dir = "/Users/mayahilwani/PycharmProjects/tests/test_50_2500_500_3_1_2_2_0_0_1_0/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
+parent_dir = "/Users/mayahilwani/PycharmProjects/msc-mhilwani/tests/test_50_2250_250_3_0_2_3_0_0_3_2/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
 experiment_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))
 experiment_folders = [folder.replace("\\", "/") for folder in experiment_folders]
 
