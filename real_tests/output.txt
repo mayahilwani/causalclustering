@@ -1,0 +1,362 @@
+/usr/local/bin/python3 /Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/realData.py 
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+Max interactions set to degree  2
+!!!!!!!!!!!CPUS = 10!!!!!!!!!!!
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+loadtxt: input contained no data: "/Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/experiment1/interventions1.txt"
+FILE NAME /Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/experiment1
+ATTRIBUTES ['Rand', '11', '11672', '0', '0']
+Saving results to:  ./logs/log_2025-06-16_09:16:01.941743.txt
+self.V: 11
+dims: 11
+Edge 0:7
+Edge 0:8
+Edge 1:0
+Edge 1:7
+Edge 1:8
+Edge 2:4
+Edge 3:2
+Edge 3:4
+Edge 5:1
+Edge 5:7
+Edge 6:4
+Edge 6:7
+Edge 8:2
+Edge 8:3
+Edge 9:7
+Edge 9:8
+Edge 10:7
+Edge 10:8
+ORDERING [10, 9, 6, 5, 1, 0, 8, 3, 2, 4, 7]
+Interventions []
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+ITER 0
+Node 10 has no parents.
+ITER 1
+Node 9 has no parents.
+ITER 2
+Node 6 has no parents.
+ITER 3
+Node 5 has no parents.
+ITER 4
+NODE 1 has parents [5]
+Cost of ONE MODEL : [200557.31928942]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [196348.02554135]
+COST for splitting model with 2 is [196348.02554135]
+Splitting model with 2 is better with score  [4209.29374807]
+[196348.02554135]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [191814.67559861]
+COST for splitting model with 3 is [191814.67559861]
+Splitting model with 3 is better with score  [8742.64369081]
+[191814.67559861]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [194020.76104754]
+COST for splitting model with 4 is [194020.76104754]
+Splitting model with 4 is better with score  [6536.55824188]
+[194020.76104754]
+Best k is : 3
+ITER 5
+NODE 0 has parents [1]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+Cost of ONE MODEL : [159225.65499597]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [161821.36533934]
+COST for splitting model with 2 is [161821.36533934]
+Original model is better than 2 split, with cost difference [2595.71034336]
+[161821.36533934]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [164408.54999464]
+COST for splitting model with 3 is [164408.54999464]
+Original model is better than 3 split, with cost difference [5182.89499867]
+[164408.54999464]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [165004.20686624]
+COST for splitting model with 4 is [165004.20686624]
+Original model is better than 4 split, with cost difference [5778.55187027]
+[165004.20686624]
+Best k is : 2
+ITER 6
+NODE 8 has parents [ 0  1  9 10]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+Cost of ONE MODEL : [145155.76371739]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [148245.26006287]
+COST for splitting model with 2 is [148245.26006287]
+Original model is better than 2 split, with cost difference [3089.49634547]
+[148245.26006287]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [147863.16674341]
+COST for splitting model with 3 is [147863.16674341]
+Original model is better than 3 split, with cost difference [2707.40302601]
+[147863.16674341]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [149746.84083194]
+COST for splitting model with 4 is [149746.84083194]
+Original model is better than 4 split, with cost difference [4591.07711455]
+[149746.84083194]
+Best k is : 3
+ITER 7
+NODE 3 has parents [8]
+Cost of ONE MODEL : [194953.48655832]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [194631.84994771]
+COST for splitting model with 2 is [194631.84994771]
+Splitting model with 2 is better with score  [321.63661061]
+[194631.84994771]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [194774.08577171]
+COST for splitting model with 3 is [194774.08577171]
+Splitting model with 3 is better with score  [179.40078662]
+[194774.08577171]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [196033.92870535]
+COST for splitting model with 4 is [196033.92870535]
+Original model is better than 4 split, with cost difference [1080.44214703]
+[196033.92870535]
+Best k is : 2
+ITER 8
+NODE 2 has parents [3 8]
+Cost of ONE MODEL : [166339.85744089]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [162828.58444047]
+COST for splitting model with 2 is [162828.58444047]
+Splitting model with 2 is better with score  [3511.27300042]
+[162828.58444047]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [164522.99273336]
+COST for splitting model with 3 is [164522.99273336]
+Splitting model with 3 is better with score  [1816.86470753]
+[164522.99273336]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [165619.16626039]
+COST for splitting model with 4 is [165619.16626039]
+Splitting model with 4 is better with score  [720.6911805]
+[165619.16626039]
+Best k is : 2
+ITER 9
+NODE 4 has parents [2 3 6]
+Cost of ONE MODEL : [162157.6588093]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [162331.38192906]
+COST for splitting model with 2 is [162331.38192906]
+Original model is better than 2 split, with cost difference [173.72311975]
+[162331.38192906]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [162157.72217738]
+COST for splitting model with 3 is [162157.72217738]
+Original model is better than 3 split, with cost difference [0.06336808]
+[162157.72217738]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [163071.84555799]
+COST for splitting model with 4 is [163071.84555799]
+Original model is better than 4 split, with cost difference [914.18674869]
+[163071.84555799]
+Best k is : 3
+ITER 10
+NODE 7 has parents [ 0  1  5  6  9 10]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+Cost of ONE MODEL : [208785.30252956]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [210144.06116479]
+COST for splitting model with 2 is [210144.06116479]
+Original model is better than 2 split, with cost difference [1358.75863523]
+[210144.06116479]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [212031.94297161]
+COST for splitting model with 3 is [212031.94297161]
+Original model is better than 3 split, with cost difference [3246.64044204]
+[212031.94297161]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [213131.62531115]
+COST for splitting model with 4 is [213131.62531115]
+Original model is better than 4 split, with cost difference [4346.32278159]
+[213131.62531115]
+Best k is : 2
+0 INTERVENTIONS FOUND OUT OF 0 INTERVENTIONS
+ALL FOUND !!!
+loadtxt: input contained no data: "/Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/experiment1/interventions1.txt"
+Stats file written to: /Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/STATS1.txt
+Total intervention accuracy 0.7272727272727273 and Total final NMI scores []
+
+Process finished with exit code 0

@@ -72,6 +72,7 @@ class CC:
             # Standardize the loaded data in self.vars
             #normalized_vars = self.vars  # Standardize(self.vars)
             self.V = self.vars.shape[1]
+            print(f"self.V: {self.V}")
             self.result = np.zeros((self.V, self.vars.shape[0]))
             self.node_labels = np.zeros((self.V, self.vars.shape[0]))
             self.split = np.zeros(self.V)
@@ -107,6 +108,7 @@ class CC:
         # logger.WriteLog("BEGIN LOGGING FOR FILE: " + self.filename)
 
         dims = self.gt.shape[1]
+        print(f"dims: {dims}")
         g = Graph(dims)
 
         #if not needed_nodes:
@@ -118,6 +120,7 @@ class CC:
             for j in range(dims):
                 if self.gt[i, j] == 1:
                     g.addEdge(i, j)
+                    print(f"Edge {i}:{j}")
                     self.Edges[i][j] = Edge(i, j, [], 0)
         self.ordering = g.nonRecursiveTopologicalSort()
         #else:
@@ -368,7 +371,7 @@ class CC:
                     if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
                         #self.plot.plot_2d_results(only_one, pa_i, variable_index, final_labels, y_pred, y_pred1,
                          #                         y_pred2, labels_true)
-                        self.plot.plot_2d_other(pa_i, variable_index, final_labels, 'CC method')
+                        self.plot.plot_2d_other(pa_i, variable_index, labels_split, 'CC method')
                         self.plot.plot_2d_other(pa_i, variable_index, labels_true, 'True clusters')
                         self.plot.plot_2d_other(pa_i, variable_index, kmeans_labels, "KMeans")
                         self.plot.plot_2d_other(pa_i, variable_index, kmeans_res_labels, "KMeans on residuals")
@@ -379,7 +382,7 @@ class CC:
 
                     # PLOT THE FINAL RESULT IF 2 PARENTS
                     if len(pa_i) == 2:  # Only plot when there are two parents (3D case)
-                        self.plot.plot_3d_other(pa_i, variable_index, final_labels, 'CC method')
+                        self.plot.plot_3d_other(pa_i, variable_index, labels_split, 'CC method')
                         self.plot.plot_3d_other(pa_i, variable_index, labels_true, 'True clusters')
                         self.plot.plot_3d_other(pa_i, variable_index, kmeans_labels, "KMeans")
                         self.plot.plot_3d_other(pa_i, variable_index, kmeans_res_labels, "KMeans on residuals")

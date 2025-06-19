@@ -1,0 +1,2 @@
+intervention_type, num_nodes, orig_data, intv_data, num_interventions
+Rand, 2, 299, 0, 1

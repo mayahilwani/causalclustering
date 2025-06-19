@@ -69,7 +69,7 @@ class CCWrapper:
 
         # Start time for the test case
         start_time = time.time()
-
+        print(f"ATTRIBUTES {attributes}")
         # Get interventions found and accuracies
         intv_found_acc, final_ari_scores, TP, TN, FP, FN, runtimes = self.idk(filename1, int(attributes[1]), k, needed_nodes,
                                                                     rand, mdl_th)

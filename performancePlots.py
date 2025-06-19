@@ -8,7 +8,7 @@ import ast
 
 # --- Setup Paths ---
 #parent_dir = "./tests/test_50_2500_500_0_2_2_3_0_0_0_0/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
-parent_dir = "/Users/mayahilwani/PycharmProjects/msc-mhilwani/tests/test_50_2250_250_3_0_2_3_0_0_3_2/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
+parent_dir = "/Users/mayahilwani/PycharmProjects/msc-mhilwani/tests/test_50_4000_1000_0_2_2_3_0_0_2_1/"    #test_50_2000_500_3_0_2_3_0_0_1_0  test_50_2000_500_3_1_2_3_0_0_1_2   test_50_2000_500_3_2_2_3_0_0_1_2
 experiment_folders = sorted(glob.glob(os.path.join(parent_dir, "experiment*")))
 experiment_folders = [folder.replace("\\", "/") for folder in experiment_folders]
 
@@ -63,8 +63,8 @@ for num_parents, count in tp_counts.items():
 
 # --- ARI Score Boxplot (TP only) ---
 filtered_df = df[(df["true_split"] == 1) & (df["found_split"] == 1) & (df["num_parents"].isin([1, 2, 3, 4]))]
-#ari_cols = ["cc_ari", "gmm_ari", "gmm_ari_res", "kmeans_ari", "kmeans_ari_res", "spectral_ari", "spectral_ari_res"]
-nmi_cols = ["cc_nmi", "gmm_nmi","gmm_nmi_res", "kmeans_nmi",  "kmeans_nmi_res", "spectral_nmi", "spectral_nmi_res"]
+ari_cols = ["cc_ari", "gmm_ari", "gmm_ari_res", "kmeans_ari", "kmeans_ari_res", "spectral_ari", "spectral_ari_res"]
+#nmi_cols = ["cc_nmi", "gmm_nmi","gmm_nmi_res", "kmeans_nmi",  "kmeans_nmi_res", "spectral_nmi", "spectral_nmi_res"]
 
 '''tp_1 = tp_df[tp_df["num_parents"] == 1]
 print("Non-NaN values for num_parents = 1:")
@@ -74,7 +74,8 @@ print(tp_1[nmi_cols].notna().sum())'''
 melted_df = pd.melt(
     filtered_df,
     id_vars=["num_parents"],
-    value_vars=nmi_cols,
+    #value_vars=nmi_cols,
+    value_vars=ari_cols,
     var_name="method",
     value_name="score"
 )
@@ -85,11 +86,11 @@ sns.boxplot(data=melted_df,
     x="method",
     y="score",
     hue="num_parents")
-#plt.title("ARI Score Comparison (True & Found Split)")
-plt.title("NMI Score Comparison for TP")
+plt.title("ARI Score Comparison (True & Found Split)")
+#plt.title("NMI Score Comparison for TP")
 plt.xticks(rotation=15)
-#plt.ylabel("ARI Score")
-plt.ylabel("NMI Score")
+plt.ylabel("ARI Score")
+#plt.ylabel("NMI Score")
 plt.xlabel("Methods")
 plt.tight_layout()
 plt.show()
@@ -97,19 +98,19 @@ print('First box plot with all TP cases')
 #plt.close()
 
 # Convert ARI columns to numeric if not already
-#low_score_df[ari_cols] = low_score_df[ari_cols].apply(pd.to_numeric, errors="coerce")
-low_score_df[nmi_cols] = low_score_df[nmi_cols].apply(pd.to_numeric, errors="coerce")
+low_score_df[ari_cols] = low_score_df[ari_cols].apply(pd.to_numeric, errors="coerce")
+#low_score_df[nmi_cols] = low_score_df[nmi_cols].apply(pd.to_numeric, errors="coerce")
 
 # Check if we have any data to plot
 if not low_score_df.empty:
     plt.figure(figsize=(8, 6))
-    #sns.boxplot(data=low_score_df[ari_cols])
-    sns.boxplot(data=low_score_df[nmi_cols])
+    sns.boxplot(data=low_score_df[ari_cols])
+    #sns.boxplot(data=low_score_df[nmi_cols])
     #plt.title("ARI Score Comparison (k=2 & true_score_diff ≤ 0)")
     plt.title("NMI Score Comparison (k=2 & true_score_diff ≤ 0)")
     plt.xticks(rotation=15)
-    #plt.ylabel("ARI Score")
-    plt.ylabel("NMI Score")
+    plt.ylabel("ARI Score")
+    #plt.ylabel("NMI Score")
     plt.xlabel("Methods")
     plt.tight_layout()
     plt.show()

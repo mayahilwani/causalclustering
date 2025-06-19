@@ -1,0 +1,106 @@
+/usr/local/bin/python3 /Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/realData.py 
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+Max interactions set to degree  2
+!!!!!!!!!!!CPUS = 10!!!!!!!!!!!
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+loadtxt: input contained no data: "/Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/experiment1/interventions1.txt"
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+FILE NAME /Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/experiment1
+ATTRIBUTES ['Rand', '11', '11672', '0', '0']
+Saving results to:  ./logs/log_2025-06-16_08:19:06.358318.txt
+self.V: 11
+dims: 11
+Edge 0:7
+Edge 0:8
+Edge 1:0
+Edge 1:7
+Edge 1:8
+Edge 2:4
+Edge 3:2
+Edge 3:4
+Edge 5:1
+Edge 5:7
+Edge 6:4
+Edge 6:7
+Edge 8:2
+Edge 8:3
+Edge 9:7
+Edge 9:8
+Edge 10:7
+Edge 10:8
+ORDERING [10, 9, 6, 5, 1, 0, 8, 3, 2, 4, 7]
+Interventions []
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+No GPU automatically detected. Setting SETTINGS.GPU to 0, and SETTINGS.NJOBS to cpu_count.
+ITER 4
+NODE 1 has parents [5]
+Cost of ONE MODEL : [200557.31928942]
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [196348.02554135]
+COST for splitting model with 2 is [196348.02554135]
+Splitting model with 2 is better with score  [4209.29374807]
+FigureCanvasAgg is non-interactive, and thus cannot be shown
+No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+[196348.02554135]
+INITIAL SPLIT :  0
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [191814.67559861]
+COST for splitting model with 3 is [191814.67559861]
+Splitting model with 3 is better with score  [8742.64369081]
+FigureCanvasAgg is non-interactive, and thus cannot be shown
+No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+[191814.67559861]
+INITIAL SPLIT :  0
+divide by zero encountered in matmul
+overflow encountered in matmul
+invalid value encountered in matmul
+COST SPLIT [194020.76104754]
+COST for splitting model with 4 is [194020.76104754]
+Splitting model with 4 is better with score  [6536.55824188]
+FigureCanvasAgg is non-interactive, and thus cannot be shown
+No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`). Consider using `matplotlib.pyplot.close()`.
+[194020.76104754]
+INITIAL SPLIT :  0
+Best k is : 3
+0 INTERVENTIONS FOUND OUT OF 0 INTERVENTIONS
+ALL FOUND !!!
+loadtxt: input contained no data: "/Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/experiment1/interventions1.txt"
+Stats file written to: /Users/mayahilwani/PycharmProjects/msc-mhilwani/real_tests/STATS1.txt
+Total intervention accuracy 0.9090909090909091 and Total final NMI scores []
+
+Process finished with exit code 0
