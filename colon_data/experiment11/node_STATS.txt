@@ -1,0 +1,2 @@
+id,num_parents,k,true_split,found_split,gmm_bic,score_diff,true_score_diff,num_iter,initial_split,per_intv,parent_intv,cc_ari,gmm_ari,gmm_ari_res,kmeans_ari,kmeans_ari_res,spectral_ari,spectral_ari_res,cc_nmi,gmm_nmi,gmm_nmi_res,kmeans_nmi,kmeans_nmi_res,spectral_nmi,spectral_nmi_res,cc_fmi,gmm_fmi,gmm_fmi_res,kmeans_fmi,kmeans_fmi_res,spectral_fmi,spectral_fmi_res
+1,1,2,1,0,1,-979,0,3,0,48.49498327759198,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0,0.7108243433070014,0.7077010953042852,0.7084595106942772,0.7072266726771226,0.7113278234190076,0.884923203407365

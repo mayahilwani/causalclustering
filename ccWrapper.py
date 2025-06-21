@@ -40,7 +40,7 @@ class CCWrapper:
         pool = multiprocessing.Pool(processes=16)  # Use all available CPUs
 
         # Prepare the arguments for each test case
-        tasks = [(i, file_path, n, k, needed_nodes, rand, mdl_th, stats_file) for i in range(n)]
+        tasks = [(i, file_path, n, k, needed_nodes, rand, mdl_th, stats_file) for i in range(n)] # remove 6,
 
         # Map the tasks to the processes in the pool
         results = pool.starmap(self.process_test_case, tasks)

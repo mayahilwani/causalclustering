@@ -18,7 +18,17 @@ def save_experiment(x_key, y_key, folder_name):
 
     # Combine into DataFrame
     df = pd.DataFrame({'x': x, 'y': y})
-    # Print row count for attribute file update
+
+    # Duplicate the DataFrame (double the rows)
+    df = pd.concat([df, df], ignore_index=True)
+    # Duplicate again (x4)
+    df = pd.concat([df, df], ignore_index=True)
+    # Duplicate again (x8)
+    df = pd.concat([df, df], ignore_index=True)
+    # Duplicate again (x16)
+    df = pd.concat([df, df], ignore_index=True)
+
+    # Print row count for verification
     print(f"{folder_name}: Total rows = {len(df)}")
 
     # Create folder and save as TXT without header
@@ -29,6 +39,6 @@ def save_experiment(x_key, y_key, folder_name):
 
 
 # Save data for each experiment
-save_experiment('x1', 'y1', 'experiment1')
-save_experiment('x2', 'y2', 'experiment2')
-save_experiment('x3', 'y3', 'experiment3')
+save_experiment('x1', 'y1', 'experiment10')
+save_experiment('x2', 'y2', 'experiment11')
+save_experiment('x3', 'y3', 'experiment12')

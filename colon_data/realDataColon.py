@@ -9,11 +9,11 @@ def run_code(n, k, r, mdl_th):
 
     # Initialize SpotWrapper
     cc = CCWrapper()
-    cc.generate_stats(datapath, n, 3, [1], r, mdl_th )
+    cc.generate_stats(datapath, n, 2, [1], r, mdl_th )
 
 def main():
 
-    run_code(3,4,False, False)
+    run_code(12,2,False, False)
 
 
 if __name__ == "__main__":
