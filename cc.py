@@ -339,6 +339,7 @@ class CC:
                         #self.foundIntv.append(variable_index)
                         is_intv_found_k = 1
                         is_intv_found = 1
+                        final_labels = labels_split
                         # Compute CC method clustering metrics
                         cc_ari = adjusted_rand_score(labels_true, labels_split)
                         cc_nmi = normalized_mutual_info_score(labels_true, labels_split)
@@ -367,6 +368,7 @@ class CC:
                 else: print(f"Original model is better with cost {cost_all}  SPLITTING with {clusters} clusters NOT POSSIBLE")
 
                 if needed_nodes:
+                    #np.savetxt("truth_labels_8.txt", final_labels, fmt="%d", delimiter=",")
                     # PLOTING THE FINAL RESULT IF ONLY 1 PARENT
                     if len(pa_i) == 1:  # Only plot when there's a single parent (2D case)
                         #self.plot.plot_2d_results(only_one, pa_i, variable_index, final_labels, y_pred, y_pred1,

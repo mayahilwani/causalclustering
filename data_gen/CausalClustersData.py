@@ -66,7 +66,7 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2, intv_strength=0, n
                     # Generate INTERVENTION data
                     all_data = [data1]  # Start with original data
                     valid_intv_list = None  # To ensure consistency across interventions
-
+                    changingstrength = 1
                     for i in range(n_intv):  # Loop for c-1 interventions
                         new_n_samples = intv  # Number of intervention datapoints
 
@@ -75,8 +75,8 @@ def generate_data(filepath, n, orig, intv, intv_type, f, c=2, intv_strength=0, n
                             intv_list1 = list(np.random.choice(nd, intv_count, replace=False))
                             valid_intv_list = [interv for interv in intv_list1 if np.where(graph[:, interv] == 1)[0].size > 0]
 
-                        data2, _, intv_name = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, intv_strength, noise_level, pre_config)
-
+                        data2, _, intv_name = gen_data(graph, new_n_samples, valid_intv_list, intv_type, f, intv_strength + changingstrength, noise_level, pre_config)
+                        changingstrength += 1
                         if all_data[0].shape[1] != data2.shape[1]:
                             raise ValueError(
                                 "The two files must have the same number of columns for vertical concatenation.")

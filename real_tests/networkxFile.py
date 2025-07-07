@@ -97,14 +97,14 @@ if __name__ == "__main__":
     verbose = True
     file_path = "sachs_yuhaow.csv"
     df = pd.read_csv("sachs_yuhaow.csv", delimiter="\t")
-    df_no_experiment = df.drop(columns=["experiment"])
-    print(f"shape: {df_no_experiment.shape}")
-    print(f"df.head(): {df_no_experiment.head()}")
+    #df_no_experiment = df.drop(columns=["experiment"])
+    #print(f"shape: {df_no_experiment.shape}")
+    #print(f"df.head(): {df_no_experiment.head()}")
     #df_no_experiment.to_csv("data2.txt", sep=",", index=False)
-    df.to_csv("full_data.txt", sep=",", index=False, header=False)
+    #df.to_csv("full_data.txt", sep=",", index=False, header=False)
     intv_args_dict, mixture_samples, num_nodes, idx2var_dict, true_A = generate_mixture_sachs(file_path, verbose)
     true_graph = nx.from_numpy_array(true_A.T, create_using=nx.DiGraph)
-    #np.savetxt("truth1.txt", true_A, fmt="%d", delimiter=",")
+    np.savetxt("truth1.txt", true_A.T, fmt="%d", delimiter=",")
 
     if verbose:  print("Causal Edges:\n" + ", ".join([f"{idx2var_dict[e[0]]}->{idx2var_dict[e[1]]}" for e in true_graph.edges]))
 
