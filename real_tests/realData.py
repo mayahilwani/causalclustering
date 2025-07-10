@@ -19,7 +19,7 @@ def run_code(n, k, r, mdl_th):
 
 def main():
 
-    run_code(1,2,False, False)
+    #run_code(1,2,False, False)
     data_file = "full_data.txt"
     data = np.loadtxt(data_file, delimiter=',')
     # Create label arrays for the full dataset

@@ -13,7 +13,7 @@ def run_code(n, k, r, mdl_th):
 
 def main():
 
-    run_code(12,2,False, False)
+    run_code(3,2,False, False)
 
 
 if __name__ == "__main__":

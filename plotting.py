@@ -211,5 +211,7 @@ class Plotting:
 
         # Optional save
         # plt.savefig(f'{name}_3d_clusters_variable_{variable_index}_parents_{pa_i[0]}_{pa_i[1]}.pdf', format='pdf', dpi=300)
+        ax.view_init(elev=10, azim=225)  # set desired angle
 
+        plt.savefig(f'{name}_3d_clusters_var_{variable_index}_parents_{pa_i[0]}_{pa_i[1]}.pdf', format='pdf', dpi=300)
         plt.show()

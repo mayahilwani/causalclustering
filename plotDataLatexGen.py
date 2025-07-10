@@ -15,43 +15,43 @@ list_folder_names = [
     "test_50_2000_500_1_2_2_3_0_0_2_1",
     "test_50_2000_500_1_2_2_3_0_0_2_2",
     "test_50_2000_500_1_2_2_3_0_0_3_2",
-    #"test_50_2000_500_3_2_2_3_0_0_1_0",
-    #"test_50_2000_500_3_2_2_3_0_0_1_1",
+    "test_50_2000_500_3_2_2_3_0_0_1_0",
+    "test_50_2000_500_3_2_2_3_0_0_1_1",
     #"test_50_2000_500_3_2_2_3_0_0_1_2",
-    #"test_50_2000_500_3_2_2_3_0_0_2_1",
-    #"test_50_2000_500_3_2_2_3_0_0_2_2",
-    #"test_50_2000_500_3_2_2_3_0_0_3_2",
+    "test_50_2000_500_3_2_2_3_0_0_2_1",
+    "test_50_2000_500_3_2_2_3_0_0_2_2",
+    "test_50_2000_500_3_2_2_3_0_0_3_2",
 
-    #"test_50_2000_500_0_1_2_3_0_0_0_0",
-    #"test_50_2000_500_0_1_2_3_0_0_0_1",
-    #"test_50_2000_500_0_1_2_3_0_0_0_2",
-    #"test_50_2000_500_0_1_2_3_0_0_4_2",
-    #"test_50_2000_500_1_1_2_3_0_0_1_0",
-    #"test_50_2000_500_1_1_2_3_0_0_1_1",
-    #"test_50_2000_500_1_1_2_3_0_0_2_1",
-    #"test_50_2000_500_1_1_2_3_0_0_2_2",
-    #"test_50_2000_500_1_1_2_3_0_0_3_2",
-    #"test_50_2000_500_3_1_2_3_0_0_1_0",
-    #"test_50_2000_500_3_1_2_3_0_0_1_1",
+    "test_50_2000_500_0_1_2_3_0_0_0_0",
+    "test_50_2000_500_0_1_2_3_0_0_0_1",
+    "test_50_2000_500_0_1_2_3_0_0_0_2",
+    "test_50_2000_500_0_1_2_3_0_0_4_2",
+    "test_50_2000_500_1_1_2_3_0_0_1_0",
+    "test_50_2000_500_1_1_2_3_0_0_1_1",
+    "test_50_2000_500_1_1_2_3_0_0_2_1",
+    "test_50_2000_500_1_1_2_3_0_0_2_2",
+    "test_50_2000_500_1_1_2_3_0_0_3_2",
+    "test_50_2000_500_3_1_2_3_0_0_1_0",
+    "test_50_2000_500_3_1_2_3_0_0_1_1",
     #"test_50_2000_500_3_1_2_3_0_0_1_2",
-    #"test_50_2000_500_3_1_2_3_0_0_2_1",
-    #"test_50_2000_500_3_1_2_3_0_0_2_2",
-    #"test_50_2000_500_3_1_2_3_0_0_3_2",
-    #"test_50_2000_500_3_1_2_3_0_0_4_2",
+    "test_50_2000_500_3_1_2_3_0_0_2_1",
+    "test_50_2000_500_3_1_2_3_0_0_2_2",
+    "test_50_2000_500_3_1_2_3_0_0_3_2",
+    "test_50_2000_500_3_1_2_3_0_0_4_2",
 
-    #"test_50_2000_500_0_0_2_3_0_0_0_0",
-    #"test_50_2000_500_0_0_2_3_0_0_0_1",
-    #"test_50_2000_500_0_0_2_3_0_0_0_2",
-    #"test_50_2000_500_1_0_2_3_0_0_0_0",
-    #"test_50_2000_500_1_0_2_3_0_0_1_0",
-    #"test_50_2000_500_1_0_2_3_0_0_2_0",
-    #"test_50_2000_500_1_0_2_3_0_0_2_1",
-    #"test_50_2000_500_1_0_2_3_0_0_3_2",
-    #"test_50_2000_500_1_0_2_3_0_0_4_2",
-    #"test_50_2000_500_3_0_2_3_0_0_0_0",
-    #"test_50_2000_500_3_0_2_3_0_0_1_0",
-    #"test_50_2000_500_3_0_2_3_0_0_2_1",
-    #"test_50_2000_500_3_0_2_3_0_0_3_2"
+    "test_50_2000_500_0_0_2_3_0_0_0_0",
+    "test_50_2000_500_0_0_2_3_0_0_0_1",
+    "test_50_2000_500_0_0_2_3_0_0_0_2",
+    "test_50_2000_500_1_0_2_3_0_0_0_0",
+    "test_50_2000_500_1_0_2_3_0_0_1_0",
+    "test_50_2000_500_1_0_2_3_0_0_2_0",
+    "test_50_2000_500_1_0_2_3_0_0_2_1",
+    "test_50_2000_500_1_0_2_3_0_0_3_2",
+    "test_50_2000_500_1_0_2_3_0_0_4_2",
+    "test_50_2000_500_3_0_2_3_0_0_0_0",
+    "test_50_2000_500_3_0_2_3_0_0_1_0",
+    "test_50_2000_500_3_0_2_3_0_0_2_1",
+    "test_50_2000_500_3_0_2_3_0_0_3_2"
     #"test_50_200_50_0_2_2_3_0_0_2_1",
     #"test_50_200_50_3_1_2_3_0_0_2_1",
     #"test_50_200_50_3_2_2_3_0_0_2_1",
@@ -108,7 +108,7 @@ if all_data:
     merged_df_pos = merged_df_pos[columns_to_keep]
     merged_df_tp_tn = merged_df[(merged_df["true_score_diff"] >= 0) ] #& (merged_df["true_score_diff"] < 2000)
     output_folder = os.path.join(base_path, "final_results") # _low_n
-    output_file = os.path.join(output_folder, "scale_periodic_ARI_pos.csv") # _low_n
+    output_file = os.path.join(output_folder, "fp_ARI_pos.csv") # _low_n
     merged_df_pos.to_csv(output_file, index=False)
     print(f"Merged results saved as '{output_file}'")
     print(f"ACTUAL TRUE SPLITS : {merged_df[(merged_df["true_split"] == 1)].shape[0]}")
@@ -136,7 +136,7 @@ if all_data:
         "False Positives MT40": MT40,
     }])
 
-    confusion_file = os.path.join(output_folder, "scale_periodic_confusion_summary.csv") # _low_n
+    confusion_file = os.path.join(output_folder, "fp_confusion_summary.csv") # _low_n
     confusion_summary.to_csv(confusion_file, index=False)
     print(f"Confusion matrix summary saved to '{confusion_file}'")
 
@@ -205,7 +205,7 @@ if all_data:
     # Apply custom labels
     ax.set_xticklabels([custom_labels[label.get_text()] for label in ax.get_xticklabels()])
     plt.tight_layout()
-    plt.savefig("tests/final_results/scale_periodic_ARI_pos.pdf", bbox_inches="tight", dpi=300)
+    plt.savefig("tests/final_results/fp_ARI_pos.pdf", bbox_inches="tight", dpi=300)
     plt.show()
 
     # Convert ARI columns to numeric if not already
