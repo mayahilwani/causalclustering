@@ -36,7 +36,73 @@ def main():
     print(f"ARI for node 6 (experiment 3): {ari_6:.4f}")
     print(f"ARI for node 8 (experiment 4): {ari_8:.4f}")
 
-    # === CLUSTERING EVALUATION ===
+    # Pastel colors
+    pastel_blue = "#AEC6CF"
+    pastel_orange = "#FFDAB9"
+    colors = [pastel_blue, pastel_orange]
+
+    def plot_node_vs_parents(node_index, parent_indices, labels, title, filename):
+        node_values = data[:, node_index]
+        parent1_values = data[:, parent_indices[0]]
+        parent2_values = data[:, parent_indices[1]]
+
+        fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+        for ax, parent_values, parent_idx in zip(axes, [parent1_values, parent2_values], parent_indices):
+            for label in np.unique(labels):
+                mask = labels == label
+                ax.scatter(
+                    parent_values[mask],
+                    node_values[mask],
+                    label=f"Cluster {label}",
+                    alpha=0.6,
+                    color=colors[label]
+                )
+            ax.set_xlabel(f"Parent X{parent_idx}")
+            ax.set_ylabel(f"Node X{node_index}")
+            ax.set_title(f"X{node_index} vs X{parent_idx}")
+
+        plt.suptitle(title)
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        plt.savefig(filename, bbox_inches='tight')
+        plt.close()
+        print(f"Saved plot to {filename}")
+
+    '''# Plot for node 6 (parents 4, 7)
+    plot_node_vs_parents(
+        node_index=6,
+        parent_indices=[4, 7],
+        labels=found_labels_6,
+        title=f"Node 6 vs Parents (Found Labels)\nARI: {ari_6:.2f}",
+        filename="node6_found.pdf"
+    )
+
+    # Plot for node 8 (parents 3, 2)
+    plot_node_vs_parents(
+        node_index=8,
+        parent_indices=[3, 2],
+        labels=found_labels_8,
+        title=f"Node 8 vs Parents (Found Labels)\nARI: {ari_8:.2f}",
+        filename="node8_found.pdf"
+    )'''
+
+    plot_node_vs_parents(
+        node_index=6,
+        parent_indices=[4, 7],
+        labels=true_labels_6,
+        title=f"Node 6 vs Parents (True Labels)\nARI: {ari_6:.2f}",
+        filename="node6_true.pdf"
+    )
+
+    # Plot for node 8 (parents 3, 2)
+    plot_node_vs_parents(
+        node_index=8,
+        parent_indices=[3, 2],
+        labels=true_labels_8,
+        title=f"Node 8 vs Parents (True Labels)\nARI: {ari_8:.2f}",
+        filename="node8_true.pdf"
+    )
+    '''# === CLUSTERING EVALUATION ===
 
     print(f"\n--- ARI Scores from Clustering Methods ---")
 
@@ -58,8 +124,8 @@ def main():
     spectral_labels_6 = spectral_6.labels_
     print(f"Spectral ARI (Node 6): {adjusted_rand_score(true_labels_6, spectral_labels_6):.4f}")
 
-    # --- Experiment 4: Node 8 (variables 8, 3, 2) ---
-    X_8 = data[:, [8, 3, 2]]
+        # --- Experiment 4: Node 8 (variables 8, 3, 2) ---
+        X_8 = data[:, [8, 3, 2]]
 
     # GMM
     gmm_8 = GaussianMixture(n_components=2, random_state=42).fit(X_8)
@@ -75,7 +141,7 @@ def main():
     spectral_8 = SpectralClustering(n_clusters=2, affinity='nearest_neighbors', random_state=42).fit(X_8)
     spectral_labels_8 = spectral_8.labels_
     print(f"Spectral ARI (Node 8): {adjusted_rand_score(true_labels_8, spectral_labels_8):.4f}")
-
+'''
 
 '''
     # (6, 4, 7, 3)

@@ -1,2 +1,0 @@
-intervention_type, num_nodes, orig_data, intv_data, num_interventions
-shift, 10, 1500, 1000, 1

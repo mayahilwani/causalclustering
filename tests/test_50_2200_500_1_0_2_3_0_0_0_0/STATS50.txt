@@ -1,1 +1,0 @@
-id,intervention,dag_size,orig_data,intv_data,TP,TN,FP,FN,intv_acc,avg_ari_score,elapsed_time,method_time,gmm_time,kmeans_time,spectral_time,gmm_res_time,kmeans_res_time,spectral_res_time
